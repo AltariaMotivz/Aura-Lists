@@ -1,0 +1,21 @@
+{
+"name": "Crystal Wishlist",
+"short_name": "Wishlist",
+"start_url": "/",
+"display": "standalone",
+"background_color": "#f1f5f9",
+"theme_color": "#f1f5f9",
+"description": "A magical place to share your wishes with friends.",
+"icons": [
+{
+"src": "icons/icon-192x192.png",
+"sizes": "192x192",
+"type": "image/png"
+},
+{
+"src": "icons/icon-512x512.png",
+"sizes": "512x512",
+"type": "image/png"
+}
+]
+}

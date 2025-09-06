@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Crystal Wishlist</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#f1f5f9">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Styles & Liquid Glass Magic --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* A soft, cloud-like background */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .glass-effect {
+            background-color: rgba(255, 255, 255, 0.6); /* Translucent white */
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(209, 213, 219, 0.3); /* Faint border */
+            border-radius: 1.5rem; /* Soft, rounded corners like polished glass */
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); /* Subtle shadow for depth */
+        }
+        
+        .ios-button {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .ios-button:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+        
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        /* --- Scrollbar Styling --- */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased selection:bg-blue-200">
+
+    <!-- App Container -->
+    <div id="app" class="max-w-md mx-auto h-screen flex flex-col p-4">
+
+        <!-- Header -->
+        <header class="text-center py-4 shrink-0">
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">Crystal Wishlist</h1>
+            <p id="userIdDisplay" class="text-xs text-slate-400 mt-2 font-mono break-all"></p>
+        </header>
+
+        <!-- Main Content -->
+        <main id="mainContent" class="flex-grow overflow-y-auto pb-24 space-y-4">
+            <!-- Wishlists will be rendered here -->
+            <div id="wishlistContainer" class="space-y-6">
+                <!-- Loading indicator -->
+                <div id="loading" class="text-center p-8">
+                    <svg class="animate-spin h-8 w-8 text-slate-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <p class="mt-2 text-slate-500">Conjuring your wishes...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Action Button to Add Wishlist -->
+        <div class="absolute bottom-6 right-6">
+            <button id="addWishlistBtn" class="ios-button bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+            </button>
+        </div>
+
+        <!-- Add Wishlist Modal -->
+        <div id="addWishlistModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+            <div class="glass-effect w-full max-w-sm p-6 space-y-4">
+                <h2 class="text-2xl font-bold text-slate-900">New Wishlist Category</h2>
+                <input type="text" id="wishlistNameInput" placeholder="e.g., Birthday Wishes" class="w-full px-4 py-3 bg-white/80 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <div class="flex justify-end space-x-3">
+                    <button id="cancelAddWishlist" class="ios-button px-6 py-2 bg-slate-200/80 text-slate-700 rounded-lg font-semibold">Cancel</button>
+                    <button id="saveWishlist" class="ios-button px-6 py-2 bg-blue-500 text-white rounded-lg font-semibold">Create</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Item Modal -->
+        <div id="addItemModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+            <div class="glass-effect w-full max-w-sm p-6 space-y-4">
+                 <h2 class="text-2xl font-bold text-slate-900">Add a New Wish</h2>
+                 <input type="text" id="itemNameInput" placeholder="What is your heart's desire?" class="w-full px-4 py-3 bg-white/80 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                 <div class="flex justify-end space-x-3">
+                    <button id="cancelAddItem" class="ios-button px-6 py-2 bg-slate-200/80 text-slate-700 rounded-lg font-semibold">Cancel</button>
+                    <button id="saveItem" class="ios-button px-6 py-2 bg-blue-500 text-white rounded-lg font-semibold">Add Wish</button>
+                 </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase Magic -->
+    <script type="module">
+        // --- Firebase Spells (Configuration & Initialization) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, setLogLevel, collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // IMPORTANT: Replace this with your own Firebase configuration!
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdAVpYhcdurxJLnZmvesIEHsN3pBWquF8",
+            authDomain: "crystal-wishlist.firebaseapp.com",
+            projectId: "crystal-wishlist",
+            storageBucket: "crystal-wishlist.firebasestorage.app",
+            messagingSenderId: "383897040491",
+            appId: "1:383897040491:web:4a67e7549a8ed75e1a232e",
+            measurementId: "G-CRL695ERCJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        setLogLevel('debug');
+
+        let currentUserId = null;
+        let activeWishlistId = null;
+
+        // --- Authentication Charm ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                console.log("Fairy dust sparkles! User is signed in:", user.uid);
+                currentUserId = user.uid;
+                document.getElementById('userIdDisplay').textContent = `Your Magic ID: ${currentUserId}`;
+                fetchWishlists();
+            } else {
+                console.log("Casting a spell to sign in anonymously...");
+                signInAnonymously(auth).catch(error => {
+                    console.error("Oh no, the spell failed!", error);
+                });
+            }
+        });
+
+        // --- DOM Elements ---
+        const wishlistContainer = document.getElementById('wishlistContainer');
+        const loadingIndicator = document.getElementById('loading');
+        
+        // Wishlist Modal
+        const addWishlistBtn = document.getElementById('addWishlistBtn');
+        const addWishlistModal = document.getElementById('addWishlistModal');
+        const wishlistNameInput = document.getElementById('wishlistNameInput');
+        const saveWishlistBtn = document.getElementById('saveWishlist');
+        const cancelAddWishlistBtn = document.getElementById('cancelAddWishlist');
+
+        // Item Modal
+        const addItemModal = document.getElementById('addItemModal');
+        const itemNameInput = document.getElementById('itemNameInput');
+        const saveItemBtn = document.getElementById('saveItem');
+        const cancelAddItemBtn = document.getElementById('cancelAddItem');
+
+        // --- Modal Spellbook ---
+        const openModal = (modal) => modal.classList.remove('hidden');
+        const closeModal = (modal) => modal.classList.add('hidden');
+
+        addWishlistBtn.addEventListener('click', () => openModal(addWishlistModal));
+        cancelAddWishlistBtn.addEventListener('click', () => closeModal(addWishlistModal));
+        cancelAddItemBtn.addEventListener('click', () => closeModal(addItemModal));
+
+        // --- Firestore Incantations (CRUD for Wishlists & Items) ---
+
+        // Create Wishlist
+        saveWishlistBtn.addEventListener('click', async () => {
+            const name = wishlistNameInput.value.trim();
+            if (name && currentUserId) {
+                try {
+                    await addDoc(collection(db, `users/${currentUserId}/wishlists`), { name });
+                    wishlistNameInput.value = '';
+                    closeModal(addWishlistModal);
+                } catch (error) {
+                    console.error("A mischievous pixie interfered with wishlist creation:", error);
+                }
+            }
+        });
+        
+        // Create Wishlist Item
+        saveItemBtn.addEventListener('click', async () => {
+            const name = itemNameInput.value.trim();
+            if(name && currentUserId && activeWishlistId) {
+                try {
+                    await addDoc(collection(db, `users/${currentUserId}/wishlists/${activeWishlistId}/items`), { 
+                        name,
+                        isComplete: false
+                    });
+                    itemNameInput.value = '';
+                    closeModal(addItemModal);
+                } catch (error) {
+                    console.error("A goblin stole the wish! Item creation failed:", error);
+                }
+            }
+        });
+
+
+        // Fetch and Render Wishlists (Real-time)
+        function fetchWishlists() {
+            if (!currentUserId) return;
+            const wishlistsCol = collection(db, `users/${currentUserId}/wishlists`);
+            onSnapshot(wishlistsCol, (snapshot) => {
+                loadingIndicator.classList.add('hidden');
+                wishlistContainer.innerHTML = ''; // Clear old wishlists
+                if(snapshot.empty) {
+                     wishlistContainer.innerHTML = `<p class="text-center text-slate-500 py-8">Your wish book is empty.<br>Tap the '+' to create a new category!</p>`;
+                } else {
+                    snapshot.docs.forEach(doc => {
+                        const wishlist = { id: doc.id, ...doc.data() };
+                        const wishlistElement = createWishlistElement(wishlist);
+                        wishlistContainer.appendChild(wishlistElement);
+                    });
+                }
+            }, error => {
+                console.error("The crystal ball is cloudy... could not fetch wishlists:", error);
+            });
+        }
+        
+        function createWishlistElement(wishlist) {
+            const div = document.createElement('div');
+            div.className = 'glass-effect p-4';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xl font-bold text-slate-800">${escapeHTML(wishlist.name)}</h3>
+                    <button data-id="${wishlist.id}" class="delete-wishlist-btn text-red-400 hover:text-red-600 p-1">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+                <ul class="item-list space-y-2" id="list-${wishlist.id}"></ul>
+                <button data-id="${wishlist.id}" class="add-item-btn mt-4 w-full text-center py-2 bg-slate-200/80 text-slate-700 font-semibold rounded-lg ios-button">Add a Wish</button>
+            `;
+            
+            // Fetch and render items for this wishlist
+            const itemsList = div.querySelector(`#list-${wishlist.id}`);
+            const itemsCol = collection(db, `users/${currentUserId}/wishlists/${wishlist.id}/items`);
+            onSnapshot(itemsCol, (snapshot) => {
+                itemsList.innerHTML = '';
+                snapshot.docs.forEach(doc => {
+                    const item = { id: doc.id, ...doc.data() };
+                    const itemElement = createItemElement(item, wishlist.id);
+                    itemsList.appendChild(itemElement);
+                });
+            });
+
+            return div;
+        }
+        
+        function createItemElement(item, wishlistId) {
+             const li = document.createElement('li');
+             li.className = 'flex items-center justify-between bg-white/70 p-3 rounded-lg';
+             const textClass = item.isComplete ? 'line-through text-slate-400' : 'text-slate-800';
+             
+             li.innerHTML = `
+                <span class="flex-grow ${textClass}">${escapeHTML(item.name)}</span>
+                <div class="flex items-center space-x-2 ml-2">
+                    <button data-wishlist-id="${wishlistId}" data-item-id="${item.id}" data-completed="${item.isComplete}" class="toggle-item-btn text-green-500 hover:text-green-700 p-1">
+                        ${item.isComplete ? 
+                            `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>` : 
+                            `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m-6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+                        }
+                    </button>
+                    <button data-wishlist-id="${wishlistId}" data-item-id="${item.id}" class="delete-item-btn text-slate-400 hover:text-red-600 p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+             `;
+             return li;
+        }
+
+        // --- Event Delegation for Dynamic Elements ---
+        document.body.addEventListener('click', async (e) => {
+            // Delete Wishlist
+            const deleteWishlistBtn = e.target.closest('.delete-wishlist-btn');
+            if (deleteWishlistBtn) {
+                const wishlistId = deleteWishlistBtn.dataset.id;
+                if (confirm('Are you sure you want to banish this whole wishlist?')) {
+                    await deleteDoc(doc(db, `users/${currentUserId}/wishlists/${wishlistId}`));
+                }
+            }
+
+            // Open 'Add Item' Modal
+            const addItemBtn = e.target.closest('.add-item-btn');
+            if(addItemBtn) {
+                activeWishlistId = addItemBtn.dataset.id;
+                openModal(addItemModal);
+            }
+            
+            // Delete Item
+            const deleteItemBtn = e.target.closest('.delete-item-btn');
+            if (deleteItemBtn) {
+                const { wishlistId, itemId } = deleteItemBtn.dataset;
+                await deleteDoc(doc(db, `users/${currentUserId}/wishlists/${wishlistId}/items/${itemId}`));
+            }
+
+            // Toggle Item Completion
+            const toggleItemBtn = e.target.closest('.toggle-item-btn');
+            if (toggleItemBtn) {
+                const { wishlistId, itemId, completed } = toggleItemBtn.dataset;
+                const isComplete = completed === 'true';
+                const itemRef = doc(db, `users/${currentUserId}/wishlists/${wishlistId}/items/${itemId}`);
+                await updateDoc(itemRef, { isComplete: !isComplete });
+            }
+        });
+
+        // --- Utility Spell ---
+        function escapeHTML(str) {
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
+        
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('Fairy messenger (Service Worker) registered!', reg);
+                }).catch(err => {
+                    console.log('The messenger got lost!', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
