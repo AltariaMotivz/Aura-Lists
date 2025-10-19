@@ -1,219 +1,343 @@
-// --- This script now contains the complete magic for authentication and wish management! ---
+import { 
+    onAuthStateChanged, 
+    signOut, 
+    RecaptchaVerifier, 
+    signInWithPhoneNumber 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+    collection, 
+    addDoc, 
+    query, 
+    where, 
+    onSnapshot,
+    doc,
+    getDoc,
+    setDoc,
+    deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Import all the magical spells we will need from the Firebase libraries
-const { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-const { collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, where } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-
-// === GLOBAL VARIABLES ===
-// A place to store the user's confirmation result after they get a code
-window.confirmationResult = null;
-let wishesUnsubscribe = null; // A function to stop listening for wishes when the user signs out
-
-// === FINDING THE ELEMENTS ON THE PAGE ===
-// -- Auth Screen Elements --
+// Page & Element References
 const authContainer = document.getElementById('auth-container');
-const phoneForm = document.getElementById('phone-form');
-const codeForm = document.getElementById('code-form');
-const phoneNumberInput = document.getElementById('phone-number');
-const codeInput = document.getElementById('code-input');
-const signInButton = document.getElementById('sign-in-button');
-const verifyCodeButton = document.getElementById('verify-code-button');
-const authStatus = document.getElementById('auth-status');
-
-// -- App Screen Elements --
 const appContainer = document.getElementById('app-container');
+const dashboardPage = document.getElementById('dashboard-page');
+const myWishlistPage = document.getElementById('my-wishlist-page');
+const friendWishlistPage = document.getElementById('friend-wishlist-page');
+
+// --- AUTH ELEMENTS ---
+const phoneForm = document.getElementById('phone-form');
+const phoneNumberInput = document.getElementById('phone-number');
+const codeForm = document.getElementById('code-form');
+const codeInput = document.getElementById('code-input');
+const authStatus = document.getElementById('auth-status');
 const signOutButton = document.getElementById('sign-out-button');
-const addWishBtn = document.getElementById('addWishBtn');
-const modalBackdrop = document.getElementById('modalBackdrop');
-const cancelBtn = document.getElementById('cancelBtn');
+const userFriendIdElement = document.getElementById('user-friend-id');
+
+// --- NAVIGATION ---
+const dashboardNavBtn = document.getElementById('dashboard-nav-btn');
+const myWishlistNavBtn = document.getElementById('my-wishlist-nav-btn');
+
+// --- WISH MODAL ELEMENTS ---
+const addWishModalBackdrop = document.getElementById('addWishModalBackdrop');
+const openAddWishModalBtn = document.getElementById('openAddWishModalBtn');
 const addWishForm = document.getElementById('addWishForm');
+const cancelWishBtn = document.getElementById('cancelWishBtn');
 const wishlistGrid = document.getElementById('wishlistGrid');
 const loadingMessage = document.getElementById('loadingMessage');
 
+// --- FRIEND MODAL ELEMENTS ---
+const addFriendModalBackdrop = document.getElementById('addFriendModalBackdrop');
+const addFriendBtn = document.getElementById('addFriendBtn');
+const addFriendForm = document.getElementById('addFriendForm');
+const cancelFriendBtn = document.getElementById('cancelFriendBtn');
+const friendIdInput = document.getElementById('friendIdInput');
+const addFriendStatus = document.getElementById('add-friend-status');
+const friendsWishlistGrid = document.getElementById('friends-wishlist-grid');
+const friendWishlistTitle = document.getElementById('friend-wishlist-title');
+const friendWishlistGridContainer = document.getElementById('friendWishlistGrid');
 
-// === GRAND ENCHANTMENT #1: The Royal Scribe (Authentication Logic) ===
 
-// The main spell that watches the user's login state at all times
-onAuthStateChanged(window.auth, (user) => {
-    if (user) {
-        // If a user is signed in...
-        console.log("A friend has entered the gates! User:", user.uid);
-        showAppScreen(user.uid);
-    } else {
-        // If no user is signed in...
-        console.log("The gates are awaiting a friend.");
-        showAuthScreen();
+let confirmationResult = null;
+let currentUser = null;
+let friendsUnsubscribe = null; // To stop listening for friend updates when logged out
+let wishesUnsubscribe = null; // To stop listening for wish updates when logged out
+
+// --- PAGE NAVIGATION LOGIC ---
+function showPage(pageToShow) {
+    [dashboardPage, myWishlistPage, friendWishlistPage].forEach(page => page.classList.add('hidden'));
+    [dashboardNavBtn, myWishlistNavBtn].forEach(btn => btn.classList.remove('active'));
+    
+    if (pageToShow === 'dashboard') {
+        dashboardPage.classList.remove('hidden');
+        dashboardNavBtn.classList.add('active');
+    } else if (pageToShow === 'my-wishlist') {
+        myWishlistPage.classList.remove('hidden');
+        myWishlistNavBtn.classList.add('active');
+    } else if (pageToShow === 'friend-wishlist') {
+        friendWishlistPage.classList.remove('hidden');
     }
-});
-
-function showAuthScreen() {
-    authContainer.classList.remove('hidden');
-    appContainer.classList.add('hidden');
-    // Stop listening to old wishes if the user signs out
-    if (wishesUnsubscribe) wishesUnsubscribe();
 }
 
-function showAppScreen(userId) {
-    authContainer.classList.add('hidden');
-    appContainer.classList.remove('hidden');
-    // Start listening for wishes that belong ONLY to this user
-    listenForWishes(userId);
+dashboardNavBtn.addEventListener('click', () => showPage('dashboard'));
+myWishlistNavBtn.addEventListener('click', () => showPage('my-wishlist'));
+
+// --- AUTHENTICATION LOGIC ---
+function setupRecaptcha() {
+    if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+    }
+    window.recaptchaVerifier = new RecaptchaVerifier(window.auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => { /* reCAPTCHA solved */ }
+    });
 }
 
-
-// A spell to set up the reCAPTCHA verifier (a magical ward from Firebase)
-window.recaptchaVerifier = new RecaptchaVerifier(window.auth, 'recaptcha-container', {
-    'size': 'invisible',
-    'callback': (response) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-    }
-});
-
-// A spell to be cast when the user enters their phone number
-phoneForm.addEventListener('submit', (e) => {
+phoneForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const phoneNumber = phoneNumberInput.value;
-    authStatus.textContent = "Sending magical code...";
-
-    signInWithPhoneNumber(window.auth, phoneNumber, window.recaptchaVerifier)
-        .then((confirmationResult) => {
-            window.confirmationResult = confirmationResult;
-            authStatus.textContent = "Code sent! Please check your phone.";
-            phoneForm.classList.add('hidden');
-            codeForm.classList.remove('hidden');
-        }).catch((error) => {
-            console.error("A pixie blocked the message!", error);
-            authStatus.textContent = "Error: Could not send code. Please check the number and try again.";
-        });
+    authStatus.textContent = 'Sending code...';
+    try {
+        confirmationResult = await signInWithPhoneNumber(window.auth, phoneNumber, window.recaptchaVerifier);
+        phoneForm.classList.add('hidden');
+        codeForm.classList.remove('hidden');
+        authStatus.textContent = 'Verification code sent!';
+    } catch (error) {
+        console.error("A pixie blocked the message!", error);
+        authStatus.textContent = `Error: Could not send code. Please check the number and try again.`;
+        setupRecaptcha(); // Reset reCAPTCHA on error
+    }
 });
 
-// A spell to be cast when the user enters the verification code
-codeForm.addEventListener('submit', (e) => {
+codeForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const code = codeInput.value;
-    authStatus.textContent = "Verifying code...";
-
-    window.confirmationResult.confirm(code).then((result) => {
-        // User signed in successfully. The onAuthStateChanged spell will handle the rest!
-        const user = result.user;
-        console.log("Verification successful! Friend is signed in.", user.uid);
-        authStatus.textContent = "Success! Welcome!";
-    }).catch((error) => {
-        console.error("The code's magic fizzled!", error);
-        authStatus.textContent = "Error: Incorrect code. Please try again.";
-    });
-});
-
-// Spell to sign out
-signOutButton.addEventListener('click', () => {
-    signOut(window.auth).catch((error) => {
-        console.error("Could not sign out:", error);
-    });
-});
-
-
-// === GRAND ENCHANTMENT #2: Private Wish Gardens ===
-
-// A spell to listen for wishes belonging ONLY to the current user
-function listenForWishes(userId) {
-    const wishesCollection = collection(window.db, 'wishes');
-    // A magical query that only fetches documents where the 'ownerId' matches the current user's ID
-    const userWishesQuery = query(wishesCollection, where("ownerId", "==", userId));
-
-    wishesUnsubscribe = onSnapshot(userWishesQuery, (snapshot) => {
-        wishlistGrid.innerHTML = '';
-        if (snapshot.empty) {
-            loadingMessage.style.display = 'block';
-            loadingMessage.textContent = "Your wishlist is an open meadow. Add your first wish!";
-        } else {
-            loadingMessage.style.display = 'none';
-            snapshot.docs.forEach(doc => {
-                renderWish(doc);
-            });
-        }
-    });
-}
-
-// A spell to save a wish WITH the owner's ID
-addWishForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const user = window.auth.currentUser;
-    if (!user) {
-        console.error("Cannot add a wish, no user is signed in!");
-        return;
+    authStatus.textContent = 'Verifying...';
+    try {
+        await confirmationResult.confirm(code);
+    } catch (error) {
+        console.error("Verification failed!", error);
+        authStatus.textContent = "Error: Invalid code. Please try again.";
     }
+});
 
-    const newWish = {
+signOutButton.addEventListener('click', () => {
+    signOut(window.auth);
+});
+
+onAuthStateChanged(window.auth, (user) => {
+    if (user) {
+        currentUser = user;
+        checkAndCreateUserDoc(user);
+        authContainer.classList.add('hidden');
+        appContainer.classList.remove('hidden');
+        userFriendIdElement.textContent = user.uid;
+        userFriendIdElement.onclick = () => {
+            navigator.clipboard.writeText(user.uid);
+            // Optional: Show a "Copied!" message
+        };
+        showPage('dashboard');
+        wishesUnsubscribe = fetchMyWishes(user.uid);
+        friendsUnsubscribe = fetchFriends(user.uid);
+    } else {
+        currentUser = null;
+        if (wishesUnsubscribe) wishesUnsubscribe();
+        if (friendsUnsubscribe) friendsUnsubscribe();
+        
+        authContainer.classList.remove('hidden');
+        appContainer.classList.add('hidden');
+        confirmationResult = null;
+        phoneForm.classList.remove('hidden');
+        codeForm.classList.add('hidden');
+        phoneNumberInput.value = '';
+        codeInput.value = '';
+        authStatus.textContent = '';
+    }
+    setupRecaptcha();
+});
+
+// --- WISH MANAGEMENT LOGIC ---
+openAddWishModalBtn.addEventListener('click', () => addWishModalBackdrop.style.display = 'flex');
+cancelWishBtn.addEventListener('click', () => addWishModalBackdrop.style.display = 'none');
+
+addWishForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    const wish = {
         name: addWishForm.itemName.value,
         link: addWishForm.itemLink.value,
         notes: addWishForm.itemNotes.value,
-        image: addWishForm.itemImage.value || 'https://placehold.co/600x400/f9f7f3/e7b2a5?text=Glimmer',
+        image: addWishForm.itemImage.value,
+        ownerId: currentUser.uid,
         createdAt: new Date(),
-        ownerId: user.uid // The crucial spell: stamping the wish with the owner's ID
+        claimedBy: null // New field for claiming
     };
 
     try {
-        const wishesCollection = collection(window.db, 'wishes');
-        await addDoc(wishesCollection, newWish);
-        closeModal();
+        await addDoc(collection(window.db, "wishes"), wish);
+        addWishForm.reset();
+        addWishModalBackdrop.style.display = 'none';
     } catch (error) {
-        console.error("A mischievous pixie interfered with the spell: ", error);
+        console.error("Could not add wish:", error);
     }
 });
 
-// The spells for rendering, deleting, and modal controls remain largely the same,
-// but they will now work on the user-specific wishes!
-function renderWish(doc) {
-    const wish = doc.data();
+function fetchMyWishes(userId) {
+    const q = query(collection(window.db, "wishes"), where("ownerId", "==", userId));
+    return onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
+            loadingMessage.textContent = "Your meadow is empty. Add your first wish!";
+             wishlistGrid.innerHTML = ''; // Clear old wishes
+            return;
+        }
+        wishlistGrid.innerHTML = '';
+        snapshot.forEach(doc => {
+            const wish = doc.data();
+            const wishId = doc.id;
+            const card = createWishCard(wish, wishId, true); // true means it's my own card
+            wishlistGrid.appendChild(card);
+        });
+    });
+}
+
+function createWishCard(wish, wishId, isMyWish) {
     const card = document.createElement('div');
     card.className = 'wish-card';
-    card.setAttribute('data-id', doc.id);
+    if(wish.claimedBy) card.classList.add('claimed');
+
+    let actionsHtml = '';
+    if (isMyWish) {
+        actionsHtml = `<button class="delete-wish-btn" data-id="${wishId}">Delete</button>`;
+    } else if (!wish.claimedBy) {
+        actionsHtml = `<button class="claim-wish-btn" data-id="${wishId}">Claim Wish</button>`;
+    } else if (wish.claimedBy === currentUser.uid) {
+        actionsHtml = `<button class="unclaim-wish-btn" data-id="${wishId}">Unclaim</button>`;
+    } else {
+        actionsHtml = `<p class="claimed-by-other">Claimed by another friend</p>`;
+    }
+
     card.innerHTML = `
-        <img src="${escapeHTML(wish.image)}" alt="Preview of ${escapeHTML(wish.name)}">
-        <div class="card-content">
-            <h2>${escapeHTML(wish.name)}</h2>
-            <p class="card-notes">${escapeHTML(wish.notes)}</p>
-            <a href="${escapeHTML(wish.link)}" class="card-link" target="_blank">View Item</a>
-            <div class="card-actions">
-                <button class="action-btn edit-btn">Edit</button>
-                <button class="action-btn delete-btn">Delete</button>
-            </div>
-        </div>
+        <img src="${wish.image || 'https://placehold.co/300x200/F3E8FF/C5A8E8?text=No+Image'}" alt="${wish.name}">
+        <h3>${wish.name}</h3>
+        <p>${wish.notes}</p>
+        ${wish.link ? `<a href="${wish.link}" target="_blank" class="view-item-link">View Item</a>` : ''}
+        <div class="wish-actions">${actionsHtml}</div>
     `;
-    wishlistGrid.appendChild(card);
-}
 
-// Event Delegation for Delete/Edit
-wishlistGrid.addEventListener('click', async (event) => {
-    const target = event.target;
-    const card = target.closest('.wish-card');
-    if (!card) return;
-    const id = card.getAttribute('data-id');
-
-    if (target.classList.contains('delete-btn')) {
-        if (confirm("Are you sure you want this wish to vanish forever?")) {
-            try {
-                await deleteDoc(doc(window.db, 'wishes', id));
-            } catch (error) { console.error("Could not delete wish:", error); }
+    // Add event listeners for buttons
+    if (isMyWish) {
+        card.querySelector('.delete-wish-btn').addEventListener('click', async () => {
+            await deleteDoc(doc(window.db, "wishes", wishId));
+        });
+    } else if (!wish.claimedBy || wish.claimedBy === currentUser.uid) {
+        const btn = card.querySelector('.claim-wish-btn, .unclaim-wish-btn');
+        if (btn) {
+            btn.addEventListener('click', async () => {
+                // Claim/unclaim logic would be added here
+            });
         }
     }
-    if (target.classList.contains('edit-btn')) {
-        alert("The 'Edit' spell is still being perfected!");
+
+    return card;
+}
+
+// --- FRIEND MANAGEMENT LOGIC ---
+addFriendBtn.addEventListener('click', () => addFriendModalBackdrop.style.display = 'flex');
+cancelFriendBtn.addEventListener('click', () => addFriendModalBackdrop.style.display = 'none');
+
+addFriendForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const friendId = friendIdInput.value.trim();
+    if (!currentUser || !friendId || friendId === currentUser.uid) {
+        addFriendStatus.textContent = "Please enter a valid Friend ID.";
+        return;
+    }
+    addFriendStatus.textContent = "Verifying friend...";
+
+    try {
+        const userDoc = await getDoc(doc(window.db, "users", friendId));
+        if (!userDoc.exists()) {
+           addFriendStatus.textContent = "Friend ID not found.";
+           return;
+        }
+       
+        const friendRef = doc(window.db, `users/${currentUser.uid}/friends`, friendId);
+        await setDoc(friendRef, { addedAt: new Date(), friendName: "A Friend" }); // Can add friend name later
+        
+        addFriendStatus.textContent = "Friend added successfully!";
+        friendIdInput.value = '';
+        setTimeout(() => {
+            addFriendModalBackdrop.style.display = 'none';
+            addFriendStatus.textContent = '';
+        }, 1500);
+
+    } catch (error) {
+        console.error("Error adding friend:", error);
+        addFriendStatus.textContent = "Could not add friend. Please check the ID.";
     }
 });
 
-// --- Modal Controls ---
-function openModal() { modalBackdrop.classList.add('active'); }
-function closeModal() { modalBackdrop.classList.remove('active'); addWishForm.reset(); }
-addWishBtn.addEventListener('click', openModal);
-cancelBtn.addEventListener('click', closeModal);
-modalBackdrop.addEventListener('click', (event) => {
-    if (event.target === modalBackdrop) closeModal();
-});
+function fetchFriends(userId) {
+    const friendsQuery = query(collection(window.db, `users/${userId}/friends`));
+    return onSnapshot(friendsQuery, (snapshot) => {
+        const noFriendsMessage = document.getElementById('no-friends-message');
+        if (snapshot.empty) {
+            if(noFriendsMessage) noFriendsMessage.style.display = 'block';
+            friendsWishlistGrid.innerHTML = '';
+        } else {
+             if(noFriendsMessage) noFriendsMessage.style.display = 'none';
+             friendsWishlistGrid.innerHTML = '';
+        }
 
-function escapeHTML(str) {
-    const p = document.createElement('p');
-    p.textContent = str || '';
-    return p.innerHTML;
+        snapshot.forEach(friendDoc => {
+            const friendId = friendDoc.id;
+            const friendCard = createFriendCard(friendId);
+            friendsWishlistGrid.appendChild(friendCard);
+        });
+    });
 }
+
+function createFriendCard(friendId) {
+    const card = document.createElement('div');
+    card.className = 'friend-card';
+    card.innerHTML = `<p>Friend: ${friendId.substring(0, 8)}...</p><button>View Wishes</button>`;
+    
+    card.querySelector('button').addEventListener('click', () => {
+        showFriendWishlist(friendId);
+    });
+
+    return card;
+}
+
+function showFriendWishlist(friendId) {
+    friendWishlistTitle.textContent = `Wishes from Friend ${friendId.substring(0, 8)}...`;
+    showPage('friend-wishlist');
+    
+    const q = query(collection(window.db, "wishes"), where("ownerId", "==", friendId));
+    onSnapshot(q, (snapshot) => {
+        friendWishlistGridContainer.innerHTML = '';
+        if (snapshot.empty) {
+            friendWishlistGridContainer.innerHTML = '<p>This friend has not made any wishes yet.</p>';
+            return;
+        }
+        snapshot.forEach(doc => {
+            const wish = doc.data();
+            const wishId = doc.id;
+            // For a friend's list, we pass 'false' for isMyWish
+            const card = createWishCard(wish, wishId, false);
+            friendWishlistGridContainer.appendChild(card);
+        });
+    });
+}
+
+// Create user document on first login if it doesn't exist
+const checkAndCreateUserDoc = async (user) => {
+    const userDocRef = doc(window.db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+        await setDoc(userDocRef, {
+            createdAt: new Date(),
+            phone: user.phoneNumber
+        });
+    }
+};
 
