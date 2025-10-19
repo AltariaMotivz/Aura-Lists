@@ -11,13 +11,14 @@
 </head>
 <body>
 
-    <!-- === NEW: The Authentication Gateway === -->
-    <div id="auth-container">
+    <!-- All your existing HTML for auth and app screens remains here -->
+    <!-- ... (The auth-container and app-container divs) ... -->
+     <div id="auth-container">
         <div class="auth-box">
             <h1>Crystal Wishlist</h1>
             <p>Enter your phone number to begin</p>
             <form id="phone-form">
-                <input type="tel" id="phone-number" placeholder="(201) 555-0123" required>
+                <input type="tel" id="phone-number" placeholder="+12015550123" required>
                 <button type="submit" id="sign-in-button">Send Code</button>
             </form>
             <form id="code-form" class="hidden">
@@ -28,40 +29,29 @@
             <p id="auth-status" class="auth-status"></p>
         </div>
     </div>
-
-
-    <!-- === This is your existing app, now hidden by default === -->
     <div id="app-container" class="hidden">
         <div class="page-container">
             <header>
                 <h1>My Magical Wishlist</h1>
                 <button id="sign-out-button" class="sign-out-btn">Sign Out</button>
             </header>
-
             <main class="wishlist-grid" id="wishlistGrid">
                 <p id="loadingMessage" style="text-align: center; color: var(--text-muted);">Summoning your wishes...</p>
             </main>
-
             <button class="floating-add-btn" id="addWishBtn">+</button>
         </div>
-
-        <!-- The "Add a Wish" Modal remains the same -->
         <div class="modal-backdrop" id="modalBackdrop">
             <div class="modal">
                 <h2>Add a New Wish</h2>
                 <form id="addWishForm">
                     <label for="itemName">Wish Title</label>
                     <input type="text" id="itemName" name="itemName" placeholder="e.g., A Book of Spells" required>
-                    
                     <label for="itemLink">Link to Item</label>
                     <input type="url" id="itemLink" name="itemLink" placeholder="https://magical-emporium.com/...">
-
                     <label for="itemNotes">Notes</label>
                     <textarea id="itemNotes" name="itemNotes" rows="3" placeholder="Any details, colors, or enchantments..."></textarea>
-
                     <label for="itemImage">Image URL</label>
                     <input type="url" id="itemImage" name="itemImage" placeholder="https://magical-emporium.com/image.png">
-
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
                         <button type="submit" class="btn-primary">Add Wish</button>
@@ -72,30 +62,44 @@
     </div>
 
 
-    <!-- === FIREBASE MAGIC (Now with Auth!) === -->
+    <!-- === FIREBASE MAGIC (Now with App Check!) === -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"; 
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        // NEW: We import the Authentication library
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        // NEW: Import the App Check spells
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyCdAVpYhcdurxJLnZmvesIEHsN3pBWquF8",
+        authDomain: "crystal-wishlist.firebaseapp.com",
+        projectId: "crystal-wishlist",
+        storageBucket: "crystal-wishlist.firebasestorage.app",
+        messagingSenderId: "383897040491",
+        appId: "1:383897040491:web:4a67e7549a8ed75e1a232e",
+        measurementId: "G-CRL695ERCJ"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         
-        // Make both the database AND auth available to our script
+        // --- THE NEW SECRET HANDSHAKE SPELL ---
+        // Replace "YOUR_RECAPTCHA_SITE_KEY" with the key you just forged
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider("6LelUu8rAAAAALvWQUxFdU4MEFQLqtF0z5N7djBh"),
+            isTokenAutoRefreshEnabled: true
+        });
+        
         window.db = getFirestore(app);
         window.auth = getAuth(app);
     </script>
-
-    <script src="script.js" defer></script>
+    
+    <script type="module" src="script.js"></script>
 
 </body>
 </html>
