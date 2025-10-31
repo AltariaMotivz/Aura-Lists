@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addFriendStatus = document.getElementById('add-friend-status');
     const friendWishlistTitle = document.getElementById('friend-wishlist-title');
     const friendWishlistGridContainer = document.getElementById('friendWishlistGrid');
+    const friendsWishlistGrid = document.getElementById('friends-wishlist-grid'); // The dashboard grid
 
     // === 2. PREPARE OUR MAGICAL GLOBALS ===
     let confirmationResult = null;
@@ -181,15 +182,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const noFriendsMessage = document.getElementById('no-friends-message');
             if (snapshot.empty) {
                 if(noFriendsMessage) noFriendsMessage.style.display = 'block';
-                friendsWishlistGrid.innerHTML = '';
+                // *** PIXIE BANISHED! ***
+                friendsWishlistGrid.innerHTML = ''; 
             } else {
                  if(noFriendsMessage) noFriendsMessage.style.display = 'none';
+                 // *** PIXIE BANISHED! ***
                  friendsWishlistGrid.innerHTML = '';
             }
 
             snapshot.forEach(friendDoc => {
                 const friendId = friendDoc.id;
                 const friendCard = createFriendCard(friendId);
+                // *** PIXIE BANISHED! ***
                 friendsWishlistGrid.appendChild(friendCard);
             });
         });
@@ -275,12 +279,23 @@ document.addEventListener("DOMContentLoaded", () => {
     addWishForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!currentUser) return;
-        const wish = { /* ... (form data) ... */ };
+        // Corrected: Grab the data from the form fields
+        const wish = {
+            name: addWishForm.itemName.value,
+            link: addWishForm.itemLink.value,
+            notes: addWishForm.itemNotes.value,
+            image: addWishForm.itemImage.value,
+            ownerId: currentUser.uid,
+            createdAt: new Date(),
+            claimedBy: null
+        };
         try {
             await addDoc(collection(window.db, "wishes"), wish);
             addWishForm.reset();
             addWishModalBackdrop.style.display = 'none';
-        } catch (error) { /* ... */ }
+        } catch (error) {
+            console.error("Error adding wish:", error);
+        }
     });
 
     addFriendBtn.addEventListener('click', () => addFriendModalBackdrop.style.display = 'flex');
@@ -289,16 +304,32 @@ document.addEventListener("DOMContentLoaded", () => {
     addFriendForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const friendId = friendIdInput.value.trim();
-        if (!currentUser || !friendId || friendId === currentUser.uid) { /* ... */ return; }
+        // Corrected: More robust check
+        if (!currentUser || !friendId || friendId === currentUser.uid) {
+            addFriendStatus.textContent = "Please enter a valid Friend ID.";
+            return;
+        }
         addFriendStatus.textContent = "Verifying friend...";
         try {
             const userDoc = await getDoc(doc(window.db, "users", friendId));
-            if (!userDoc.exists()) { /* ... */ return; }
+            if (!userDoc.exists()) {
+               addFriendStatus.textContent = "Friend ID not found.";
+               return; 
+            }
             const friendRef = doc(window.db, `users/${currentUser.uid}/friends`, friendId);
-            await setDoc(friendRef, { addedAt: new Date(), friendName: "A Friend" });
+            await setDoc(friendRef, { addedAt: new Date(), friendName: "A Friend" }); // You can expand this later
             addFriendStatus.textContent = "Friend added successfully!";
-            /* ... (reset form) ... */
-        } catch (error) { /* ... */ }
+            
+            friendIdInput.value = ''; // Reset input field
+            setTimeout(() => {
+                addFriendModalBackdrop.style.display = 'none';
+                addFriendStatus.textContent = ''; // Clear status message
+            }, 1500);
+
+        } catch (error) {
+            console.error("Error adding friend:", error);
+            addFriendStatus.textContent = "Could not add friend. Please check the ID.";
+        }
     });
 
     // === 5. THE GREAT AWAKENING SPELL (onAuthStateChanged) ===
@@ -309,8 +340,16 @@ document.addEventListener("DOMContentLoaded", () => {
             authContainer.classList.add('hidden');
             appContainer.classList.remove('hidden');
             userFriendIdElement.textContent = user.uid;
-            userFriendIdElement.onclick = () => navigator.clipboard.writeText(user.uid);
+            userFriendIdElement.onclick = () => {
+                navigator.clipboard.writeText(user.uid);
+                // Optional: Add a visual cue
+                userFriendIdElement.textContent = 'Copied!';
+                setTimeout(() => { userFriendIdElement.textContent = user.uid; }, 1000);
+            };
             showPage('dashboard');
+            // Make sure listeners are only set once
+            if (wishesUnsubscribe) wishesUnsubscribe();
+            if (friendsUnsubscribe) friendsUnsubscribe();
             wishesUnsubscribe = fetchMyWishes(user.uid);
             friendsUnsubscribe = fetchFriends(user.uid);
         } else {
@@ -319,7 +358,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (friendsUnsubscribe) friendsUnsubscribe();
             authContainer.classList.remove('hidden');
             appContainer.classList.add('hidden');
-            /* ... (reset auth UI) ... */
+            // Clear auth state
+            confirmationResult = null;
+            phoneForm.classList.remove('hidden');
+            codeForm.classList.add('hidden');
+            phoneNumberInput.value = '';
+            codeInput.value = '';
+            authStatus.textContent = '';
         }
         setupRecaptcha();
     });
