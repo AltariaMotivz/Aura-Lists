@@ -276,7 +276,6 @@ document.addEventListener("DOMContentLoaded", () => {
     addWishForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!currentUser) return;
-        // Corrected: Grab the data from the form fields
         const wish = {
             name: addWishForm.itemName.value,
             link: addWishForm.itemLink.value,
@@ -295,13 +294,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    addFriendBtn.addEventListener('click', () => addFriendModalBackdrop.style.display = 'flex');
+    // === THIS IS THE TEST! ===
+    addFriendBtn.addEventListener('click', () => {
+        console.log("The magical bell has been rung! The 'Add Friend' button was clicked!");
+        addFriendModalBackdrop.style.display = 'flex';
+    });
+    // ===========================
+
     cancelFriendBtn.addEventListener('click', () => addFriendModalBackdrop.style.display = 'none');
 
     addFriendForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const friendId = friendIdInput.value.trim();
-        // Corrected: More robust check
         if (!currentUser || !friendId || friendId === currentUser.uid) {
             addFriendStatus.textContent = "Please enter a valid Friend ID.";
             return;
@@ -338,13 +342,31 @@ document.addEventListener("DOMContentLoaded", () => {
             appContainer.classList.remove('hidden');
             userFriendIdElement.textContent = user.uid;
             userFriendIdElement.onclick = () => {
-                navigator.clipboard.writeText(user.uid);
-                // Optional: Add a visual cue
-                userFriendIdElement.textContent = 'Copied!';
-                setTimeout(() => { userFriendIdElement.textContent = user.uid; }, 1000);
+                // Use a fallback for clipboard writeText
+                try {
+                    navigator.clipboard.writeText(user.uid).then(() => {
+                        userFriendIdElement.textContent = 'Copied!';
+                        setTimeout(() => { userFriendIdElement.textContent = user.uid; }, 1000);
+                    });
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    // Fallback for insecure contexts (like http)
+                    const textArea = document.createElement("textarea");
+                    textArea.value = user.uid;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        userFriendIdElement.textContent = 'Copied!';
+                        setTimeout(() => { userFriendIdElement.textContent = user.uid; }, 1000);
+                    } catch (err) {
+                        console.error('Fallback copy failed: ', err);
+                    }
+                    document.body.removeChild(textArea);
+                }
             };
             showPage('dashboard');
-            // Make sure listeners are only set once
             if (wishesUnsubscribe) wishesUnsubscribe();
             if (friendsUnsubscribe) friendsUnsubscribe();
             wishesUnsubscribe = fetchMyWishes(user.uid);
@@ -355,7 +377,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (friendsUnsubscribe) friendsUnsubscribe();
             authContainer.classList.remove('hidden');
             appContainer.classList.add('hidden');
-            // Clear auth state
             confirmationResult = null;
             phoneForm.classList.remove('hidden');
             codeForm.classList.add('hidden');
