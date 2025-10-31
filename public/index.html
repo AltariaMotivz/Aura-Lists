@@ -11,8 +11,9 @@
 </head>
 <body>
 
-    <!-- The Authentication Gateway -->
-    <div id="auth-container">
+    <!-- All your existing HTML for auth and app screens remains here -->
+    <!-- ... (The auth-container and app-container divs) ... -->
+     <div id="auth-container">
         <div class="auth-box">
             <h1>Crystal Wishlist</h1>
             <p>Enter your phone number to begin</p>
@@ -24,24 +25,21 @@
                  <input type="text" id="code-input" placeholder="123456" required>
                  <button type="submit" id="verify-code-button">Verify Code</button>
             </form>
+            <!-- This container is STILL needed for the ESSENTIAL reCAPTCHA -->
             <div id="recaptcha-container"></div>
             <p id="auth-status" class="auth-status"></p>
         </div>
     </div>
-    
-    <!-- The Main Application, hidden by default -->
     <div id="app-container" class="hidden">
         <div class="page-container">
             <header>
-                <h1>Crystal Wishlist</h1>
+                <h1>My Magical Wishlist</h1>
                 <nav>
                     <button id="dashboard-nav-btn" class="nav-btn active">Dashboard</button>
                     <button id="my-wishlist-nav-btn" class="nav-btn">My Wishlist</button>
                 </nav>
                 <button id="sign-out-button" class="sign-out-btn">Sign Out</button>
             </header>
-
-            <!-- Dashboard Page -->
             <div id="dashboard-page">
                 <div class="friend-id-container">
                     <h2>Share Your Friend ID</h2>
@@ -56,25 +54,18 @@
                     <button id="addFriendBtn" class="btn-primary">+ Add a Friend</button>
                 </div>
             </div>
-
-            <!-- My Wishlist Page -->
             <div id="my-wishlist-page" class="hidden">
                 <main class="wishlist-grid" id="wishlistGrid">
                     <p id="loadingMessage">Summoning your wishes...</p>
                 </main>
                 <button class="floating-add-btn" id="openAddWishModalBtn">+</button>
             </div>
-
-             <!-- A new page to view a friend's wishlist -->
-            <div id="friend-wishlist-page" class="hidden">
+             <div id="friend-wishlist-page" class="hidden">
                 <h2 id="friend-wishlist-title"></h2>
                 <main class="wishlist-grid" id="friendWishlistGrid"></main>
             </div>
         </div>
-
-        <!-- Modals -->
         <div class="modal-backdrop" id="addWishModalBackdrop">
-            <!-- Existing Add Wish Modal -->
             <div class="modal">
                 <h2>Add a New Wish</h2>
                 <form id="addWishForm">
@@ -93,12 +84,10 @@
                 </form>
             </div>
         </div>
-
         <div class="modal-backdrop" id="addFriendModalBackdrop">
-            <!-- New Add Friend Modal -->
              <div class="modal">
                 <h2>Add a New Friend</h2>
-                <form id="addFriendBtn">
+                <form id="addFriendForm">
                     <label for="friendIdInput">Friend's ID</label>
                     <input type="text" id="friendIdInput" name="friendIdInput" required>
                     <p id="add-friend-status" class="auth-status"></p>
@@ -111,31 +100,33 @@
         </div>
     </div>
 
-    <!-- Firebase Magic -->
+
+    <!-- === FIREBASE MAGIC (Simplified!) === -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"; 
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
-
+        
+        // The App Check import has been banished!
+        
+        // Your web app's Firebase configuration
+        // This is your correct, working key configuration!
         const firebaseConfig = {
-            apiKey: "AIzaSyCdAVpYhcdurxJLnZmvesIEHsN3pBWquF8",
-            authDomain: "crystal-wishlist.firebaseapp.com",
-            projectId: "crystal-wishlist",
-            storageBucket: "crystal-wishlist.firebasestorage.app",
-            messagingSenderId: "383897040491",
-            appId: "1:383897040491:web:4a67e7549a8ed75e1a232e",
-            measurementId: "G-CRL695ERCJ"
+        apiKey: "AIzaSyCdAVpYhcdurxJLnZmvesIEHsN3pBWquF8",
+        authDomain: "crystal-wishlist.firebaseapp.com",
+        projectId: "crystal-wishlist",
+        storageBucket: "crystal-wishlist.firebasestorage.app",
+        messagingSenderId: "383897040491",
+        appId: "1:383897040491:web:4a67e7549a8ed75e1a232e",
+        measurementId: "G-CRL695ERCJ"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         
-        const appCheck = initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider("6LelUu8rAAAAALvWQUxFdU4MEFQLqtF0z5N7djBh"),
-            isTokenAutoRefreshEnabled: true
-        });
+        // The App Check initialization has been banished!
         
         window.db = getFirestore(app);
         window.auth = getAuth(app);
