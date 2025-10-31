@@ -182,18 +182,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const noFriendsMessage = document.getElementById('no-friends-message');
             if (snapshot.empty) {
                 if(noFriendsMessage) noFriendsMessage.style.display = 'block';
-                // *** PIXIE BANISHED! ***
                 friendsWishlistGrid.innerHTML = ''; 
             } else {
                  if(noFriendsMessage) noFriendsMessage.style.display = 'none';
-                 // *** PIXIE BANISHED! ***
                  friendsWishlistGrid.innerHTML = '';
             }
 
             snapshot.forEach(friendDoc => {
                 const friendId = friendDoc.id;
                 const friendCard = createFriendCard(friendId);
-                // *** PIXIE BANISHED! ***
                 friendsWishlistGrid.appendChild(friendCard);
             });
         });
