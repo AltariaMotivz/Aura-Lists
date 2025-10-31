@@ -141,12 +141,15 @@ document.addEventListener("DOMContentLoaded", () => {
             actionsHtml = `<p class="claimed-by-other">Claimed by another friend</p>`;
         }
 
+        // --- CSS HARMONY FIX: Replaced card-content, etc. with direct HTML ---
         card.innerHTML = `
             <img src="${wish.image || 'https://placehold.co/300x200/F3E8FF/C5A8E8?text=No+Image'}" alt="${wish.name}">
-            <h3>${wish.name}</h3>
-            <p>${wish.notes}</p>
-            ${wish.link ? `<a href="${wish.link}" target="_blank" class="view-item-link">View Item</a>` : ''}
-            <div class="wish-actions">${actionsHtml}</div>
+            <div class="card-content"> 
+                <h2>${wish.name}</h2>
+                <p class="card-notes">${wish.notes || ' '}</p>
+                ${wish.link ? `<a href="${wish.link}" target="_blank" class="card-link">View Item</a>` : ''}
+                <div class="card-actions">${actionsHtml}</div>
+            </div>
         `;
 
         // Add event listeners for buttons
@@ -231,7 +234,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // === 4. CAST OUR INITIAL SPELLS (EVENT LISTENERS) ===
-    // Now these spells are safely inside the DOMContentLoaded wrapper!
     setupRecaptcha(); 
 
     dashboardNavBtn.addEventListener('click', () => showPage('dashboard'));
@@ -270,8 +272,15 @@ document.addEventListener("DOMContentLoaded", () => {
         signOut(window.auth);
     });
 
-    openAddWishModalBtn.addEventListener('click', () => addWishModalBackdrop.style.display = 'flex');
-    cancelWishBtn.addEventListener('click', () => addWishModalBackdrop.style.display = 'none');
+    // --- "ADD A WISH" MODAL SPELLS (NOW IN HARMONY WITH CSS!) ---
+    openAddWishModalBtn.addEventListener('click', () => {
+        console.log("Opening Add Wish Modal...");
+        addWishModalBackdrop.classList.add('active');
+    });
+    cancelWishBtn.addEventListener('click', () => {
+        console.log("Closing Add Wish Modal...");
+        addWishModalBackdrop.classList.remove('active');
+    });
 
     addWishForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -288,20 +297,21 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             await addDoc(collection(window.db, "wishes"), wish);
             addWishForm.reset();
-            addWishModalBackdrop.style.display = 'none';
+            addWishModalBackdrop.classList.remove('active');
         } catch (error) {
             console.error("Error adding wish:", error);
         }
     });
 
-    // === THIS IS THE TEST! ===
+    // --- "ADD A FRIEND" MODAL SPELLS (NOW IN HARMONY WITH CSS!) ---
     addFriendBtn.addEventListener('click', () => {
-        console.log("The magical bell has been rung! The 'Add Friend' button was clicked!");
-        addFriendModalBackdrop.style.display = 'flex';
+        console.log("Opening Add Friend Modal...");
+        addFriendModalBackdrop.classList.add('active');
     });
-    // ===========================
-
-    cancelFriendBtn.addEventListener('click', () => addFriendModalBackdrop.style.display = 'none');
+    cancelFriendBtn.addEventListener('click', () => {
+        console.log("Closing Add Friend Modal...");
+        addFriendModalBackdrop.classList.remove('active');
+    });
 
     addFriendForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -318,13 +328,13 @@ document.addEventListener("DOMContentLoaded", () => {
                return; 
             }
             const friendRef = doc(window.db, `users/${currentUser.uid}/friends`, friendId);
-            await setDoc(friendRef, { addedAt: new Date(), friendName: "A Friend" }); // You can expand this later
+            await setDoc(friendRef, { addedAt: new Date(), friendName: "A Friend" }); 
             addFriendStatus.textContent = "Friend added successfully!";
             
-            friendIdInput.value = ''; // Reset input field
+            friendIdInput.value = ''; 
             setTimeout(() => {
-                addFriendModalBackdrop.style.display = 'none';
-                addFriendStatus.textContent = ''; // Clear status message
+                addFriendModalBackdrop.classList.remove('active');
+                addFriendStatus.textContent = ''; 
             }, 1500);
 
         } catch (error) {
@@ -342,7 +352,6 @@ document.addEventListener("DOMContentLoaded", () => {
             appContainer.classList.remove('hidden');
             userFriendIdElement.textContent = user.uid;
             userFriendIdElement.onclick = () => {
-                // Use a fallback for clipboard writeText
                 try {
                     navigator.clipboard.writeText(user.uid).then(() => {
                         userFriendIdElement.textContent = 'Copied!';
@@ -350,7 +359,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 } catch (err) {
                     console.error('Failed to copy text: ', err);
-                    // Fallback for insecure contexts (like http)
                     const textArea = document.createElement("textarea");
                     textArea.value = user.uid;
                     document.body.appendChild(textArea);
@@ -366,11 +374,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.body.removeChild(textArea);
                 }
             };
+            
             showPage('dashboard');
+            
             if (wishesUnsubscribe) wishesUnsubscribe();
             if (friendsUnsubscribe) friendsUnsubscribe();
+            
             wishesUnsubscribe = fetchMyWishes(user.uid);
             friendsUnsubscribe = fetchFriends(user.uid);
+            
         } else {
             currentUser = null;
             if (wishesUnsubscribe) wishesUnsubscribe();
