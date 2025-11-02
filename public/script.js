@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addFriendModalBackdrop = document.getElementById('addFriendModalBackdrop');
     const addFriendForm = document.getElementById('addFriendForm');
     const friendIdInput = document.getElementById('friendIdInput');
-    const cancelAddFriendBtn = document.getElementById('cancelAddFriendBtn');
+    const cancelAddWishBtn = document.getElementById('cancelAddFriendBtn');
     const addFriendStatus = document.getElementById('addFriendStatus');
 
     // Friend's Wishlist Modal
@@ -318,8 +318,26 @@ document.addEventListener("DOMContentLoaded", () => {
         // Use a placeholder if no image is provided
         const image = wish.imageUrl || `https://placehold.co/600x400/f9f7f3/e7b2a5?text=${encodeURIComponent(wish.name)}`;
         
+        // --- THIS IS THE NEW MAGIC ---
+        // Conditionally wrap the image in a link if it's a friend's list and a link exists
+        let imageElement;
+        if (!isOwner && wish.link) {
+            // It's a friend's list and a link exists, make the image clickable!
+            imageElement = `
+                <a href="${wish.link}" target="_blank" rel="noopener noreferrer" aria-label="View item ${wish.name}">
+                    <img src="${image}" alt="${wish.name}" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">
+                </a>
+            `;
+        } else {
+            // It's the owner's list OR there's no link, just show the image.
+            imageElement = `
+                <img src="${image}" alt="${wish.name}" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">
+            `;
+        }
+        // --- END OF NEW MAGIC ---
+
         card.innerHTML = `
-            <img src="${image}" alt="${wish.name}" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">
+            ${imageElement}
             <div class="card-content">
                 <h2>${wish.name}</h2>
                 <p class="card-notes">${wish.notes || 'No notes for this wish.'}</p>
@@ -378,11 +396,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         try {
-            // --- THIS LINE IS THE ONLY CHANGE ---
-            // The pixie "wWishes" has been banished!
             await addDoc(collection(db, "wishes"), wish);
-            // --- END OF CHANGE ---
-
             console.log("Wish has been cast!");
             addWishForm.reset();
             addWishModalBackdrop.classList.remove('active');
