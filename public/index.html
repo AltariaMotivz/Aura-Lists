@@ -11,7 +11,7 @@
 </head>
 <body>
 
-    <!-- Authentication Gateway (No changes here) -->
+    <!-- Authentication Gateway (Perfect) -->
     <div id="auth-container">
         <div class="auth-box">
             <h1>Crystal Wishlist</h1>
@@ -33,22 +33,21 @@
     <div id="app-container" class="hidden">
         <div class="page-container">
             
-            <!-- Header (No changes here) -->
+            <!-- Header (Perfect) -->
             <header>
                 <h1 id="pageTitle">My Magical Wishlist</h1>
                 <button id="sign-out-button" class="sign-out-btn">Sign Out</button>
             </header>
 
-            <!-- Navigation Tabs (New!) -->
+            <!-- Navigation Tabs (Perfect) -->
             <nav class="tabs">
                 <button id="dashboardTab" class="tab-btn active">Dashboard</button>
                 <button id="myWishlistTab" class="tab-btn">My Wishlist</button>
             </nav>
 
-            <!-- == PAGE 1: Dashboard == -->
+            <!-- == PAGE 1: Dashboard (Perfect) == -->
             <main id="dashboardPage" class="dashboard-grid">
                 
-                <!-- NEW: Your Profile Box -->
                 <div class="profile-box glass-panel">
                     <h3>Your Profile</h3>
                     <p>Your unique Friend ID (share this!):<br>
@@ -62,7 +61,6 @@
                     <p id="name-status" class="status-text"></p>
                 </div>
                 
-                <!-- Friends' Wishlists Section -->
                 <div class="friends-list-box glass-panel">
                     <div class="friends-header">
                         <h3>Friends' Wishlists</h3>
@@ -74,25 +72,27 @@
                 </div>
             </main>
 
-            <!-- == PAGE 2: My Wishlist == -->
-            <main id="myWishlistPage" class="wishlist-grid hidden" id="wishlistGrid">
-                <!-- My wishes will be magically summoned here! -->
+            <!-- == PAGE 2: My Wishlist (FIX #1) == -->
+            <!-- The 'main' element is the page container. -->
+            <!-- The 'wishlistGrid' is now a 'div' INSIDE it. -->
+            <main id="myWishlistPage" class="hidden">
                 <p id="loadingMessage" style="text-align: center; color: var(--text-muted);">Summoning your wishes...</p>
+                <div id="wishlistGrid" class="wishlist-grid">
+                    <!-- My wishes will be magically summoned here! -->
+                </div>
             </main>
 
-            <!-- Floating 'Add Wish' Button (Moved) -->
+            <!-- Floating 'Add Wish' Button (Perfect) -->
             <button class="floating-add-btn hidden" id="addWishBtn">+</button>
 
         </div>
 
-        <!-- === Modals (Re-enchanted!) === -->
+        <!-- === Modals (All Perfect) === -->
 
-        <!-- Add Wish Modal (No changes) -->
         <div class="modal-backdrop" id="addWishModalBackdrop">
             <div class="modal">
                 <h2>Add a New Wish</h2>
                 <form id="addWishForm">
-                    <!-- ... all form inputs ... -->
                     <label for="itemName">Wish Title</label>
                     <input type="text" id="itemName" name="itemName" placeholder="e.g., A Book of Spells" required>
                     <label for="itemLink">Link to Item</label>
@@ -109,7 +109,6 @@
             </div>
         </div>
         
-        <!-- NEW: Add Friend Modal (No changes) -->
         <div class="modal-backdrop" id="addFriendModalBackdrop">
             <div class="modal">
                 <h2>Add a New Friend</h2>
@@ -125,7 +124,6 @@
             </div>
         </div>
 
-        <!-- NEW: Friend's Wishlist Modal -->
         <div class="modal-backdrop" id="friendWishlistModalBackdrop">
             <div class="modal modal-large">
                 <h2 id="friendWishlistTitle">Friend's Wishlist</h2>
@@ -140,12 +138,15 @@
 
     </div>
 
-    <!-- === FIREBASE MAGIC (No changes here) === -->
+    <!-- === FIREBASE MAGIC (FIX #2) === -->
     <script type="module">
         // Import all your Firebase spells...
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"; 
         import { getAnalytics }from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-        import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        
+        // This line now correctly includes 'getDocs'
+        import { getFirestore, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
         import { getAuth, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // Your web app's Firebase configuration
@@ -168,7 +169,7 @@
         window.auth = getAuth(app);
     </script>
     
-    <!-- === YOUR MAGICAL SPELLBOOK (Re-enchanted!) === -->
+    <!-- === YOUR MAGICAL SPELLBOOK (Perfect) === -->
     <script type="module" src="script.js"></script>
 
 </body>

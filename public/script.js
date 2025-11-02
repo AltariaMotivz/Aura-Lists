@@ -1,6 +1,6 @@
 // Import all the magical spells from our Firebase scrolls
 import { 
-    doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, 
+    doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, 
     onSnapshot, collection, query, where, writeBatch 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -378,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         try {
-            await addDoc(collection(db, "wishes"), wish);
+            await addDoc(collection(db, "wWishes"), wish);
             console.log("Wish has been cast!");
             addWishForm.reset();
             addWishModalBackdrop.classList.remove('active');
@@ -496,7 +496,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // NEW: Spell to open a friend's wishlist in a modal
+    // (FIX #2) Spell to open a friend's wishlist in a modal
     async function openFriendWishlist(friendId, friendName) {
         friendWishlistTitle.textContent = `${friendName}'s Wishlist`;
         friendWishlistContainer.innerHTML = '<p>Summoning their wishes...</p>';
@@ -504,7 +504,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Fetch the friend's wishes
         const q = query(collection(db, "wishes"), where("ownerId", "==", friendId));
-        const snapshot = await getDoc(q); // Use getDoc for a one-time fetch
+        
+        // We now correctly use 'getDocs' (plural) for a query
+        const snapshot = await getDocs(q); 
         
         if (snapshot.empty) {
             friendWishlistContainer.innerHTML = '<p>This friend has no wishes yet!</p>';
@@ -520,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // NEW: Spell to close the friend's wishlist modal
+    // Spell to close the friend's wishlist modal
     closeFriendWishlistBtn.addEventListener('click', () => {
         friendWishlistModalBackdrop.classList.remove('active');
     });
