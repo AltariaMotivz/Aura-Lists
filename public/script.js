@@ -378,7 +378,11 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         try {
-            await addDoc(collection(db, "wWishes"), wish);
+            // --- THIS LINE IS THE ONLY CHANGE ---
+            // The pixie "wWishes" has been banished!
+            await addDoc(collection(db, "wishes"), wish);
+            // --- END OF CHANGE ---
+
             console.log("Wish has been cast!");
             addWishForm.reset();
             addWishModalBackdrop.classList.remove('active');
