@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let recaptchaVerifier = null;
     let friendWishlistUnsubscribe = null; // To stop listening when we log out
 
-    // --- Summoning Our Magical Elements ---
+    // --- Summoning Our Magical Elements (Duplicates Banished!) ---
     // Auth Page
     const authContainer = document.getElementById('auth-container');
     const phoneForm = document.getElementById('phone-form');
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addFriendModalBackdrop = document.getElementById('addFriendModalBackdrop');
     const addFriendForm = document.getElementById('addFriendForm');
     const friendIdInput = document.getElementById('friendIdInput');
-    const cancelAddWishBtn = document.getElementById('cancelAddFriendBtn');
+    const cancelAddFriendBtn = document.getElementById('cancelAddFriendBtn');
     const addFriendStatus = document.getElementById('addFriendStatus');
 
     // Friend's Wishlist Modal
@@ -188,8 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
             appContainer.classList.add('hidden');
             
             // Clean up old magic
-            wishlistGrid.innerHTML = '';
-            friendWishlistGridContainer.innerHTML = '';
+            if(wishlistGrid) wishlistGrid.innerHTML = '';
+            if(friendWishlistGridContainer) friendWishlistGridContainer.innerHTML = '';
             if (friendWishlistUnsubscribe) {
                 friendWishlistUnsubscribe(); // Stop listening to friend changes
             }
@@ -293,13 +293,12 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Use onSnapshot to listen for real-time changes!
         onSnapshot(q, (snapshot) => {
+            wishlistGrid.innerHTML = ''; // Banish old wishes
             if (snapshot.empty) {
                 loadingMessage.textContent = "Your wishlist is empty. Add a wish!";
                 return;
             }
             
-            // Clear the grid and summon the wishes
-            wishlistGrid.innerHTML = ''; // Banish old wishes
             loadingMessage.textContent = ''; // Banish loading message
             
             snapshot.forEach((doc) => {
@@ -318,7 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Use a placeholder if no image is provided
         const image = wish.imageUrl || `https://placehold.co/600x400/f9f7f3/e7b2a5?text=${encodeURIComponent(wish.name)}`;
         
-        // --- THIS IS THE NEW MAGIC ---
         // Conditionally wrap the image in a link if it's a friend's list and a link exists
         let imageElement;
         if (!isOwner && wish.link) {
@@ -334,7 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <img src="${image}" alt="${wish.name}" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">
             `;
         }
-        // --- END OF NEW MAGIC ---
 
         card.innerHTML = `
             ${imageElement}
@@ -476,13 +473,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Listen for changes to our friends list
         friendWishlistUnsubscribe = onSnapshot(friendsCollection, (snapshot) => {
+            friendWishlistGridContainer.innerHTML = ''; // Banish old list
             if (snapshot.empty) {
                 friendsLoadingMessage.textContent = "You haven't added any friends yet. Add one with the '+' button!";
                 return;
             }
             
             friendsLoadingMessage.textContent = ''; // Banish loading message
-            friendWishlistGridContainer.innerHTML = ''; // Banish old list
             
             // For each friend, create a card
             snapshot.forEach(async (friendDoc) => {
