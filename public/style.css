@@ -1,13 +1,19 @@
 /* --- Font & Color Spellbook (Fairy Theme) --- */
 :root {
-    --light-background: #f9f7f3; /* A soft, silk blossom white */
-    --fairy-accent: #e7b2a5; /* A gentle, rose-gold shimmer */
-    --glass-panel-bg: rgba(255, 255, 255, 0.45); /* Sunlit frosted glass */
-    --border-color: rgba(0, 0, 0, 0.1); /* A subtle, shadowy edge */
+    --light-background: #f9f7f3;
+    /* A soft, silk blossom white */
+    --fairy-accent: #e7b2a5;
+    /* A gentle, rose-gold shimmer */
+    --glass-panel-bg: rgba(255, 255, 255, 0.45);
+    /* Sunlit frosted glass */
+    --border-color: rgba(0, 0, 0, 0.1);
+    /* A subtle, shadowy edge */
     --font-heading: 'Cormorant Garamond', serif;
     --font-body: 'Poppins', sans-serif;
-    --text-dark: #5c4b4b; /* A soft, earthy brown */
-    --text-muted: #a18f8f; /* A lighter, gentle brown */
+    --text-dark: #5c4b4b;
+    /* A soft, earthy brown */
+    --text-muted: #a18f8f;
+    /* A lighter, gentle brown */
 }
 
 /* --- Base Enchantments --- */
@@ -23,7 +29,7 @@ body {
     color: var(--text-dark);
     /* A gentle, sunny background glow */
     background-image: radial-gradient(circle at 10% 20%, rgba(231, 178, 165, 0.2), transparent 40%),
-                      radial-gradient(circle at 80% 90%, rgba(240, 230, 200, 0.3), transparent 50%);
+        radial-gradient(circle at 80% 90%, rgba(240, 230, 200, 0.3), transparent 50%);
     min-height: 100vh;
 }
 
@@ -36,6 +42,9 @@ body {
 header {
     text-align: center;
     margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 h1 {
@@ -114,6 +123,7 @@ h1 {
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
     cursor: pointer;
+    font-family: var(--font-body);
 }
 
 /* --- Floating Action Button --- */
@@ -141,6 +151,20 @@ h1 {
     transform: scale(1.1);
 }
 
+.floating-add-btn-small {
+    width: 40px;
+    height: 40px;
+    background-color: var(--fairy-accent);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* --- Modal Styling --- */
 .modal-backdrop {
     position: fixed;
@@ -148,7 +172,8 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.2); /* A lighter backdrop */
+    background: rgba(255, 255, 255, 0.2);
+    /* A lighter backdrop */
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     display: flex;
@@ -157,6 +182,7 @@ h1 {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+    z-index: 1000;
 }
 
 .modal-backdrop.active {
@@ -202,8 +228,10 @@ h1 {
     color: var(--text-muted);
 }
 
-.modal input, .modal textarea {
-    background: rgba(255, 255, 255, 0.5); /* Lighter inputs */
+.modal input,
+.modal textarea {
+    background: rgba(255, 255, 255, 0.5);
+    /* Lighter inputs */
     border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 0.8rem;
@@ -219,12 +247,14 @@ h1 {
     margin-top: 1rem;
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary,
+.btn-secondary {
     padding: 0.8rem 1.5rem;
     border: none;
     border-radius: 20px;
     font-weight: 500;
     cursor: pointer;
+    font-family: var(--font-body);
 }
 
 .btn-primary {
@@ -237,8 +267,6 @@ h1 {
     border: 1px solid var(--border-color);
     color: var(--text-dark);
 }
-
-/* --- Add these new styles to the BOTTOM of your existing style.css file --- */
 
 /* --- Authentication Gateway Styling --- */
 .hidden {
@@ -325,9 +353,100 @@ h1 {
     margin-top: 1rem;
 }
 
-header {
+/* --- Tabs Styling --- */
+.tabs {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
+.tab-btn {
+    background: none;
+    border: none;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--fairy-accent);
+}
+
+.glass-panel {
+    background: var(--glass-panel-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* --- New Styles: Phase 2 Buttons & Badges --- */
+
+.btn-primary.small,
+.btn-secondary.small {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Claim Button (Gold/Green shimmer) */
+.claim-btn {
+    background: linear-gradient(135deg, #e7b2a5 0%, #d4a373 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(231, 178, 165, 0.4);
+}
+
+/* Unclaim Button */
+.unclaim-btn {
+    border-color: #d4a373;
+    color: #d4a373;
+}
+
+/* Edit Button */
+.edit-btn {
+    border-color: #a18f8f;
+    color: #a18f8f;
+}
+
+.edit-btn:hover {
+    background: rgba(161, 143, 143, 0.1);
+}
+
+/* Delete Button (Subtle Red warning) */
+.delete-btn:hover {
+    border-color: #e57373;
+    color: #e57373;
+    background: rgba(229, 115, 115, 0.1);
+}
+
+/* Claim Status Badges */
+.claim-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.claim-badge.mine {
+    background-color: rgba(231, 178, 165, 0.2);
+    color: #c98a7a;
+    border: 1px solid rgba(231, 178, 165, 0.5);
+}
+
+.claim-badge.other {
+    background-color: rgba(161, 143, 143, 0.1);
+    color: #a18f8f;
+    border: 1px solid rgba(161, 143, 143, 0.3);
+}
