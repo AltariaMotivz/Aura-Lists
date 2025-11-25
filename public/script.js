@@ -102,7 +102,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     phoneForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const phoneNumber = phoneNumberInput.value;
+
+        // --- NEW: Flexible Input Magic (Roadmap Item #3) ---
+        let rawInput = phoneNumberInput.value;
+        // 1. Remove all non-numeric characters (parentheses, dashes, spaces)
+        let cleaned = rawInput.replace(/\D/g, '');
+
+        // 2. If it starts with '1' (US country code), allow it. 
+        // If it's 10 digits, add '1'.
+        if (cleaned.length === 10) {
+            cleaned = '1' + cleaned;
+        }
+
+        // 3. Add the plus sign
+        const phoneNumber = '+' + cleaned;
+        console.log(`Converting "${rawInput}" to spell-ready format: ${phoneNumber}`);
+        // ----------------------------------------------------
+
         if (!recaptchaVerifier) {
             setupRecaptcha();
         }
