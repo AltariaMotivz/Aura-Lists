@@ -45,7 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const myWishlistPage = document.getElementById('myWishlistPage');
 
     // Dashboard Page
-    const userFriendId = document.getElementById('userFriendId');
     const nameForm = document.getElementById('name-form');
     const nameInput = document.getElementById('name-input');
     const nameStatus = document.getElementById('name-status');
@@ -73,11 +72,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const cancelAddFriendBtn = document.getElementById('cancelAddFriendBtn');
     const addFriendStatus = document.getElementById('addFriendStatus');
 
-    // Friend's Wishlist Modal
-    const friendWishlistModalBackdrop = document.getElementById('friendWishlistModalBackdrop');
-    const friendWishlistTitle = document.getElementById('friendWishlistTitle');
+    // Friend's Wishlist Page
+    const friendWishlistPage = document.getElementById('friendWishlistPage');
+    const friendPageTitle = document.getElementById('friendPageTitle');
     const friendWishlistContainer = document.getElementById('friendWishlistContainer');
-    const closeFriendWishlistBtn = document.getElementById('closeFriendWishlistBtn');
+    const backToDashboardBtn = document.getElementById('backToDashboardBtn');
 
     // --- The Gateway Spells (Authentication) ---
 
@@ -136,7 +135,17 @@ document.addEventListener("DOMContentLoaded", () => {
             codeForm.classList.remove('hidden');
         } catch (error) {
             console.error("A pixie blocked the message!", error);
-            authStatus.textContent = `Error: ${error.message}`;
+
+            if (error.code === 'auth/invalid-app-credential') {
+                authStatus.innerHTML = `
+                    Error: App not authorized.<br>
+                    <small>1. Add 'localhost' to Authorized Domains in Firebase Console.<br>
+                    2. Or use a Test Phone Number (see FIREBASE_SETUP.md).</small>
+                `;
+            } else {
+                authStatus.textContent = `Error: ${error.message}`;
+            }
+
             authStatus.style.color = "var(--fairy-accent)";
             setupRecaptcha();
         } finally {
@@ -183,10 +192,12 @@ document.addEventListener("DOMContentLoaded", () => {
             appContainer.classList.remove('hidden');
 
             checkAndCreateUserDoc(user);
-            displayUserFriendId(user.uid);
             fetchMyWishes(user.uid);
             fetchFriends(user.uid);
             setupNameForm(user.uid);
+
+            // Initialize View
+            showPage('dashboard');
 
         } else {
             currentUser = null;
@@ -224,9 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function displayUserFriendId(uid) {
-        userFriendId.textContent = uid;
-    }
+
 
     function setupNameForm(uid) {
         nameForm.onsubmit = async (e) => {
@@ -257,19 +266,26 @@ document.addEventListener("DOMContentLoaded", () => {
     function showPage(page) {
         dashboardPage.classList.add('hidden');
         myWishlistPage.classList.add('hidden');
+        friendWishlistPage.classList.add('hidden');
         addWishBtn.classList.add('hidden');
 
         if (page === 'dashboard') {
             dashboardPage.classList.remove('hidden');
-            pageTitle.textContent = "Dashboard";
+            pageTitle.textContent = "Aura List";
             dashboardTab.classList.add('active');
             myWishlistTab.classList.remove('active');
         } else if (page === 'my-wishlist') {
             myWishlistPage.classList.remove('hidden');
             addWishBtn.classList.remove('hidden');
-            pageTitle.textContent = "My Magical Wishlist";
+            pageTitle.textContent = "My Wishlist";
+            myWishlistTab.classList.add('active');
             myWishlistTab.classList.add('active');
             dashboardTab.classList.remove('active');
+        } else if (page === 'friend-wishlist') {
+            friendWishlistPage.classList.remove('hidden');
+            // No tab is active when viewing a friend
+            dashboardTab.classList.remove('active');
+            myWishlistTab.classList.remove('active');
         }
     }
 
@@ -311,10 +327,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 1. Image Logic
         const imageSrc = wish.imageUrl || `https://placehold.co/600x400/f9f7f3/e7b2a5?text=${encodeURIComponent(wish.name)}`;
-        let imageElement = `<img src="${imageSrc}" alt="${wish.name}" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">`;
+        let imageElement = `<img src="${imageSrc}" alt="${wish.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">`;
 
-        // If it's a friend viewing and there's a link, wrap image in link
-        if (!isOwner && wish.link) {
+        // If there's a link, wrap image in link (for everyone)
+        if (wish.link) {
             imageElement = `<a href="${wish.link}" target="_blank" rel="noopener noreferrer">${imageElement}</a>`;
         }
 
@@ -493,9 +509,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addFriendForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const friendId = friendIdInput.value.trim();
+        const rawInput = friendIdInput.value.trim();
 
-        if (friendId === currentUser.uid) {
+        // 1. Sanitize Input (Same logic as login)
+        let cleaned = rawInput.replace(/\D/g, '');
+        if (cleaned.length === 10) {
+            cleaned = '1' + cleaned;
+        }
+        const friendPhoneNumber = '+' + cleaned;
+
+        if (friendPhoneNumber === currentUser.phoneNumber) {
             addFriendStatus.textContent = "You cannot add yourself, silly!";
             addFriendStatus.style.color = "var(--fairy-accent)";
             return;
@@ -505,15 +528,21 @@ document.addEventListener("DOMContentLoaded", () => {
         addFriendStatus.style.color = "var(--text-muted)";
 
         try {
-            const friendRef = doc(db, "users", friendId);
-            const friendDoc = await getDoc(friendRef);
+            // 2. Query by Phone Number
+            const q = query(collection(db, "users"), where("phone", "==", friendPhoneNumber));
+            const querySnapshot = await getDocs(q);
 
-            if (!friendDoc.exists()) {
-                addFriendStatus.textContent = "Could not find a friend with that ID.";
+            if (querySnapshot.empty) {
+                addFriendStatus.textContent = "Could not find a friend with that phone number.";
                 addFriendStatus.style.color = "var(--fairy-accent)";
                 return;
             }
 
+            // 3. Get the first match (should be unique)
+            const friendDoc = querySnapshot.docs[0];
+            const friendId = friendDoc.id;
+
+            // 4. Add Friend using their UID
             const myFriendRef = doc(db, "users", currentUser.uid, "friends", friendId);
             await setDoc(myFriendRef, { addedAt: new Date() });
 
@@ -542,49 +571,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
         friendWishlistUnsubscribe = onSnapshot(friendsCollection, (snapshot) => {
             friendWishlistGridContainer.innerHTML = '';
+
             if (snapshot.empty) {
-                friendsLoadingMessage.textContent = "You haven't added any friends yet. Add one with the '+' button!";
+                friendWishlistGridContainer.innerHTML = '<p class="status-text">You haven\'t added any friends yet. Add one with the "+" button!</p>';
                 return;
             }
-            friendsLoadingMessage.textContent = '';
 
             snapshot.forEach(async (friendDoc) => {
                 const friendId = friendDoc.id;
 
-                const friendUserDoc = await getDoc(doc(db, "users", friendId));
-                let friendName = friendId;
+                try {
+                    const friendUserDoc = await getDoc(doc(db, "users", friendId));
+                    let friendName = friendId; // Fallback to ID
 
-                if (friendUserDoc.exists()) {
-                    friendName = friendUserDoc.data().displayName || friendName;
+                    if (friendUserDoc.exists()) {
+                        const data = friendUserDoc.data();
+                        // Use displayName, or phone, or fallback
+                        friendName = data.displayName || data.phone || friendId;
+                    }
+
+                    const friendElement = document.createElement('div');
+                    friendElement.className = 'friend-card glass-panel';
+                    friendElement.innerHTML = `
+                        <h4>${friendName}</h4>
+                    `;
+
+                    friendElement.addEventListener('click', () => {
+                        openFriendWishlist(friendId, friendName);
+                    });
+
+                    friendWishlistGridContainer.appendChild(friendElement);
+                } catch (err) {
+                    console.error("Error fetching friend details:", err);
                 }
-
-                const friendElement = document.createElement('div');
-                friendElement.className = 'friend-card glass-panel';
-                friendElement.innerHTML = `
-                    <h4>${friendName}</h4>
-                    <p>${friendId}</p>
-                `;
-
-                friendElement.addEventListener('click', () => {
-                    openFriendWishlist(friendId, friendName);
-                });
-
-                friendWishlistGridContainer.appendChild(friendElement);
             });
+        }, (error) => {
+            console.error("Error fetching friends list:", error);
+            friendWishlistGridContainer.innerHTML = `<p class="status-text error">Error loading friends: ${error.message}</p>`;
         });
     }
 
     async function openFriendWishlist(friendId, friendName) {
-        friendWishlistTitle.textContent = `${friendName}'s Wishlist`;
-        friendWishlistContainer.innerHTML = '<p>Summoning their wishes...</p>';
-        friendWishlistModalBackdrop.classList.add('active');
+        showPage('friend-wishlist');
+        friendPageTitle.textContent = `${friendName}'s Wishlist`;
+        friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">Summoning their wishes...</p>';
 
         const q = query(collection(db, "wishes"), where("ownerId", "==", friendId));
 
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-            friendWishlistContainer.innerHTML = '<p>This friend has no wishes yet!</p>';
+            friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">This friend has no wishes yet!</p>';
             return;
         }
 
@@ -598,8 +635,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    closeFriendWishlistBtn.addEventListener('click', () => {
-        friendWishlistModalBackdrop.classList.remove('active');
+    backToDashboardBtn.addEventListener('click', () => {
+        showPage('dashboard');
     });
 
 }); // End of the Grand Enchantment (DOMContentLoaded)

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,11 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Poppins:wght@400;5A00&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Poppins:wght@400;5A00&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
 
     <!-- Authentication Gateway (Perfect) -->
@@ -21,8 +25,8 @@
                 <button type="submit" id="sign-in-button">Send Code</button>
             </form>
             <form id="code-form" class="hidden">
-                 <input type="text" id="code-input" placeholder="123456" required>
-                 <button type="submit" id="verify-code-button">Verify Code</button>
+                <input type="text" id="code-input" placeholder="123456" required>
+                <button type="submit" id="verify-code-button">Verify Code</button>
             </form>
             <div id="recaptcha-container"></div>
             <p id="auth-status" class="auth-status"></p>
@@ -32,10 +36,10 @@
     <!-- Main Application (Re-enchanted!) -->
     <div id="app-container" class="hidden">
         <div class="page-container">
-            
+
             <!-- Header (Perfect) -->
             <header>
-                <h1 id="pageTitle">My Magical Wishlist</h1>
+                <h1 id="pageTitle">Aura List</h1>
                 <button id="sign-out-button" class="sign-out-btn">Sign Out</button>
             </header>
 
@@ -47,12 +51,10 @@
 
             <!-- == PAGE 1: Dashboard (Perfect) == -->
             <main id="dashboardPage" class="dashboard-grid">
-                
+
                 <div class="profile-box glass-panel">
                     <h3>Your Profile</h3>
-                    <p>Your unique Friend ID (share this!):<br>
-                        <strong id="userFriendId" class="friend-id-text">...loading...</strong>
-                    </p>
+
                     <form id="name-form" class="name-form">
                         <label for="name-input">Your Display Name:</label>
                         <input type="text" id="name-input" placeholder="Enter your name">
@@ -60,7 +62,7 @@
                     </form>
                     <p id="name-status" class="status-text"></p>
                 </div>
-                
+
                 <div class="friends-list-box glass-panel">
                     <div class="friends-header">
                         <h3>Friends' Wishlists</h3>
@@ -76,9 +78,21 @@
             <!-- The 'main' element is the page container. -->
             <!-- The 'wishlistGrid' is now a 'div' INSIDE it. -->
             <main id="myWishlistPage" class="hidden">
-                <p id="loadingMessage" style="text-align: center; color: var(--text-muted);">Summoning your wishes...</p>
+                <p id="loadingMessage" style="text-align: center; color: var(--text-muted);">Summoning your wishes...
+                </p>
                 <div id="wishlistGrid" class="wishlist-grid">
                     <!-- My wishes will be magically summoned here! -->
+                </div>
+            </main>
+
+            <!-- == PAGE 3: Friend's Wishlist (NEW) == -->
+            <main id="friendWishlistPage" class="hidden">
+                <div class="friend-page-header">
+                    <button id="backToDashboardBtn" class="btn-secondary small">← Back to Dashboard</button>
+                    <h2 id="friendPageTitle">Friend's Wishlist</h2>
+                </div>
+                <div id="friendWishlistContainer" class="wishlist-grid">
+                    <!-- Friend's wishes will be summoned here -->
                 </div>
             </main>
 
@@ -98,9 +112,11 @@
                     <label for="itemLink">Link to Item</label>
                     <input type="url" id="itemLink" name="itemLink" placeholder="https://magical-emporium.com/...">
                     <label for="itemNotes">Notes</label>
-                    <textarea id="itemNotes" name="itemNotes" rows="3" placeholder="Any details, colors, or enchantments..."></textarea>
+                    <textarea id="itemNotes" name="itemNotes" rows="3"
+                        placeholder="Any details, colors, or enchantments..."></textarea>
                     <label for="itemImage">Image URL</label>
-                    <input type="url" id="itemImage" name="itemImage" placeholder="https://magical-emporium.com/image.png">
+                    <input type="url" id="itemImage" name="itemImage"
+                        placeholder="https://magical-emporium.com/image.png">
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" id="cancelAddWishBtn">Cancel</button>
                         <button type="submit" class="btn-primary">Add Wish</button>
@@ -108,13 +124,13 @@
                 </form>
             </div>
         </div>
-        
+
         <div class="modal-backdrop" id="addFriendModalBackdrop">
             <div class="modal">
                 <h2>Add a New Friend</h2>
                 <form id="addFriendForm">
-                    <label for="friendIdInput">Friend's ID</label>
-                    <input type="text" id="friendIdInput" name="friendIdInput" placeholder="Enter your friend's unique ID" required>
+                    <label for="friendIdInput">Friend's Phone Number</label>
+                    <input type="tel" id="friendIdInput" placeholder="e.g. 555-555-5555" required>
                     <p id="addFriendStatus" class="status-text"></p>
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" id="cancelAddFriendBtn">Cancel</button>
@@ -124,26 +140,16 @@
             </div>
         </div>
 
-        <div class="modal-backdrop" id="friendWishlistModalBackdrop">
-            <div class="modal modal-large">
-                <h2 id="friendWishlistTitle">Friend's Wishlist</h2>
-                <div id="friendWishlistContainer" class="wishlist-grid">
-                    <!-- Friend's wishes will be summoned here -->
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="closeFriendWishlistBtn">Close</button>
-                </div>
-            </div>
-        </div>
+
 
     </div>
 
     <!-- === FIREBASE MAGIC (FIX #2) === -->
     <script type="module">
         // Import all your Firebase spells...
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"; 
-        import { getAnalytics }from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-        
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+
         // This line now correctly includes 'getDocs'
         import { getFirestore, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -163,15 +169,15 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
-        
+
         // Make db and auth globally available on the window
         window.db = getFirestore(app);
         window.auth = getAuth(app);
     </script>
-    
+
     <!-- === YOUR MAGICAL SPELLBOOK (Perfect) === -->
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script.js?v=2.3"></script>
 
 </body>
-</html>
 
+</html>
