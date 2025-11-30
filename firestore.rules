@@ -14,8 +14,8 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      // Allow anyone authenticated to read user profiles (needed to find friends by ID)
-      allow read: if isAuthenticated();
+      // Allow public read access (for sharing links)
+      allow read: if true;
       
       // Only the user can edit their own profile (name, etc.)
       allow write: if isOwner(userId);
@@ -28,8 +28,8 @@ service cloud.firestore {
 
     // Wishes collection
     match /wishes/{wishId} {
-      // Allow authenticated users to read wishes (needed to see friends' wishes)
-      allow read: if isAuthenticated();
+      // Allow public read access (for sharing links)
+      allow read: if true;
       
       // Allow create if the 'ownerId' matches the authenticated user
       allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;

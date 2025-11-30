@@ -13,6 +13,7 @@ The application currently supports the following features:
 *   **Wishlist Management (CRUD)**: Users can create, read, update, and delete their own wishlist items.
 *   **Wish Creation**: The "Add a Wish" modal allows users to save an item's name, an external URL, notes, and an image URL.
 *   **Image Optimization**: Images are lazy-loaded and decoded asynchronously for smooth scrolling performance.
+*   **Public Share Links**: Users can generate a unique link to share their wishlist with anyone (Guest Mode), allowing view-only access without an account.
 *   **Social Functionality**:
     *   **Add Friends by Phone**: Users can add friends using their phone number.
     *   **Dedicated Friend View**: Clicking a friend's name opens a full-page view of their wishlist, optimized for mobile scrolling.

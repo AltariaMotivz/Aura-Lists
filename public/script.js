@@ -185,36 +185,91 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // --- The Grand Listener (Main App Logic) ---
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
+            // User is signed in.
             currentUser = user;
-            authContainer.classList.add('hidden');
-            appContainer.classList.remove('hidden');
 
-            checkAndCreateUserDoc(user);
-            fetchMyWishes(user.uid);
-            fetchFriends(user.uid);
-            setupNameForm(user.uid);
+            // Check for ?uid= param (Guest Mode override)
+            const urlParams = new URLSearchParams(window.location.search);
+            const guestUid = urlParams.get('uid');
 
-            // Initialize View
-            showPage('dashboard');
+            if (guestUid && guestUid !== user.uid) {
+                // Logged in user viewing someone else's public link
+                // We can just show the friend view directly
+                checkAndCreateUserDoc(user); // Ensure own doc exists
+                fetchMyWishes(user.uid); // Fetch own wishes in background
+                fetchFriends(user.uid);
+                setupNameForm(user.uid);
+
+                // Fetch guest user name and show
+                const userDoc = await getDoc(doc(db, "users", guestUid));
+                const guestName = userDoc.exists() ? (userDoc.data().displayName || "A Friend") : "A Friend";
+                openFriendWishlist(guestUid, guestName);
+            } else {
+                // Normal Login Flow
+                authContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                checkAndCreateUserDoc(user);
+                fetchMyWishes(user.uid);
+                fetchFriends(user.uid);
+                setupNameForm(user.uid);
+
+                // Initialize View
+                showPage('dashboard');
+            }
 
         } else {
+            // No user is signed in.
             currentUser = null;
-            authContainer.classList.remove('hidden');
-            appContainer.classList.add('hidden');
 
-            if (wishlistGrid) wishlistGrid.innerHTML = '';
-            if (friendWishlistGridContainer) friendWishlistGridContainer.innerHTML = '';
-            if (friendWishlistUnsubscribe) friendWishlistUnsubscribe();
+            // Check for ?uid= param (Guest Mode)
+            const urlParams = new URLSearchParams(window.location.search);
+            const guestUid = urlParams.get('uid');
 
-            phoneForm.classList.remove('hidden');
-            codeForm.classList.add('hidden');
-            phoneNumberInput.value = '';
-            codeInput.value = '';
-            authStatus.textContent = '';
+            if (guestUid) {
+                // GUEST MODE ACTIVE
+                authContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
 
-            setupRecaptcha();
+                // Hide private controls
+                document.getElementById('sign-out-button').classList.add('hidden');
+                document.getElementById('dashboardTab').classList.add('hidden');
+                document.getElementById('myWishlistTab').classList.add('hidden');
+                document.getElementById('addFriendBtn').classList.add('hidden');
+                document.querySelector('.profile-box').classList.add('hidden');
+
+                // Show Guest CTA
+                document.getElementById('guest-cta').classList.remove('hidden');
+                document.getElementById('create-own-btn').onclick = () => {
+                    window.location.href = window.location.origin; // Reload to clear params and show login
+                };
+
+                // Fetch guest user name and show
+                const userDoc = await getDoc(doc(db, "users", guestUid));
+                const guestName = userDoc.exists() ? (userDoc.data().displayName || "A Friend") : "A Friend";
+                openFriendWishlist(guestUid, guestName);
+
+                // Hide "Back to Dashboard" since there is no dashboard
+                document.getElementById('backToDashboardBtn').classList.add('hidden');
+
+            } else {
+                // Normal Signed Out State
+                authContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+
+                if (wishlistGrid) wishlistGrid.innerHTML = '';
+                if (friendWishlistGridContainer) friendWishlistGridContainer.innerHTML = '';
+                if (friendWishlistUnsubscribe) friendWishlistUnsubscribe();
+
+                phoneForm.classList.remove('hidden');
+                codeForm.classList.add('hidden');
+                phoneNumberInput.value = '';
+                codeInput.value = '';
+                authStatus.textContent = '';
+
+                setupRecaptcha();
+            }
         }
     });
 
@@ -274,6 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
             pageTitle.textContent = "Aura List";
             dashboardTab.classList.add('active');
             myWishlistTab.classList.remove('active');
+            document.getElementById('shareLinkBtn').classList.add('hidden');
         } else if (page === 'my-wishlist') {
             myWishlistPage.classList.remove('hidden');
             addWishBtn.classList.remove('hidden');
@@ -281,11 +337,25 @@ document.addEventListener("DOMContentLoaded", () => {
             myWishlistTab.classList.add('active');
             myWishlistTab.classList.add('active');
             dashboardTab.classList.remove('active');
+
+            // Show Share Button
+            const shareBtn = document.getElementById('shareLinkBtn');
+            shareBtn.classList.remove('hidden');
+            shareBtn.onclick = () => {
+                const url = `${window.location.origin}?uid=${currentUser.uid}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    const originalText = shareBtn.textContent;
+                    shareBtn.textContent = "Copied!";
+                    setTimeout(() => shareBtn.textContent = originalText, 2000);
+                });
+            };
+
         } else if (page === 'friend-wishlist') {
             friendWishlistPage.classList.remove('hidden');
             // No tab is active when viewing a friend
             dashboardTab.classList.remove('active');
             myWishlistTab.classList.remove('active');
+            document.getElementById('shareLinkBtn').classList.add('hidden');
         }
     }
 
@@ -300,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
         onSnapshot(q, (snapshot) => {
             wishlistGrid.innerHTML = '';
             if (snapshot.empty) {
-                loadingMessage.textContent = "Your wishlist is empty. Add a wish!";
+                loadingMessage.textContent = "Your wishlist is empty. Click the + button in the bottom right to add your first wish! 👇";
                 return;
             }
             loadingMessage.textContent = '';
@@ -348,6 +418,8 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             // --- FRIEND VIEW ---
             // Friend sees Claim logic
+            // V1 RELEASE: Hiding Claim functionality
+            /*
             if (wish.claimedBy) {
                 if (wish.claimedBy === currentUser.uid) {
                     // I claimed this!
@@ -362,6 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Available!
                 actionButtonsHTML = `<button class="btn-primary small claim-btn" data-id="${wishId}">✨ Claim Gift</button>`;
             }
+            */
         }
 
         // 3. Construct the HTML

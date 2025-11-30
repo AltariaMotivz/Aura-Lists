@@ -40,6 +40,8 @@
             <!-- Header (Perfect) -->
             <header>
                 <h1 id="pageTitle">Aura List</h1>
+                <button id="shareLinkBtn" class="btn-secondary small hidden" style="margin-right: 10px;">Share
+                    Link</button>
                 <button id="sign-out-button" class="sign-out-btn">Sign Out</button>
             </header>
 
@@ -109,12 +111,12 @@
                 <form id="addWishForm">
                     <label for="itemName">Wish Title</label>
                     <input type="text" id="itemName" name="itemName" placeholder="e.g., A Book of Spells" required>
-                    <label for="itemLink">Link to Item</label>
+                    <label for="itemLink">Link to Item (optional)</label>
                     <input type="url" id="itemLink" name="itemLink" placeholder="https://magical-emporium.com/...">
-                    <label for="itemNotes">Notes</label>
+                    <label for="itemNotes">Notes (optional)</label>
                     <textarea id="itemNotes" name="itemNotes" rows="3"
                         placeholder="Any details, colors, or enchantments..."></textarea>
-                    <label for="itemImage">Image URL</label>
+                    <label for="itemImage">Image URL (optional)</label>
                     <input type="url" id="itemImage" name="itemImage"
                         placeholder="https://magical-emporium.com/image.png">
                     <div class="modal-actions">
@@ -141,6 +143,13 @@
         </div>
 
 
+
+
+        <!-- Guest Mode CTA -->
+        <div id="guest-cta" class="guest-cta hidden">
+            <p>Want your own Aura List?</p>
+            <button id="create-own-btn" class="btn-primary">Create Free Account</button>
+        </div>
 
     </div>
 
