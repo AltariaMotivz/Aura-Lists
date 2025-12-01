@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentUser = null;
     let recaptchaVerifier = null;
     let friendWishlistUnsubscribe = null;
+    let currentFriendWishesUnsubscribe = null;
 
     // --- State for Editing Wishes ---
     let isEditing = false;
@@ -396,7 +397,13 @@ document.addEventListener("DOMContentLoaded", () => {
         card.className = 'wish-card';
 
         // 1. Image Logic
-        const imageSrc = wish.imageUrl || `https://placehold.co/600x400/f9f7f3/e7b2a5?text=${encodeURIComponent(wish.name)}`;
+        let imageSrc = wish.imageUrl;
+
+        if (!imageSrc) {
+            // Use the "Mystery Gift" illustration for all items without a photo
+            imageSrc = 'assets/gift_placeholder.png';
+        }
+
         let imageElement = `<img src="${imageSrc}" alt="${wish.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">`;
 
         // If there's a link, wrap image in link (for everyone)
@@ -418,15 +425,13 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             // --- FRIEND VIEW ---
             // Friend sees Claim logic
-            // V1 RELEASE: Hiding Claim functionality
-            /*
             if (wish.claimedBy) {
-                if (wish.claimedBy === currentUser.uid) {
+                if (currentUser && wish.claimedBy === currentUser.uid) {
                     // I claimed this!
                     claimStatusHTML = `<div class="claim-badge mine">✨ Claimed by You!</div>`;
                     actionButtonsHTML = `<button class="btn-secondary small unclaim-btn" data-id="${wishId}">Un-claim</button>`;
                 } else {
-                    // Someone else claimed this
+                    // Someone else claimed this (OR I am a guest seeing a claimed item)
                     claimStatusHTML = `<div class="claim-badge other">🔒 Claimed by another friend</div>`;
                     // No buttons, it's taken!
                 }
@@ -434,7 +439,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Available!
                 actionButtonsHTML = `<button class="btn-primary small claim-btn" data-id="${wishId}">✨ Claim Gift</button>`;
             }
-            */
         }
 
         // 3. Construct the HTML
@@ -477,6 +481,13 @@ document.addEventListener("DOMContentLoaded", () => {
      * Uses the "Veil of Surprise" Firestore rules
      */
     async function toggleClaim(wishId, isClaiming) {
+        // Guest Check
+        if (!currentUser) {
+            alert("You must be logged in to claim a gift! Redirecting to login...");
+            window.location.href = window.location.origin; // Redirect to home (login)
+            return;
+        }
+
         const wishRef = doc(db, "wishes", wishId);
         try {
             await updateDoc(wishRef, {
@@ -689,22 +700,35 @@ document.addEventListener("DOMContentLoaded", () => {
         friendPageTitle.textContent = `${friendName}'s Wishlist`;
         friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">Summoning their wishes...</p>';
 
-        const q = query(collection(db, "wishes"), where("ownerId", "==", friendId));
-
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) {
-            friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">This friend has no wishes yet!</p>';
-            return;
+        // Unsubscribe from previous friend's wishes if any
+        if (currentFriendWishesUnsubscribe) {
+            currentFriendWishesUnsubscribe();
+            currentFriendWishesUnsubscribe = null;
         }
 
-        friendWishlistContainer.innerHTML = '';
-        snapshot.forEach((doc) => {
-            const wish = doc.data();
-            const wishId = doc.id;
-            // Owner is false here
-            const wishElement = createWishCard(wish, wishId, false);
-            friendWishlistContainer.appendChild(wishElement);
+        const q = query(collection(db, "wishes"), where("ownerId", "==", friendId));
+
+        currentFriendWishesUnsubscribe = onSnapshot(q, (snapshot) => {
+            if (snapshot.empty) {
+                friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">This friend has no wishes yet!</p>';
+                return;
+            }
+
+            friendWishlistContainer.innerHTML = '';
+            snapshot.forEach((doc) => {
+                try {
+                    const wish = doc.data();
+                    const wishId = doc.id;
+                    // Owner is false here
+                    const wishElement = createWishCard(wish, wishId, false);
+                    friendWishlistContainer.appendChild(wishElement);
+                } catch (err) {
+                    console.error("Error rendering wish card:", err);
+                }
+            });
+        }, (error) => {
+            console.error("Error fetching friend's wishes:", error);
+            friendWishlistContainer.innerHTML = `<p class="status-text error">Error loading wishes: ${error.message}</p>`;
         });
     }
 
