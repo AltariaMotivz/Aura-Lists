@@ -36,6 +36,26 @@ The following features are planned for future development:
 *   **Goal**: Allow users to upload photos directly from their device instead of pasting URLs.
 *   **Implementation**: Integrate Firebase Storage.
 
+### 3.3. Gifts Received (Archive)
+*   **Goal**: Allow users to mark items as "received" (purchased/gifted), removing them from the active wishlist and archiving them into a private "Gifts Received" folder.
+*   **Implementation**:
+    *   Add a status/flag to items to mark them as received.
+    *   Filter these items from the main public/private views.
+    *   Create a dedicated, private-only view for "Gifts Received".
+
+### 3.4. Optional "Mark as Purchased" Toggle
+*   **Goal**: Give users control over whether friends can mark items as purchased/claimed on their wishlist.
+*   **Implementation**:
+    *   Add a user preference setting (toggle) in the user's profile.
+    *   If enabled: Display a notice to friends explaining they can claim items secretly.
+    *   If disabled: Hide the "Mark as Purchased" / Claim buttons for friends.
+
+### 3.5. Copy Wish to My Wishlist
+*   **Goal**: Allow users to easily duplicate an item from a friend's wishlist to their own.
+*   **Implementation**:
+    *   Add a "Copy" / "Plus" button to items when viewing a friend's list.
+    *   Clicking it creates a new entry in the current user's wishlist with the same details (name, link, image, notes).
+
 ## 4. Troubleshooting / Common Issues
 
 This section documents common errors encountered during development and their solutions.
