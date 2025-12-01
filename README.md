@@ -18,8 +18,8 @@ The application currently supports the following features:
     *   **Add Friends by Phone**: Users can add friends using their phone number.
     *   **Dedicated Friend View**: Clicking a friend's name opens a full-page view of their wishlist, optimized for mobile scrolling.
     *   **Clickable Thumbnails**: Users can click item images to visit the external product link.
-    *   **Claim Gifts**: Friends can mark items as "Claimed" to avoid duplicate gifts. This status is hidden from the wishlist owner (The Veil of Surprise).
-    *   **Guest Protection**: Guests are prompted to log in if they attempt to claim an item.
+    *   **Mark as Purchased**: Friends can mark items as "Purchased" to avoid duplicate gifts. This status is hidden from the wishlist owner (The Veil of Surprise).
+    *   **Guest Protection**: Guests are prompted to log in if they attempt to mark an item as purchased.
 *   **Aesthetics**:
     *   **Mystery Gift Thumbnail**: Items without a photo display a custom, minimalist gift box illustration.
     *   **Dense Grid**: Desktop view shows 4-5 items per row for a compact collection view.

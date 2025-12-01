@@ -428,16 +428,16 @@ document.addEventListener("DOMContentLoaded", () => {
             if (wish.claimedBy) {
                 if (currentUser && wish.claimedBy === currentUser.uid) {
                     // I claimed this!
-                    claimStatusHTML = `<div class="claim-badge mine">✨ Claimed by You!</div>`;
-                    actionButtonsHTML = `<button class="btn-secondary small unclaim-btn" data-id="${wishId}">Un-claim</button>`;
+                    claimStatusHTML = `<div class="claim-badge mine">✅ Purchased by You</div>`;
+                    actionButtonsHTML = `<button class="btn-secondary small unclaim-btn" data-id="${wishId}">Undo Purchase</button>`;
                 } else {
                     // Someone else claimed this (OR I am a guest seeing a claimed item)
-                    claimStatusHTML = `<div class="claim-badge other">🔒 Claimed by another friend</div>`;
+                    claimStatusHTML = `<div class="claim-badge other">🔒 Purchased by another friend</div>`;
                     // No buttons, it's taken!
                 }
             } else {
                 // Available!
-                actionButtonsHTML = `<button class="btn-primary small claim-btn" data-id="${wishId}">✨ Claim Gift</button>`;
+                actionButtonsHTML = `<button class="btn-primary small claim-btn" data-id="${wishId}">✅ Mark as Purchased</button>`;
             }
         }
 
@@ -483,7 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function toggleClaim(wishId, isClaiming) {
         // Guest Check
         if (!currentUser) {
-            alert("You must be logged in to claim a gift! Redirecting to login...");
+            alert("You must be logged in to mark a gift as purchased! Redirecting to login...");
             window.location.href = window.location.origin; // Redirect to home (login)
             return;
         }
@@ -494,9 +494,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 // If claiming, set my UID. If unclaiming, set null.
                 claimedBy: isClaiming ? currentUser.uid : null
             });
-            console.log(isClaiming ? "Gift claimed!" : "Gift released!");
+            console.log(isClaiming ? "Gift purchased!" : "Gift released!");
         } catch (error) {
-            console.error("Error toggling claim:", error);
+            console.error("Error toggling purchase status:", error);
             alert("A pixie blocked that action! (Check your internet or permissions)");
         }
     }
