@@ -4,7 +4,7 @@
 
 This is the project README for the **Aura List** application (formerly Crystal Wishlist). It is a full-stack Progressive Web App (PWA) built with vanilla HTML, CSS, and JavaScript. The backend is powered by Firebase, utilizing Firestore for the database and Firebase Authentication (Phone Number) for secure, passwordless logins.
 
-## 2. Current Features (v2.3)
+## 2. Current Features (v2.7)
 
 The application currently supports the following features:
 
@@ -18,26 +18,23 @@ The application currently supports the following features:
     *   **Add Friends by Phone**: Users can add friends using their phone number.
     *   **Dedicated Friend View**: Clicking a friend's name opens a full-page view of their wishlist, optimized for mobile scrolling.
     *   **Clickable Thumbnails**: Users can click item images to visit the external product link.
+    *   **Claim Gifts**: Friends can mark items as "Claimed" to avoid duplicate gifts. This status is hidden from the wishlist owner (The Veil of Surprise).
+    *   **Guest Protection**: Guests are prompted to log in if they attempt to claim an item.
+*   **Aesthetics**:
+    *   **Mystery Gift Thumbnail**: Items without a photo display a custom, minimalist gift box illustration.
+    *   **Dense Grid**: Desktop view shows 4-5 items per row for a compact collection view.
 
 ## 3. Roadmap (Future Features)
 
 The following features are planned for future development:
 
-### 3.1. "Claimed" Item Functionality
-*   **Goal**: Allow friends to mark a wishlist item as "purchased."
-*   **Logic**: This "claimed" status must be visible to all other friends but remain hidden from the wishlist owner to prevent duplicate gifts.
-*   **Implementation**:
-    *   Add a `claimedBy` field to the `wishes` documents in Firestore.
-    *   Update the client-side rendering logic to conditionally show a "Claimed" status.
-    *   Add "Claim" / "Unclaim" buttons.
-
-### 3.2. Usernames
+### 3.1. Usernames
 *   **Goal**: Replace the phone number display with a custom `@username`.
 *   **Implementation**:
     *   Add a `username` field to the `users` collection.
     *   Implement a function on user sign-up to create and validate a unique username.
 
-### 3.3. Image Uploads
+### 3.2. Image Uploads
 *   **Goal**: Allow users to upload photos directly from their device instead of pasting URLs.
 *   **Implementation**: Integrate Firebase Storage.
 
@@ -55,5 +52,5 @@ This section documents common errors encountered during development and their so
 *   **Solution**: Test with a new phone number or wait for the cooldown period.
 
 ### 4.3. Browser Caching Issues
-*   **Symptom**: New features (like the Friend Page) don't appear after deployment.
-*   **Solution**: We use a version query parameter (e.g., `script.js?v=2.3`) to force the browser to fetch the latest script.
+*   **Symptom**: New features (like the Claim button) don't appear after deployment.
+*   **Solution**: We use a version query parameter (e.g., `script.js?v=2.7`) to force the browser to fetch the latest script.
