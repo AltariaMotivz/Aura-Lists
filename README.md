@@ -4,7 +4,7 @@
 
 This is the project README for the **Aura List** application (formerly Crystal Wishlist). It is a full-stack Progressive Web App (PWA) built with vanilla HTML, CSS, and JavaScript. The backend is powered by Firebase, utilizing Firestore for the database and Firebase Authentication (Phone Number) for secure, passwordless logins.
 
-## 2. Current Features (v2.7)
+## 2. Current Features (v2.9)
 
 The application currently supports the following features:
 
