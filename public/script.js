@@ -425,20 +425,10 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             // --- FRIEND VIEW ---
             // Friend sees Claim logic
-            if (wish.claimedBy) {
-                if (currentUser && wish.claimedBy === currentUser.uid) {
-                    // I claimed this!
-                    claimStatusHTML = `<div class="claim-badge mine">✅ Purchased by You</div>`;
-                    actionButtonsHTML = `<button class="btn-secondary small unclaim-btn" data-id="${wishId}">Undo Purchase</button>`;
-                } else {
-                    // Someone else claimed this (OR I am a guest seeing a claimed item)
-                    claimStatusHTML = `<div class="claim-badge other">🔒 Purchased by another friend</div>`;
-                    // No buttons, it's taken!
-                }
-            } else {
-                // Available!
-                actionButtonsHTML = `<button class="btn-primary small claim-btn" data-id="${wishId}">✅ Mark as Purchased</button>`;
-            }
+            // Claim functionality removed by user request
+            // if (wish.claimedBy) { ... }
+            claimStatusHTML = '';
+            actionButtonsHTML = '';
         }
 
         // 3. Construct the HTML
@@ -480,6 +470,8 @@ document.addEventListener("DOMContentLoaded", () => {
      * === NEW SPELL: Toggle Claim ===
      * Uses the "Veil of Surprise" Firestore rules
      */
+    /* 
+    // Claim functionality removed by user request
     async function toggleClaim(wishId, isClaiming) {
         // Guest Check
         if (!currentUser) {
@@ -500,6 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("A pixie blocked that action! (Check your internet or permissions)");
         }
     }
+    */
 
     // Spell to delete a wish
     async function deleteWish(wishId) {
