@@ -26,7 +26,7 @@ The application currently supports the following features:
 
 The following features are planned for future development:
 
-## 3.1. User Profiles (Display Names & Usernames)
+### 3.1. User Profiles (Display Names & Usernames)
 
 Goal: Replace phone number identification with a dual-profile system: a public "Display Name" (e.g., Jane Doe) and a unique "@username" (e.g., @jane_doe_88). Users should be able to search for friends by their Display Name and select the correct person from a list of results using the unique username as an identifier.
 
