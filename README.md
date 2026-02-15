@@ -26,11 +26,14 @@ The application currently supports the following features:
 
 The following features are planned for future development:
 
-### 3.1. Usernames
-*   **Goal**: Replace the phone number display with a custom `@username`.
-*   **Implementation**:
-    *   Add a `username` field to the `users` collection.
-    *   Implement a function on user sign-up to create and validate a unique username.
+## 3.1. User Profiles (Display Names & Usernames)
+
+Goal: Replace phone number identification with a dual-profile system: a public "Display Name" (e.g., Jane Doe) and a unique "@username" (e.g., @jane_doe_88). Users should be able to search for friends by their Display Name and select the correct person from a list of results using the unique username as an identifier.
+
+Implementation:
+- Database: Add displayName and username fields to the users collection. 
+- Validation: Implement a function on user sign-up to create and validate the uniqueness of the @username (using a separate `usernames` registry collection).
+- Search UI: Update the "Add Friend" modal to accept text input. Display a results list showing the user's avatar, Display Name, and @username so the searcher can confidently select the right friend.
 
 ### 3.2. Image Uploads
 *   **Goal**: Allow users to upload photos directly from their device instead of pasting URLs.
