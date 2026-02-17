@@ -4,7 +4,7 @@
 
 This is the project README for the **Aura List** application (formerly Crystal Wishlist). It is a full-stack Progressive Web App (PWA) built with vanilla HTML, CSS, and JavaScript. The backend is powered by Firebase, utilizing Firestore for the database and Firebase Authentication (Phone Number) for secure, passwordless logins.
 
-## 2. Current Features (v2.9)
+## 2. Current Features (v3.1)
 
 The application currently supports the following features:
 
@@ -21,19 +21,15 @@ The application currently supports the following features:
     *   **Aesthetics**:
     *   **Mystery Gift Thumbnail**: Items without a photo display a custom, minimalist gift box illustration.
     *   **Dense Grid**: Desktop view shows 4-5 items per row for a compact collection view.
+*   **User Profiles & Social**:
+    *   **Unique Usernames**: Users now identify with a unique `@username` alongside their display name.
+    *   **Smart Search**: The "Add Friend" feature now supports searching by Name or Username.
+    *   **Profile Management**: Users can update their display name and view their username directly from the dashboard.
 
 ## 3. Roadmap (Future Features)
 
 The following features are planned for future development:
 
-### 3.1. User Profiles (Display Names & Usernames)
-
-Goal: Replace phone number identification with a dual-profile system: a public "Display Name" (e.g., Jane Doe) and a unique "@username" (e.g., @jane_doe_88). Users should be able to search for friends by their Display Name and select the correct person from a list of results using the unique username as an identifier.
-
-Implementation:
-- Database: Add displayName and username fields to the users collection. 
-- Validation: Implement a function on user sign-up to create and validate the uniqueness of the @username (using a separate `usernames` registry collection).
-- Search UI: Update the "Add Friend" modal to accept text input. Display a results list showing the user's avatar, Display Name, and @username so the searcher can confidently select the right friend.
 
 ### 3.2. Image Uploads
 *   **Goal**: Allow users to upload photos directly from their device instead of pasting URLs.

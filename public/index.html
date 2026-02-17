@@ -60,7 +60,12 @@
                     <form id="name-form" class="name-form">
                         <label for="name-input">Your Display Name:</label>
                         <input type="text" id="name-input" placeholder="Enter your name">
-                        <button type"submit" class="btn-primary-small">Save Name</button>
+
+                        <label for="display-username" style="margin-top: 10px;">Your Username:</label>
+                        <input type="text" id="display-username" disabled
+                            style="background: rgba(0,0,0,0.05); color: var(--text-muted); border-color: transparent;">
+
+                        <button type="submit" class="btn-primary-small" style="margin-top: 15px;">Save Profile</button>
                     </form>
                     <p id="name-status" class="status-text"></p>
                 </div>
@@ -131,12 +136,38 @@
             <div class="modal">
                 <h2>Add a New Friend</h2>
                 <form id="addFriendForm">
-                    <label for="friendIdInput">Friend's Phone Number</label>
-                    <input type="tel" id="friendIdInput" placeholder="e.g. 555-555-5555" required>
+                    <label for="friendIdInput">Search by Name or @Username</label>
+                    <div class="search-bar-container">
+                        <input type="text" id="friendIdInput" placeholder="e.g. Jane Doe or @jane" required
+                            autocomplete="off">
+                        <button type="submit" class="btn-primary-small">Search</button>
+                    </div>
+
                     <p id="addFriendStatus" class="status-text"></p>
+
+                    <!-- Search Results Container -->
+                    <div id="searchResultsContainer" class="search-results-list"></div>
+
                     <div class="modal-actions">
-                        <button type="button" class="btn-secondary" id="cancelAddFriendBtn">Cancel</button>
-                        <button type="submit" class="btn-primary">Add Friend</button>
+                        <button type="button" class="btn-secondary" id="cancelAddFriendBtn">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- NEW: Create Username Modal (Forced) -->
+        <div class="modal-backdrop" id="usernameModalBackdrop" style="z-index: 2000;">
+            <div class="modal">
+                <h2>Choose a Username</h2>
+                <p style="margin-bottom: 15px; color: var(--text-muted);">Pick a unique @username so friends can find
+                    you properly!</p>
+                <form id="usernameForm">
+                    <label for="usernameInput">@username</label>
+                    <input type="text" id="usernameInput" placeholder="jane_doe_88" required pattern="[a-zA-Z0-9_]+"
+                        title="Letters, numbers, and underscores only.">
+                    <p id="usernameStatus" class="status-text"></p>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-primary">Claim Username</button>
                     </div>
                 </form>
             </div>
@@ -185,7 +216,7 @@
     </script>
 
     <!-- === YOUR MAGICAL SPELLBOOK (Perfect) === -->
-    <script type="module" src="script.js?v=2.9"></script>
+    <script type="module" src="script.js?v=3.0"></script>
 
 </body>
 

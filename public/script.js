@@ -1,7 +1,7 @@
 // Import all the magical spells from our Firebase scrolls
 import {
     doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-    onSnapshot, collection, query, where
+    onSnapshot, collection, query, where, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -72,6 +72,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const friendIdInput = document.getElementById('friendIdInput');
     const cancelAddFriendBtn = document.getElementById('cancelAddFriendBtn');
     const addFriendStatus = document.getElementById('addFriendStatus');
+    const searchResultsContainer = document.getElementById('searchResultsContainer');
+
+    // Username Modal
+    const usernameModalBackdrop = document.getElementById('usernameModalBackdrop');
+    const usernameForm = document.getElementById('usernameForm');
+    const usernameInput = document.getElementById('usernameInput');
+    const usernameStatus = document.getElementById('usernameStatus');
 
     // Friend's Wishlist Page
     const friendWishlistPage = document.getElementById('friendWishlistPage');
@@ -282,14 +289,114 @@ document.addEventListener("DOMContentLoaded", () => {
             await setDoc(userRef, {
                 phone: user.phoneNumber,
                 displayName: user.phoneNumber,
+                searchTerms: generateSearchTerms(user.phoneNumber, ""),
                 createdAt: new Date()
             });
             nameInput.value = user.phoneNumber;
         } else {
             const userData = userDoc.data();
             nameInput.value = userData.displayName || '';
+            document.getElementById('display-username').value = userData.username ? '@' + userData.username : 'No username set';
+
+            // Force Username Creation if missing
+            if (!userData.username) {
+                usernameModalBackdrop.classList.add('active');
+            }
         }
     }
+
+    /**
+     * === NEW SPELL: Generate Search Terms ===
+     * Creates an array of lowercase prefixes for searchable fields.
+     */
+    function generateSearchTerms(displayName, username) {
+        const terms = new Set();
+
+        // 1. Process Display Name (split by spaces)
+        if (displayName) {
+            const parts = displayName.toLowerCase().split(' ');
+            parts.forEach(part => {
+                for (let i = 1; i <= part.length; i++) {
+                    terms.add(part.substring(0, i));
+                }
+            });
+        }
+
+        // 2. Process Username
+        if (username) {
+            const cleanUser = username.toLowerCase();
+            for (let i = 1; i <= cleanUser.length; i++) {
+                terms.add(cleanUser.substring(0, i));
+                terms.add('@' + cleanUser.substring(0, i)); // Handle @ search
+            }
+        }
+
+        return Array.from(terms);
+    }
+
+    // --- Username Creation Spell ---
+    usernameForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const startUsername = usernameInput.value.trim().toLowerCase();
+        // Remove @ if user typed it
+        const finalUsername = startUsername.replace(/^@/, '');
+
+        const usernameRegex = /^[a-z0-9_]+$/;
+        if (!usernameRegex.test(finalUsername)) {
+            usernameStatus.textContent = "Letters, numbers, and underscores only.";
+            usernameStatus.style.color = "var(--fairy-accent)";
+            return;
+        }
+
+        usernameStatus.textContent = "Checking availability...";
+        usernameStatus.style.color = "var(--text-muted)";
+
+        try {
+            const usernameRef = doc(db, "usernames", finalUsername);
+            const usernameDoc = await getDoc(usernameRef);
+
+            if (usernameDoc.exists()) {
+                usernameStatus.textContent = "Sorry, that username is taken!";
+                usernameStatus.style.color = "var(--fairy-accent)";
+                return;
+            }
+
+            // Batch Write: Claim username AND update user profile
+            const batch = writeBatch(db);
+
+            // 1. Claim Username
+            batch.set(usernameRef, { uid: currentUser.uid });
+
+            // 2. Update User Profile
+            const userRef = doc(db, "users", currentUser.uid);
+
+            // Re-generate search terms with new username
+            const currentName = nameInput.value;
+            const newSearchTerms = generateSearchTerms(currentName, finalUsername);
+
+            batch.update(userRef, {
+                username: finalUsername,
+                searchTerms: newSearchTerms
+            });
+
+            await batch.commit();
+
+            usernameStatus.textContent = "Username claimed!";
+            usernameStatus.style.color = "var(--text-dark)";
+
+            // Update UI
+            document.getElementById('display-username').value = '@' + finalUsername;
+
+            setTimeout(() => {
+                usernameModalBackdrop.classList.remove('active');
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error setting username:", error);
+            usernameStatus.textContent = "Error setting username. Try again.";
+            usernameStatus.style.color = "var(--fairy-accent)";
+        }
+    });
 
 
 
@@ -307,7 +414,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const userRef = doc(db, "users", uid);
             try {
-                await updateDoc(userRef, { displayName: newName });
+                // Get current username to keep it in search terms
+                const userDoc = await getDoc(userRef);
+                const currentUsername = userDoc.data().username || "";
+                const newSearchTerms = generateSearchTerms(newName, currentUsername);
+
+                await updateDoc(userRef, {
+                    displayName: newName,
+                    searchTerms: newSearchTerms
+                });
                 nameStatus.textContent = "Name saved!";
                 nameStatus.style.color = "var(--text-dark)";
             } catch (error) {
@@ -404,7 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
             imageSrc = 'assets/gift_placeholder.png';
         }
 
-        let imageElement = `<img src="${imageSrc}" alt="${wish.name}" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">`;
+        let imageElement = `<img src="${imageSrc}" alt="${wish.name}" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='https://placehold.co/600x400/f9f7f3/e7b2a5?text=Image+Not+Found'">`;
 
         // If there's a link, wrap image in link (for everyone)
         if (wish.link) {
@@ -514,6 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         addWishModalTitle.textContent = "Add a New Wish";
         addWishSubmitBtn.textContent = "Add Wish";
+        addWishSubmitBtn.disabled = false; // RESET BUTTON STATE
 
         addWishForm.reset();
         addWishModalBackdrop.classList.add('active');
@@ -570,6 +686,7 @@ document.addEventListener("DOMContentLoaded", () => {
             addWishModalBackdrop.classList.remove('active');
         } catch (error) {
             console.error("Error saving wish:", error);
+            alert("Error saving wish. Please try again.");
         }
     });
 
@@ -586,58 +703,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addFriendForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const rawInput = friendIdInput.value.trim();
+        const searchInput = friendIdInput.value.trim().toLowerCase();
 
-        // 1. Sanitize Input (Same logic as login)
-        let cleaned = rawInput.replace(/\D/g, '');
-        if (cleaned.length === 10) {
-            cleaned = '1' + cleaned;
-        }
-        const friendPhoneNumber = '+' + cleaned;
+        if (!searchInput) return;
 
-        if (friendPhoneNumber === currentUser.phoneNumber) {
-            addFriendStatus.textContent = "You cannot add yourself, silly!";
-            addFriendStatus.style.color = "var(--fairy-accent)";
-            return;
-        }
-
-        addFriendStatus.textContent = "Searching for friend...";
+        addFriendStatus.textContent = "Searching...";
         addFriendStatus.style.color = "var(--text-muted)";
+        searchResultsContainer.innerHTML = '';
 
         try {
-            // 2. Query by Phone Number
-            const q = query(collection(db, "users"), where("phone", "==", friendPhoneNumber));
+            // Search Query: Look for searchTerms array containing the input
+            const q = query(
+                collection(db, "users"),
+                where("searchTerms", "array-contains", searchInput),
+                // Limit to 10 results
+            );
+
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
-                addFriendStatus.textContent = "Could not find a friend with that phone number.";
+                addFriendStatus.textContent = "No users found.";
                 addFriendStatus.style.color = "var(--fairy-accent)";
                 return;
             }
 
-            // 3. Get the first match (should be unique)
-            const friendDoc = querySnapshot.docs[0];
-            const friendId = friendDoc.id;
+            addFriendStatus.textContent = "";
 
+            querySnapshot.forEach((docSnap) => {
+                const user = docSnap.data();
+                const userId = docSnap.id;
+
+                // Don't show yourself
+                if (userId === currentUser.uid) return;
+
+                const displayName = user.displayName || user.phone;
+                const username = user.username ? '@' + user.username : '';
+
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.innerHTML = `
+                    <div class="result-avatar">${displayName.charAt(0).toUpperCase()}</div>
+                    <div class="result-info">
+                        <div class="result-name">${displayName}</div>
+                        <div class="result-username">${username}</div>
+                    </div>
+                `;
+
+                resultItem.addEventListener('click', () => addFriend(userId, displayName));
+                searchResultsContainer.appendChild(resultItem);
+            });
+
+        } catch (error) {
+            console.error("Error searching:", error);
+            addFriendStatus.textContent = "Error searching. Please try again.";
+            addFriendStatus.style.color = "var(--fairy-accent)";
+        }
+    });
+
+    async function addFriend(friendId, friendName) {
+        try {
             // 4. Add Friend using their UID
             const myFriendRef = doc(db, "users", currentUser.uid, "friends", friendId);
             await setDoc(myFriendRef, { addedAt: new Date() });
 
-            addFriendStatus.textContent = "Friend added successfully!";
+            addFriendStatus.textContent = `Added ${friendName}!`;
             addFriendStatus.style.color = "var(--text-dark)";
 
+            // Clear search
+            searchResultsContainer.innerHTML = '';
             friendIdInput.value = '';
-            setTimeout(() => {
-                addFriendModalBackdrop.classList.remove('active');
-                addFriendStatus.textContent = '';
-            }, 1000);
 
         } catch (error) {
             console.error("Error adding friend:", error);
-            addFriendStatus.textContent = "Error adding friend. Please try again.";
+            addFriendStatus.textContent = "Error adding friend.";
             addFriendStatus.style.color = "var(--fairy-accent)";
         }
-    });
+    }
 
     function fetchFriends(uid) {
         const friendsCollection = collection(db, "users", uid, "friends");

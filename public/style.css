@@ -41,17 +41,21 @@ body {
 
 header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(231, 178, 165, 0.3);
+    /* Subtle divider */
 }
 
 h1 {
     font-family: var(--font-heading);
-    font-size: 3.5rem;
+    font-size: 3rem;
     color: var(--fairy-accent);
-    text-shadow: 0 0 15px rgba(231, 178, 165, 0.5);
+    text-shadow: 0 0 15px rgba(231, 178, 165, 0.4);
+    letter-spacing: 1px;
 }
 
 /* --- Wish Grid & Card Styling --- */
@@ -346,36 +350,54 @@ h1 {
     background: none;
     border: 1px solid var(--fairy-accent);
     color: var(--fairy-accent);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
     cursor: pointer;
-    font-weight: 500;
-    margin-top: 1rem;
+    font-family: var(--font-heading);
+    /* Brand Font */
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin: 0;
+    /* Align perfectly in header flex */
+}
+
+.sign-out-btn:hover {
+    background: rgba(231, 178, 165, 0.1);
+    box-shadow: 0 0 10px rgba(231, 178, 165, 0.3);
 }
 
 /* --- Tabs Styling --- */
 .tabs {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 2rem;
+    /* More breathing room */
+    margin-bottom: 2.5rem;
 }
 
 .tab-btn {
     background: none;
     border: none;
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     color: var(--text-muted);
     cursor: pointer;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid transparent;
     transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.tab-btn:hover {
+    color: var(--text-dark);
 }
 
 .tab-btn.active {
-    color: var(--text-dark);
+    color: var(--fairy-accent);
+    /* Use brand color for active text too */
     border-bottom: 2px solid var(--fairy-accent);
+    text-shadow: 0 0 10px rgba(231, 178, 165, 0.3);
 }
 
 .glass-panel {
@@ -394,6 +416,9 @@ h1 {
 .btn-secondary.small {
     padding: 0.4rem 1rem;
     font-size: 0.9rem;
+    font-family: var(--font-heading);
+    /* Extend brand font to small buttons */
+    font-weight: 600;
 }
 
 /* Claim Button (Gold/Green shimmer) */
@@ -487,4 +512,61 @@ h1 {
     margin: 0;
     font-weight: 500;
     color: var(--text-color);
+}
+
+/* Search Results Scroller */
+.search-results-list {
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.result-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e7b2a5 0%, #d4a373 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    margin-right: 12px;
+    font-size: 1.2rem;
+}
+
+.result-info {
+    flex: 1;
+}
+
+.result-name {
+    font-weight: bold;
+    color: var(--text-dark);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+}
+
+.result-username {
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }
