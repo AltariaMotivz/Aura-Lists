@@ -12,6 +12,7 @@ import {
 document.addEventListener("DOMContentLoaded", () => {
 
     // --- Magical Tools (Our Global Variables) ---
+    console.log("💎 Aura List v3.2.1 Loaded");
     const db = window.db;
     const auth = window.auth;
     let currentUser = null;
@@ -539,8 +540,11 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         } else {
             // --- FRIEND VIEW ---
+            // Debug Log for visibility
+            console.log(`[Wish ${wishId}] Owner: ${wish.ownerId}, CurrentUser: ${currentUser?.uid}, ClaimedBy: ${wish.claimedBy}`);
+
             if (wish.claimedBy) {
-                if (wish.claimedBy === currentUser.uid) {
+                if (currentUser && wish.claimedBy === currentUser.uid) {
                     // Claimed by ME -> Show "Unclaim" button
                     claimStatusHTML = `<div class="claim-badge mine">Purchased by You</div>`;
                     actionButtonsHTML = `<button class="action-btn unclaim-btn">Unmark as Purchased</button>`;
@@ -551,6 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } else {
                 // Unclaimed -> Show "Claim" button
+                // allow guests to see the button, but `toggleClaim` will handle the login check
                 actionButtonsHTML = `<button class="action-btn claim-btn">Mark as Purchased</button>`;
             }
         }
