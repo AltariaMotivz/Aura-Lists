@@ -31,23 +31,23 @@ The application currently supports the following features:
 The following features are planned for future development:
 
 
-### 3.2. Image Uploads
+### 3.2. Mark as Purchased
+*   **Goal**: Allow friends to mark items as "purchased" to prevent duplicates.
+*   **Implementation**:
+    *   Add a "Mark as Purchased" button for friends.
+    *   When claimed, the item remains visible on the list but with a clear "Claimed" status indicator for other friends.
+    *   The status is visible to all friends to ensure it's obvious the item has been taken.
+
+### 3.3. Image Uploads
 *   **Goal**: Allow users to upload photos directly from their device instead of pasting URLs.
 *   **Implementation**: Integrate Firebase Storage.
 
-### 3.3. Gifts Received (Archive)
+### 3.4. Gifts Received (Archive)
 *   **Goal**: Allow users to mark items as "received" (purchased/gifted), removing them from the active wishlist and archiving them into a private "Gifts Received" folder.
 *   **Implementation**:
     *   Add a status/flag to items to mark them as received.
     *   Filter these items from the main public/private views.
     *   Create a dedicated, private-only view for "Gifts Received".
-
-### 3.4. Optional "Mark as Purchased" Toggle
-*   **Goal**: Give users control over whether friends can mark items as purchased/claimed on their wishlist.
-*   **Implementation**:
-    *   Add a user preference setting (toggle) in the user's profile.
-    *   If enabled: Display a notice to friends explaining they can claim items secretly.
-    *   If disabled: Hide the "Mark as Purchased" / Claim buttons for friends.
 
 ### 3.5. Copy Wish to My Wishlist
 *   **Goal**: Allow users to easily duplicate an item from a friend's wishlist to their own.

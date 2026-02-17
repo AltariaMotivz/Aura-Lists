@@ -539,11 +539,20 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         } else {
             // --- FRIEND VIEW ---
-            // Friend sees Claim logic
-            // Claim functionality removed by user request
-            // if (wish.claimedBy) { ... }
-            claimStatusHTML = '';
-            actionButtonsHTML = '';
+            if (wish.claimedBy) {
+                if (wish.claimedBy === currentUser.uid) {
+                    // Claimed by ME -> Show "Unclaim" button
+                    claimStatusHTML = `<div class="claim-badge mine">Purchased by You</div>`;
+                    actionButtonsHTML = `<button class="action-btn unclaim-btn">Unmark as Purchased</button>`;
+                } else {
+                    // Claimed by SOMEONE ELSE -> Show status, no buttons
+                    claimStatusHTML = `<div class="claim-badge other">Purchased by ${wish.claimedByName || 'a friend'}</div>`;
+                    actionButtonsHTML = ``; // No actions allowed
+                }
+            } else {
+                // Unclaimed -> Show "Claim" button
+                actionButtonsHTML = `<button class="action-btn claim-btn">Mark as Purchased</button>`;
+            }
         }
 
         // 3. Construct the HTML
@@ -585,8 +594,10 @@ document.addEventListener("DOMContentLoaded", () => {
      * === NEW SPELL: Toggle Claim ===
      * Uses the "Veil of Surprise" Firestore rules
      */
-    /* 
-    // Claim functionality removed by user request
+    /**
+     * === NEW SPELL: Toggle Claim ===
+     * Uses the "Veil of Surprise" Firestore rules
+     */
     async function toggleClaim(wishId, isClaiming) {
         // Guest Check
         if (!currentUser) {
@@ -597,9 +608,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const wishRef = doc(db, "wishes", wishId);
         try {
+            // Get current user's name for the claim
+            // We can just use the nameInput value since it's loaded in checkAndCreateUserDoc
+            const claimerName = nameInput.value || currentUser.phoneNumber || "A Friend";
+
             await updateDoc(wishRef, {
-                // If claiming, set my UID. If unclaiming, set null.
-                claimedBy: isClaiming ? currentUser.uid : null
+                claimedBy: isClaiming ? currentUser.uid : null,
+                claimedByName: isClaiming ? claimerName : null,
+                claimedAt: isClaiming ? new Date() : null
             });
             console.log(isClaiming ? "Gift purchased!" : "Gift released!");
         } catch (error) {
@@ -607,7 +623,6 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("A pixie blocked that action! (Check your internet or permissions)");
         }
     }
-    */
 
     // Spell to delete a wish
     async function deleteWish(wishId) {

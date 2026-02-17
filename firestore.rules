@@ -55,7 +55,7 @@ service cloud.firestore {
       // 2. User is a friend claiming the item (only updating 'claimedBy')
       allow update: if isAuthenticated() && (
         resource.data.ownerId == request.auth.uid || 
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedBy']))
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedBy', 'claimedByName', 'claimedAt']))
       );
 
       // Allow delete only if user is the owner
