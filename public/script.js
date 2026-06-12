@@ -12,7 +12,6 @@ import {
 document.addEventListener("DOMContentLoaded", () => {
 
     // --- Magical Tools (Our Global Variables) ---
-    console.log("💎 Aura List v3.2.1 Loaded");
     const db = window.db;
     const auth = window.auth;
     let currentUser = null;
@@ -34,7 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const codeInput = document.getElementById('code-input');
     const verifyCodeButton = document.getElementById('verify-code-button');
     const authStatus = document.getElementById('auth-status');
-
+    
+    // Add 3D Tilt to Auth Box
+    const authBox = document.querySelector('.auth-box');
+    if (window.VanillaTilt && authBox) {
+        VanillaTilt.init(authBox, { max: 5, speed: 400, glare: true, "max-glare": 0.2 });
+    }
     // Main App
     const appContainer = document.getElementById('app-container');
     const signOutButton = document.getElementById('sign-out-button');
@@ -294,10 +298,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 createdAt: new Date()
             });
             nameInput.value = user.phoneNumber;
+            document.getElementById('myProfileSidebarName').textContent = user.phoneNumber;
+            document.getElementById('myProfileSidebarUsername').textContent = '';
         } else {
             const userData = userDoc.data();
             nameInput.value = userData.displayName || '';
             document.getElementById('display-username').value = userData.username ? '@' + userData.username : 'No username set';
+            
+            document.getElementById('myProfileSidebarName').textContent = userData.displayName || 'A Friend';
+            document.getElementById('myProfileSidebarUsername').textContent = userData.username ? '@' + userData.username : '';
 
             // Force Username Creation if missing
             if (!userData.username) {
@@ -540,9 +549,6 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         } else {
             // --- FRIEND VIEW ---
-            // Debug Log for visibility
-            console.log(`[Wish ${wishId}] Owner: ${wish.ownerId}, CurrentUser: ${currentUser?.uid}, ClaimedBy: ${wish.claimedBy}`);
-
             if (wish.claimedBy) {
                 if (currentUser && wish.claimedBy === currentUser.uid) {
                     // Claimed by ME -> Show "Unclaim" button
@@ -591,6 +597,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // Un-claim (Friend only)
         const unclaimBtn = card.querySelector('.unclaim-btn');
         if (unclaimBtn) unclaimBtn.onclick = () => toggleClaim(wishId, false);
+
+        // --- NEW: Add Vanilla-Tilt ---
+        if (window.VanillaTilt) {
+            VanillaTilt.init(card, {
+                max: 15,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.3
+            });
+        }
 
         return card;
     }
@@ -853,6 +869,23 @@ document.addEventListener("DOMContentLoaded", () => {
         showPage('friend-wishlist');
         friendPageTitle.textContent = `${friendName}'s Wishlist`;
         friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">Summoning their wishes...</p>';
+
+        // Fetch friend details for sidebar
+        try {
+            const friendUserDoc = await getDoc(doc(db, "users", friendId));
+            if (friendUserDoc.exists()) {
+                const friendData = friendUserDoc.data();
+                document.getElementById('friendProfileSidebarName').textContent = friendData.displayName || friendName;
+                document.getElementById('friendProfileSidebarUsername').textContent = friendData.username ? '@' + friendData.username : '';
+            } else {
+                document.getElementById('friendProfileSidebarName').textContent = friendName;
+                document.getElementById('friendProfileSidebarUsername').textContent = '';
+            }
+        } catch (error) {
+            console.error("Error fetching friend profile:", error);
+            document.getElementById('friendProfileSidebarName').textContent = friendName;
+            document.getElementById('friendProfileSidebarUsername').textContent = '';
+        }
 
         // Unsubscribe from previous friend's wishes if any
         if (currentFriendWishesUnsubscribe) {

@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crystal Wishlist</title>
-    <link rel="stylesheet" href="style.css?v=3.2">
+    <title>Aura List</title>
+    <link rel="stylesheet" href="style.css?v=4.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Poppins:wght@400;5A00&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap"
         rel="stylesheet">
 </head>
 
@@ -18,7 +18,7 @@
     <!-- Authentication Gateway (Perfect) -->
     <div id="auth-container">
         <div class="auth-box">
-            <h1>Crystal Wishlist</h1>
+            <h1>Aura List</h1>
             <p>Enter your phone number to begin</p>
             <form id="phone-form">
                 <input type="tel" id="phone-number" placeholder="+12015550123" required>
@@ -47,60 +47,100 @@
 
             <!-- Navigation Tabs (Perfect) -->
             <nav class="tabs">
-                <button id="dashboardTab" class="tab-btn active">Dashboard</button>
-                <button id="myWishlistTab" class="tab-btn">My Wishlist</button>
+                <button id="dashboardTab" class="tab-btn active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                    <span>Friends List</span>
+                </button>
+                <button id="myWishlistTab" class="tab-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"></path></svg>
+                    <span>My Wishlist</span>
+                </button>
             </nav>
 
             <!-- == PAGE 1: Dashboard (Perfect) == -->
-            <main id="dashboardPage" class="dashboard-grid">
+            <main id="dashboardPage" class="layout-with-sidebar">
 
-                <div class="profile-box glass-panel">
-                    <h3>Your Profile</h3>
+                <div class="main-content">
+                    <div class="friends-list-box glass-panel">
+                        <div class="friends-header">
+                            <h3>Friends' Wishlists</h3>
+                            <button id="addFriendBtn" class="floating-add-btn-small">+</button>
+                        </div>
+                        <div id="friendWishlistGridContainer">
+                            <p id="friendsLoadingMessage">Summoning your friends...</p>
+                        </div>
+                    </div>
+                </div>
 
-                    <form id="name-form" class="name-form">
-                        <label for="name-input">Your Display Name:</label>
-                        <input type="text" id="name-input" placeholder="Enter your name">
+                <aside class="profile-sidebar glass-panel profile-box">
+                    <div class="profile-avatar">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z"></path>
+                        </svg>
+                    </div>
 
-                        <label for="display-username" style="margin-top: 10px;">Your Username:</label>
+                    <form id="name-form" class="name-form" style="width: 100%; text-align: left;">
+                        <label for="name-input" style="color: var(--text-dark); font-weight: 500;">Your Display Name:</label>
+                        <input type="text" id="name-input" placeholder="Enter your name" style="width: 100%; text-align: left;">
+
+                        <label for="display-username" style="margin-top: 10px; color: var(--text-dark); font-weight: 500;">Your Username:</label>
                         <input type="text" id="display-username" disabled
-                            style="background: rgba(0,0,0,0.05); color: var(--text-muted); border-color: transparent;">
+                            style="background: rgba(0,0,0,0.05); color: var(--text-muted); border-color: transparent; width: 100%; text-align: left;">
 
-                        <button type="submit" class="btn-primary-small" style="margin-top: 15px;">Save Profile</button>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <button type="submit" class="btn-primary-small">Save Profile</button>
+                        </div>
                     </form>
                     <p id="name-status" class="status-text"></p>
-                </div>
+                </aside>
 
-                <div class="friends-list-box glass-panel">
-                    <div class="friends-header">
-                        <h3>Friends' Wishlists</h3>
-                        <button id="addFriendBtn" class="floating-add-btn-small">+</button>
-                    </div>
-                    <div id="friendWishlistGridContainer">
-                        <p id="friendsLoadingMessage">Summoning your friends...</p>
-                    </div>
-                </div>
             </main>
 
             <!-- == PAGE 2: My Wishlist (FIX #1) == -->
             <!-- The 'main' element is the page container. -->
             <!-- The 'wishlistGrid' is now a 'div' INSIDE it. -->
-            <main id="myWishlistPage" class="hidden">
-                <p id="loadingMessage" style="text-align: center; color: var(--text-muted);">Summoning your wishes...
-                </p>
-                <div id="wishlistGrid" class="wishlist-grid">
-                    <!-- My wishes will be magically summoned here! -->
+            <main id="myWishlistPage" class="hidden layout-with-sidebar">
+                <div class="main-content">
+                    <p id="loadingMessage" style="text-align: center; color: var(--text-muted);">Summoning your wishes...
+                    </p>
+                    <div id="wishlistGrid" class="wishlist-grid">
+                        <!-- My wishes will be magically summoned here! -->
+                    </div>
                 </div>
+                <aside class="profile-sidebar glass-panel">
+                    <div class="profile-avatar">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="profile-name" id="myProfileSidebarName">Display Name</h3>
+                    <p class="profile-username" id="myProfileSidebarUsername">@username</p>
+                </aside>
             </main>
 
             <!-- == PAGE 3: Friend's Wishlist (NEW) == -->
-            <main id="friendWishlistPage" class="hidden">
-                <div class="friend-page-header">
-                    <button id="backToDashboardBtn" class="btn-secondary small">← Back to Dashboard</button>
-                    <h2 id="friendPageTitle">Friend's Wishlist</h2>
+            <main id="friendWishlistPage" class="hidden layout-with-sidebar">
+                <div class="main-content">
+                    <div class="friend-page-header">
+                        <button id="backToDashboardBtn" class="btn-secondary small">← Back to Friends List</button>
+                        <h2 id="friendPageTitle">Friend's Wishlist</h2>
+                    </div>
+                    <div id="friendWishlistContainer" class="wishlist-grid">
+                        <!-- Friend's wishes will be summoned here -->
+                    </div>
                 </div>
-                <div id="friendWishlistContainer" class="wishlist-grid">
-                    <!-- Friend's wishes will be summoned here -->
-                </div>
+                <aside class="profile-sidebar glass-panel" id="friendProfileSidebar">
+                    <div class="profile-avatar">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="profile-name" id="friendProfileSidebarName">Friend Name</h3>
+                    <p class="profile-username" id="friendProfileSidebarUsername">@username</p>
+                </aside>
             </main>
 
             <!-- Floating 'Add Wish' Button (Perfect) -->
@@ -216,10 +256,10 @@
     </script>
 
     <!-- === YOUR MAGICAL SPELLBOOK (Perfect) === -->
-    <script type="module" src="script.js?v=3.2.1"></script>
-    <div style="position: fixed; bottom: 5px; right: 5px; font-size: 0.7rem; color: #ccc; pointer-events: none;">v3.2.1
-    </div>
-
+    <script type="module" src="script.js?v=3.4"></script>
+    
+    <!-- 3D Tilt Interaction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 </body>
 
 </html>
