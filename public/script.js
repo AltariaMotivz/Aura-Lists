@@ -7,6 +7,7 @@ import {
 import {
     onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 // === The Grand Enchantment: Wait for the Castle to be Built ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Magical Tools (Our Global Variables) ---
     const db = window.db;
     const auth = window.auth;
+    const storage = window.storage;
     let currentUser = null;
     let recaptchaVerifier = null;
     let friendWishlistUnsubscribe = null;
@@ -308,6 +310,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('myProfileSidebarName').textContent = userData.displayName || 'A Friend';
             document.getElementById('myProfileSidebarUsername').textContent = userData.username ? '@' + userData.username : '';
 
+            if (userData.profilePhotoUrl) {
+                updateProfileAvatars(userData.profilePhotoUrl);
+            }
+
             // Force Username Creation if missing
             if (!userData.username) {
                 usernameModalBackdrop.classList.add('active');
@@ -441,6 +447,79 @@ document.addEventListener("DOMContentLoaded", () => {
                 nameStatus.style.color = "var(--fairy-accent)";
             }
         };
+    }
+
+    // --- Profile Photo Upload Spells ---
+    const profilePhotoInput = document.getElementById('profilePhotoInput');
+    const dashboardAvatar = document.getElementById('dashboardAvatarContainer');
+    const myWishlistAvatar = document.getElementById('myWishlistAvatarContainer');
+    const uploadPhotoStatus = document.getElementById('uploadPhotoStatus');
+    
+    if (dashboardAvatar) dashboardAvatar.onclick = () => profilePhotoInput?.click();
+    if (myWishlistAvatar) myWishlistAvatar.onclick = () => profilePhotoInput?.click();
+    
+    if (profilePhotoInput) {
+        profilePhotoInput.onclick = (e) => e.stopPropagation();
+        profilePhotoInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || !currentUser) return;
+            
+            // Check if it's an HEIC image (Apple format not supported by most browsers)
+            if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
+                alert("Please select a JPG or PNG image. Apple HEIC photos are not supported by web browsers yet!");
+                return;
+            }
+
+            if (uploadPhotoStatus) {
+                uploadPhotoStatus.textContent = "Uploading photo...";
+                uploadPhotoStatus.style.color = "var(--text-muted)";
+            }
+            
+            try {
+                // Keep the file extension to help Firebase and the browser
+                const extension = file.name.split('.').pop();
+                const photoRef = ref(storage, `users/${currentUser.uid}/profile_photo.${extension}`);
+                
+                // Explicitly set the content type so the browser knows it's an image
+                const metadata = {
+                    contentType: file.type
+                };
+                
+                await uploadBytes(photoRef, file, metadata);
+                const downloadUrl = await getDownloadURL(photoRef);
+                
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    profilePhotoUrl: downloadUrl
+                });
+                
+                if (uploadPhotoStatus) {
+                    uploadPhotoStatus.textContent = "Photo updated!";
+                    uploadPhotoStatus.style.color = "var(--text-dark)";
+                    setTimeout(() => uploadPhotoStatus.textContent = '', 3000);
+                }
+                
+                updateProfileAvatars(downloadUrl);
+            } catch (err) {
+                console.error("Error uploading photo:", err);
+                if (uploadPhotoStatus) {
+                    uploadPhotoStatus.textContent = "Error uploading photo.";
+                    uploadPhotoStatus.style.color = "var(--fairy-accent)";
+                }
+            }
+        });
+    }
+
+    function updateProfileAvatars(url) {
+        if (!url) return;
+        ['dashboard', 'myWishlist'].forEach(prefix => {
+            const img = document.getElementById(`${prefix}ProfileImg`);
+            const svg = document.getElementById(`${prefix}ProfileSvg`);
+            if (img && svg) {
+                img.src = url;
+                img.classList.remove('hidden');
+                svg.classList.add('hidden');
+            }
+        });
     }
 
     // --- Navigation Spells ---
@@ -844,9 +923,27 @@ document.addEventListener("DOMContentLoaded", () => {
                         friendName = data.displayName || data.phone || friendId;
                     }
 
+                    let avatarHtml = `<div class="profile-avatar" style="width: 60px; height: 60px; margin-bottom: 0.5rem;">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z"></path>
+                        </svg>
+                    </div>`;
+
+                    if (friendUserDoc.exists() && friendUserDoc.data().profilePhotoUrl) {
+                        avatarHtml = `<div class="profile-avatar" style="width: 60px; height: 60px; margin-bottom: 0.5rem; overflow: hidden; position: relative;">
+                            <img src="${friendUserDoc.data().profilePhotoUrl}" class="profile-img" alt="${friendName}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">
+                        </div>`;
+                    }
+
                     const friendElement = document.createElement('div');
                     friendElement.className = 'friend-card glass-panel';
+                    friendElement.style.display = 'flex';
+                    friendElement.style.flexDirection = 'column';
+                    friendElement.style.alignItems = 'center';
+                    friendElement.style.cursor = 'pointer';
                     friendElement.innerHTML = `
+                        ${avatarHtml}
                         <h4>${friendName}</h4>
                     `;
 
@@ -873,13 +970,31 @@ document.addEventListener("DOMContentLoaded", () => {
         // Fetch friend details for sidebar
         try {
             const friendUserDoc = await getDoc(doc(db, "users", friendId));
+            const img = document.getElementById('friendProfileSidebarImg');
+            const svg = document.getElementById('friendProfileSidebarSvg');
+            
             if (friendUserDoc.exists()) {
                 const friendData = friendUserDoc.data();
                 document.getElementById('friendProfileSidebarName').textContent = friendData.displayName || friendName;
                 document.getElementById('friendProfileSidebarUsername').textContent = friendData.username ? '@' + friendData.username : '';
+                
+                if (friendData.profilePhotoUrl && img && svg) {
+                    img.src = friendData.profilePhotoUrl;
+                    img.classList.remove('hidden');
+                    svg.classList.add('hidden');
+                } else if (img && svg) {
+                    img.src = '';
+                    img.classList.add('hidden');
+                    svg.classList.remove('hidden');
+                }
             } else {
                 document.getElementById('friendProfileSidebarName').textContent = friendName;
                 document.getElementById('friendProfileSidebarUsername').textContent = '';
+                if (img && svg) {
+                    img.src = '';
+                    img.classList.add('hidden');
+                    svg.classList.remove('hidden');
+                }
             }
         } catch (error) {
             console.error("Error fetching friend profile:", error);

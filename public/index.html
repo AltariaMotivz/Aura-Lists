@@ -73,12 +73,18 @@
                 </div>
 
                 <aside class="profile-sidebar glass-panel profile-box">
-                    <div class="profile-avatar">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
+                    <div class="profile-avatar editable-avatar" id="dashboardAvatarContainer" title="Click to upload profile photo">
+                        <img id="dashboardProfileImg" class="profile-img hidden" src="" alt="Profile Photo">
+                        <svg id="dashboardProfileSvg" viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
                             <circle cx="12" cy="8" r="4"></circle>
                             <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z"></path>
                         </svg>
+                        <div class="upload-overlay hidden">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        </div>
+                        <input type="file" id="profilePhotoInput" accept="image/*" class="hidden">
                     </div>
+                    <p id="uploadPhotoStatus" class="status-text"></p>
 
                     <form id="name-form" class="name-form" style="width: 100%; text-align: left;">
                         <label for="name-input" style="color: var(--text-dark); font-weight: 500;">Your Display Name:</label>
@@ -109,11 +115,15 @@
                     </div>
                 </div>
                 <aside class="profile-sidebar glass-panel">
-                    <div class="profile-avatar">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
+                    <div class="profile-avatar editable-avatar" id="myWishlistAvatarContainer" title="Click to upload profile photo">
+                        <img id="myWishlistProfileImg" class="profile-img hidden" src="" alt="Profile Photo">
+                        <svg id="myWishlistProfileSvg" viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
                             <circle cx="12" cy="8" r="4"></circle>
                             <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z"></path>
                         </svg>
+                        <div class="upload-overlay hidden">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        </div>
                     </div>
                     <h3 class="profile-name" id="myProfileSidebarName">Display Name</h3>
                     <p class="profile-username" id="myProfileSidebarUsername">@username</p>
@@ -133,7 +143,8 @@
                 </div>
                 <aside class="profile-sidebar glass-panel" id="friendProfileSidebar">
                     <div class="profile-avatar">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
+                        <img id="friendProfileSidebarImg" class="profile-img hidden" src="" alt="Profile Photo">
+                        <svg id="friendProfileSidebarSvg" viewBox="0 0 24 24" fill="currentColor" width="60%" height="60%" style="opacity: 0.8;">
                             <circle cx="12" cy="8" r="4"></circle>
                             <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z"></path>
                         </svg>
@@ -234,6 +245,7 @@
         import { getFirestore, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         import { getAuth, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -253,6 +265,7 @@
         // Make db and auth globally available on the window
         window.db = getFirestore(app);
         window.auth = getAuth(app);
+        window.storage = getStorage(app);
     </script>
 
     <!-- === YOUR MAGICAL SPELLBOOK (Perfect) === -->

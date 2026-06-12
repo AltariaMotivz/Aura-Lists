@@ -4,7 +4,7 @@
 
 This is the project README for the **Aura List** application (formerly Crystal Wishlist). It is a full-stack Progressive Web App (PWA) built with vanilla HTML, CSS, and JavaScript. The backend is powered by Firebase, utilizing Firestore for the database and Firebase Authentication (Phone Number) for secure, passwordless logins.
 
-## 2. Current Features (v3.1)
+## 2. Current Features (v3.2)
 
 The application currently supports the following features:
 
@@ -25,35 +25,49 @@ The application currently supports the following features:
     *   **Unique Usernames**: Users now identify with a unique `@username` alongside their display name.
     *   **Smart Search**: The "Add Friend" feature now supports searching by Name or Username.
     *   **Profile Management**: Users can update their display name and view their username directly from the dashboard.
+    *   **User Profile Photos**: Users can upload custom profile photos via Firebase Storage. Photos appear on the dashboard and in friends' grids.
+*   **Gift Claiming (Mark as Purchased)**: Friends can mark items as "purchased" to prevent duplicate gifts. Claim status is visible to all friends but hidden from the list owner.
 
 ## 3. Roadmap (Future Features)
 
 The following features are planned for future development:
 
-
-### 3.2. Mark as Purchased
-*   **Goal**: Allow friends to mark items as "purchased" to prevent duplicates.
-*   **Implementation**:
-    *   Add a "Mark as Purchased" button for friends.
-    *   When claimed, the item remains visible on the list but with a clear "Claimed" status indicator for other friends.
-    *   The status is visible to all friends to ensure it's obvious the item has been taken.
-
-### 3.3. Image Uploads
+### 3.1. Image Uploads
 *   **Goal**: Allow users to upload photos directly from their device instead of pasting URLs.
 *   **Implementation**: Integrate Firebase Storage.
 
-### 3.4. Gifts Received (Archive)
+### 3.2. Gifts Received (Archive)
 *   **Goal**: Allow users to mark items as "received" (purchased/gifted), removing them from the active wishlist and archiving them into a private "Gifts Received" folder.
 *   **Implementation**:
     *   Add a status/flag to items to mark them as received.
     *   Filter these items from the main public/private views.
     *   Create a dedicated, private-only view for "Gifts Received".
 
-### 3.5. Copy Wish to My Wishlist
+### 3.3. Copy Wish to My Wishlist
 *   **Goal**: Allow users to easily duplicate an item from a friend's wishlist to their own.
 *   **Implementation**:
     *   Add a "Copy" / "Plus" button to items when viewing a friend's list.
     *   Clicking it creates a new entry in the current user's wishlist with the same details (name, link, image, notes).
+
+### 3.4. Advanced Sorting Options
+*   **Goal**: Allow users to sort wishlist items by Name, Date Added, and Price.
+*   **Implementation**:
+    *   Add a sorting dropdown (A-Z, Z-A, Newest, Oldest, Price: High to Low, Price: Low to High).
+    *   Display the dropdown below the navigation tabs on both "My Wishlist" and "Friend's Wishlist" views.
+    *   Ensure the Date Added field is tracked when creating an item.
+
+### 3.5. Automated Price Scraping
+*   **Goal**: Display prices on items by pulling the price automatically from the product URL.
+*   **Implementation**:
+    *   Integrate a URL scraping or metadata parsing solution to fetch price data.
+
+
+
+### 3.7. Categories & Tags
+*   **Goal**: Allow users to categorize their items (e.g., Tech, Books, Home).
+*   **Implementation**:
+    *   Add a category field to the wishlist item data model.
+    *   Allow users to filter their views by these categories.
 
 ## 4. Troubleshooting / Common Issues
 
