@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let recaptchaVerifier = null;
     let friendWishlistUnsubscribe = null;
     let currentFriendWishesUnsubscribe = null;
+    
+    // --- State for Sorting and Lists ---
+    let myWishesArray = [];
+    let friendWishesArray = [];
 
     // --- State for Editing Wishes ---
     let isEditing = false;
@@ -36,11 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const verifyCodeButton = document.getElementById('verify-code-button');
     const authStatus = document.getElementById('auth-status');
     
-    // Add 3D Tilt to Auth Box
-    const authBox = document.querySelector('.auth-box');
-    if (window.VanillaTilt && authBox) {
-        VanillaTilt.init(authBox, { max: 5, speed: 400, glare: true, "max-glare": 0.2 });
-    }
+    // Main App
     // Main App
     const appContainer = document.getElementById('app-container');
     const signOutButton = document.getElementById('sign-out-button');
@@ -573,22 +573,122 @@ document.addEventListener("DOMContentLoaded", () => {
         const q = query(collection(db, "wishes"), where("ownerId", "==", uid));
 
         onSnapshot(q, (snapshot) => {
-            wishlistGrid.innerHTML = '';
-            if (snapshot.empty) {
-                loadingMessage.textContent = "Your wishlist is empty. Click the + button in the bottom right to add your first wish! 👇";
-                return;
-            }
-            loadingMessage.textContent = '';
-
+            myWishesArray = [];
             snapshot.forEach((doc) => {
-                const wish = doc.data();
-                const wishId = doc.id;
-                // Owner is true here
-                const wishElement = createWishCard(wish, wishId, true);
-                wishlistGrid.appendChild(wishElement);
+                myWishesArray.push({ id: doc.id, data: doc.data() });
             });
+            renderMyWishlist();
         });
     }
+
+    function sortWishes(wishes, sortType) {
+        return wishes.sort((a, b) => {
+            if (sortType === 'alpha-asc') {
+                return a.data.name.localeCompare(b.data.name);
+            } else if (sortType === 'alpha-desc') {
+                return b.data.name.localeCompare(a.data.name);
+            } else if (sortType === 'price-asc') {
+                const priceA = a.data.price || 0;
+                const priceB = b.data.price || 0;
+                return priceA - priceB;
+            } else if (sortType === 'price-desc') {
+                const priceA = a.data.price || 0;
+                const priceB = b.data.price || 0;
+                return priceB - priceA;
+            } else if (sortType === 'date-asc') {
+                const dateA = a.data.createdAt && a.data.createdAt.toMillis ? a.data.createdAt.toMillis() : 0;
+                const dateB = b.data.createdAt && b.data.createdAt.toMillis ? b.data.createdAt.toMillis() : 0;
+                return dateA - dateB;
+            } else {
+                // Default to date-desc (newest first)
+                const dateA = a.data.createdAt && a.data.createdAt.toMillis ? a.data.createdAt.toMillis() : 0;
+                const dateB = b.data.createdAt && b.data.createdAt.toMillis ? b.data.createdAt.toMillis() : 0;
+                return dateB - dateA;
+            }
+        });
+    }
+
+    function renderMyWishlist() {
+        wishlistGrid.innerHTML = '';
+        if (myWishesArray.length === 0) {
+            loadingMessage.textContent = "Your wishlist is empty. Click the + button in the bottom right to add your first wish! 👇";
+            return;
+        }
+        loadingMessage.textContent = '';
+        
+        const sortType = document.getElementById('myWishlistSort').value;
+        const sortedWishes = sortWishes([...myWishesArray], sortType); // clone array before sort
+        
+        sortedWishes.forEach((wishItem) => {
+            const wishElement = createWishCard(wishItem.data, wishItem.id, true);
+            wishlistGrid.appendChild(wishElement);
+        });
+    }
+
+    function renderFriendWishlist() {
+        friendWishlistContainer.innerHTML = '';
+        if (friendWishesArray.length === 0) {
+            friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">This friend has no wishes yet!</p>';
+            return;
+        }
+        
+        const sortType = document.getElementById('friendWishlistSort').value;
+        const sortedWishes = sortWishes([...friendWishesArray], sortType); // clone array before sort
+        
+        sortedWishes.forEach((wishItem) => {
+            const wishElement = createWishCard(wishItem.data, wishItem.id, false);
+            friendWishlistContainer.appendChild(wishElement);
+        });
+    }
+
+    // Custom Dropdown Logic
+    function setupCustomDropdowns() {
+        const dropdowns = document.querySelectorAll('.custom-dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const selected = dropdown.querySelector('.dropdown-selected');
+            const options = dropdown.querySelectorAll('.dropdown-options li');
+            const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+            
+            selected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close other dropdowns
+                dropdowns.forEach(d => {
+                    if (d !== dropdown) d.classList.remove('open');
+                });
+                dropdown.classList.toggle('open');
+            });
+            
+            options.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Update UI
+                    selected.textContent = option.textContent;
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    
+                    // Update hidden input state
+                    hiddenInput.value = option.getAttribute('data-value');
+                    dropdown.classList.remove('open');
+                    
+                    // Trigger appropriate render function
+                    if (hiddenInput.id === 'myWishlistSort') {
+                        renderMyWishlist();
+                    } else if (hiddenInput.id === 'friendWishlistSort') {
+                        renderFriendWishlist();
+                    }
+                });
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            dropdowns.forEach(d => d.classList.remove('open'));
+        });
+    }
+
+    setupCustomDropdowns();
 
     /**
      * === UPDATED SPELL: Create Wish Card ===
@@ -645,6 +745,23 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // Meta elements (Date & Price)
+        let priceHTML = '';
+        if (wish.price !== undefined && wish.price !== null) {
+            priceHTML = `<span class="item-price">$${Number(wish.price).toFixed(2)}</span>`;
+        }
+
+        let dateHTML = '';
+        if (wish.createdAt) {
+            const dateObj = wish.createdAt.toDate ? wish.createdAt.toDate() : new Date(wish.createdAt);
+            dateHTML = `<span class="item-date">Added ${dateObj.toLocaleDateString()}</span>`;
+        }
+        
+        let metaHTML = '';
+        if (priceHTML || dateHTML) {
+            metaHTML = `<div class="card-meta">${dateHTML}${priceHTML}</div>`;
+        }
+
         // 3. Construct the HTML
         card.innerHTML = `
             ${imageElement}
@@ -653,6 +770,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h2>${wish.name}</h2>
                 <p class="card-notes">${wish.notes || 'No notes for this wish.'}</p>
                 ${wish.link ? `<a href="${wish.link}" class="card-link" target="_blank" rel="noopener noreferrer">View Item</a>` : ''}
+                ${metaHTML}
                 <div class="card-actions">
                     ${actionButtonsHTML}
                 </div>
@@ -676,16 +794,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Un-claim (Friend only)
         const unclaimBtn = card.querySelector('.unclaim-btn');
         if (unclaimBtn) unclaimBtn.onclick = () => toggleClaim(wishId, false);
-
-        // --- NEW: Add Vanilla-Tilt ---
-        if (window.VanillaTilt) {
-            VanillaTilt.init(card, {
-                max: 15,
-                speed: 400,
-                glare: true,
-                "max-glare": 0.3
-            });
-        }
 
         return card;
     }
@@ -747,6 +855,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addWishSubmitBtn.disabled = false; // RESET BUTTON STATE
 
         addWishForm.reset();
+        if (typeof resetImagePreview === 'function') resetImagePreview();
         addWishModalBackdrop.classList.add('active');
     });
 
@@ -761,13 +870,137 @@ document.addEventListener("DOMContentLoaded", () => {
         addWishForm.itemName.value = wish.name;
         addWishForm.itemLink.value = wish.link || '';
         addWishForm.itemNotes.value = wish.notes || '';
+        addWishForm.itemPrice.value = wish.price !== undefined && wish.price !== null ? wish.price : '';
         addWishForm.itemImage.value = wish.imageUrl || '';
+        
+        if (wish.imageUrl) {
+            if (itemImagePreview) itemImagePreview.src = wish.imageUrl;
+            if (imagePreviewContainer) imagePreviewContainer.classList.remove('hidden');
+        } else {
+            if (typeof resetImagePreview === 'function') resetImagePreview();
+        }
 
         addWishModalBackdrop.classList.add('active');
     }
 
     cancelAddWishBtn.addEventListener('click', () => {
         addWishModalBackdrop.classList.remove('active');
+    });
+
+    // --- Link Preview / Scraping Logic ---
+    const itemLinkInput = document.getElementById('itemLink');
+    const linkLoading = document.getElementById('linkLoading');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const itemImagePreview = document.getElementById('itemImagePreview');
+    const itemImageInput = document.getElementById('itemImage');
+    const itemNameInput = document.getElementById('itemName');
+
+    let debounceTimeout;
+
+    itemLinkInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimeout);
+        const url = e.target.value.trim();
+
+        if (!url || !url.startsWith('http')) {
+            linkLoading.classList.add('hidden');
+            return;
+        }
+
+        debounceTimeout = setTimeout(async () => {
+            // Only scrape if image is empty to avoid overwriting user's manual input
+            if (itemImageInput.value && !isEditing) return; 
+            
+            linkLoading.classList.remove('hidden');
+            linkLoading.textContent = "✨ Summoning details...";
+            linkLoading.style.color = "var(--fairy-accent)";
+
+            try {
+                // Using a CORS proxy to fetch the raw HTML, bypassing adblockers that block Microlink
+                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                if (!response.ok) throw new Error("Network response was not ok");
+                
+                const data = await response.json();
+                if (!data.contents) throw new Error("No contents returned");
+
+                // Parse the raw HTML natively in the browser
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, "text/html");
+
+                // Extract Open Graph and Twitter metadata
+                const ogImage = doc.querySelector('meta[property="og:image"]')?.content || doc.querySelector('meta[name="twitter:image"]')?.content;
+                const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || doc.querySelector('meta[name="twitter:title"]')?.content || doc.title;
+
+                if (ogImage || ogTitle) {
+                    // Update Image
+                    if (ogImage && !itemImageInput.value) {
+                        itemImageInput.value = ogImage;
+                        itemImagePreview.src = ogImage;
+                        imagePreviewContainer.classList.remove('hidden');
+                    }
+                    
+                    // Update Title if empty
+                    if (!itemNameInput.value && ogTitle && ogTitle !== "403 Forbidden" && ogTitle !== "Access Denied") {
+                        itemNameInput.value = ogTitle;
+                    }
+
+                    linkLoading.textContent = "✅ Details captured!";
+                    linkLoading.style.color = "var(--sage-green)";
+                    setTimeout(() => linkLoading.classList.add('hidden'), 2000);
+                } else {
+                    throw new Error("No metadata found in HTML");
+                }
+            } catch (err) {
+                console.warn("Scraping blocked by site, using intelligent fallback...", err);
+                
+                // --- FALLBACK LOGIC ---
+                // Massive retailers like Amazon block proxies. If we fail, we fall back to extracting
+                // the domain name and grabbing the store's high-res logo!
+                try {
+                    const urlObj = new URL(url);
+                    let domain = urlObj.hostname.replace(/^www\./, '');
+                    
+                    // Set title to domain name (capitalized) if empty
+                    if (!itemNameInput.value) {
+                        const storeName = domain.split('.')[0];
+                        itemNameInput.value = "Item from " + storeName.charAt(0).toUpperCase() + storeName.slice(1);
+                    }
+                    
+                    // Set image to the store's logo
+                    if (!itemImageInput.value) {
+                        const logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+                        itemImageInput.value = logoUrl;
+                        itemImagePreview.src = logoUrl;
+                        imagePreviewContainer.classList.remove('hidden');
+                    }
+                    
+                    linkLoading.textContent = "✅ Store details found!";
+                    linkLoading.style.color = "var(--sage-green)";
+                    setTimeout(() => linkLoading.classList.add('hidden'), 2500);
+
+                } catch (fallbackErr) {
+                    // If even the URL parsing fails (invalid URL pasted)
+                    linkLoading.textContent = "❌ Failed to summon.";
+                    linkLoading.style.color = "#e7b2a5";
+                    setTimeout(() => linkLoading.classList.add('hidden'), 3000);
+                }
+            }
+        }, 1000); // 1s debounce after typing
+    });
+
+    function resetImagePreview() {
+        if(imagePreviewContainer) imagePreviewContainer.classList.add('hidden');
+        if(itemImagePreview) itemImagePreview.src = "";
+        if(linkLoading) linkLoading.classList.add('hidden');
+    }
+
+    itemImageInput.addEventListener('input', (e) => {
+        const url = e.target.value.trim();
+        if (url) {
+            itemImagePreview.src = url;
+            imagePreviewContainer.classList.remove('hidden');
+        } else {
+            resetImagePreview();
+        }
     });
 
     // 3. Handle Form Submit (Handles both Add and Edit)
@@ -781,6 +1014,12 @@ document.addEventListener("DOMContentLoaded", () => {
             imageUrl: addWishForm.itemImage.value,
             // We do NOT update ownerId or createdAt during an edit
         };
+        
+        if (addWishForm.itemPrice.value) {
+            wishData.price = Number(addWishForm.itemPrice.value);
+        } else {
+            wishData.price = null;
+        }
 
         try {
             if (isEditing && editingWishId) {
@@ -1011,23 +1250,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const q = query(collection(db, "wishes"), where("ownerId", "==", friendId));
 
         currentFriendWishesUnsubscribe = onSnapshot(q, (snapshot) => {
-            if (snapshot.empty) {
-                friendWishlistContainer.innerHTML = '<p style="text-align:center; width:100%;">This friend has no wishes yet!</p>';
-                return;
-            }
-
-            friendWishlistContainer.innerHTML = '';
+            friendWishesArray = [];
             snapshot.forEach((doc) => {
                 try {
-                    const wish = doc.data();
-                    const wishId = doc.id;
-                    // Owner is false here
-                    const wishElement = createWishCard(wish, wishId, false);
-                    friendWishlistContainer.appendChild(wishElement);
+                    friendWishesArray.push({ id: doc.id, data: doc.data() });
                 } catch (err) {
-                    console.error("Error rendering wish card:", err);
+                    console.error("Error pushing wish to array:", err);
                 }
             });
+            renderFriendWishlist();
         }, (error) => {
             console.error("Error fetching friend's wishes:", error);
             friendWishlistContainer.innerHTML = `<p class="status-text error">Error loading wishes: ${error.message}</p>`;

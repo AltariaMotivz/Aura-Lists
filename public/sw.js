@@ -1,6 +1,6 @@
 // A simple caching spell to make your app work offline
 
-const CACHE_NAME = 'crystal-wishlist-cache-v3';
+const CACHE_NAME = 'crystal-wishlist-cache-v12';
 const urlsToCache = [
   '/',
   '/index.html',

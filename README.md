@@ -4,14 +4,21 @@
 
 This is the project README for the **Aura List** application (formerly Crystal Wishlist). It is a full-stack Progressive Web App (PWA) built with vanilla HTML, CSS, and JavaScript. The backend is powered by Firebase, utilizing Firestore for the database and Firebase Authentication (Phone Number) for secure, passwordless logins.
 
-## 2. Current Features (v3.2)
+## 2. Current Features (v3.3)
 
 The application currently supports the following features:
 
 *   **Secure Authentication**: Passwordless phone number authentication via Firebase.
 *   **User-Specific Data**: All data is tied to the authenticated user's unique `uid`.
 *   **Wishlist Management (CRUD)**: Users can create, read, update, and delete their own wishlist items.
-*   **Wish Creation**: The "Add a Wish" modal allows users to save an item's name, an external URL, notes, and an image URL.
+*   **Wish Creation & Link Scraping**:
+    *   The "Add a Wish" modal allows users to save an item's name, price, an external URL, notes, and an image URL.
+    *   **Auto-Scraping**: Pasting a product link automatically fetches the product's image and title.
+    *   **Intelligent Fallback**: If a large retailer (like Amazon) blocks the scraper, the app extracts the store's domain and automatically pulls the official store logo to use as the thumbnail.
+*   **Advanced Sorting & Metadata**:
+    *   Users can sort wishlists (both theirs and friends') by Date Added, Alphabetical, and Price.
+    *   Custom, theme-matching glassmorphism dropdown menus for sorting.
+    *   Wish cards now visibly display "Price" and "Date Added" metadata.
 *   **Image Optimization**: Images are lazy-loaded and decoded asynchronously for smooth scrolling performance.
 *   **Public Share Links**: Users can generate a unique link to share their wishlist with anyone (Guest Mode), allowing view-only access without an account.
 *   **Social Functionality**:
@@ -49,18 +56,6 @@ The following features are planned for future development:
     *   Add a "Copy" / "Plus" button to items when viewing a friend's list.
     *   Clicking it creates a new entry in the current user's wishlist with the same details (name, link, image, notes).
 
-### 3.4. Advanced Sorting Options
-*   **Goal**: Allow users to sort wishlist items by Name, Date Added, and Price.
-*   **Implementation**:
-    *   Add a sorting dropdown (A-Z, Z-A, Newest, Oldest, Price: High to Low, Price: Low to High).
-    *   Display the dropdown below the navigation tabs on both "My Wishlist" and "Friend's Wishlist" views.
-    *   Ensure the Date Added field is tracked when creating an item.
-
-### 3.5. Automated Price Scraping
-*   **Goal**: Display prices on items by pulling the price automatically from the product URL.
-*   **Implementation**:
-    *   Integrate a URL scraping or metadata parsing solution to fetch price data.
-
 
 
 ### 3.7. Categories & Tags
@@ -84,4 +79,9 @@ This section documents common errors encountered during development and their so
 
 ### 4.3. Browser Caching Issues
 *   **Symptom**: New features (like the Claim button) don't appear after deployment.
-*   **Solution**: We use a version query parameter (e.g., `script.js?v=2.7`) to force the browser to fetch the latest script.
+*   **Solution**: We use a version query parameter (e.g., `script.js?v=2.7`) and bump the Service Worker `CACHE_NAME` to force the browser to fetch the latest assets.
+
+### 4.4. Safari WebKit Rendering Glitches (Screen Tearing)
+*   **Symptom**: Hovering over cards causes extreme screen tearing, clipping, or spinning in Safari browsers.
+*   **Cause**: Combining `backdrop-filter: blur`, `overflow: hidden`, and complex opacity/3D hover animations forces WebKit to repeatedly and incorrectly redraw massive hardware-accelerated layers.
+*   **Solution**: Removed `overflow: hidden` from the blurred container, relied on manual `border-radius` for child images, removed complex pseudo-element fades, and simplified the hover animation to standard 2D translations.

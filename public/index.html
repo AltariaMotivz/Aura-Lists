@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura List</title>
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=9.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -108,6 +108,21 @@
             <!-- The 'wishlistGrid' is now a 'div' INSIDE it. -->
             <main id="myWishlistPage" class="hidden layout-with-sidebar">
                 <div class="main-content">
+                    <div class="sort-container">
+                        <label>Sort By:</label>
+                        <div class="custom-dropdown" id="myWishlistDropdown">
+                            <div class="dropdown-selected">Newest First</div>
+                            <ul class="dropdown-options">
+                                <li data-value="date-desc" class="selected">Newest First</li>
+                                <li data-value="date-asc">Oldest First</li>
+                                <li data-value="alpha-asc">Alphabetical (A-Z)</li>
+                                <li data-value="alpha-desc">Alphabetical (Z-A)</li>
+                                <li data-value="price-asc">Price (Low to High)</li>
+                                <li data-value="price-desc">Price (High to Low)</li>
+                            </ul>
+                            <input type="hidden" id="myWishlistSort" value="date-desc">
+                        </div>
+                    </div>
                     <p id="loadingMessage" style="text-align: center; color: var(--text-muted);">Summoning your wishes...
                     </p>
                     <div id="wishlistGrid" class="wishlist-grid">
@@ -136,6 +151,21 @@
                     <div class="friend-page-header">
                         <button id="backToDashboardBtn" class="btn-secondary small">← Back to Friends List</button>
                         <h2 id="friendPageTitle">Friend's Wishlist</h2>
+                    </div>
+                    <div class="sort-container">
+                        <label>Sort By:</label>
+                        <div class="custom-dropdown" id="friendWishlistDropdown">
+                            <div class="dropdown-selected">Newest First</div>
+                            <ul class="dropdown-options">
+                                <li data-value="date-desc" class="selected">Newest First</li>
+                                <li data-value="date-asc">Oldest First</li>
+                                <li data-value="alpha-asc">Alphabetical (A-Z)</li>
+                                <li data-value="alpha-desc">Alphabetical (Z-A)</li>
+                                <li data-value="price-asc">Price (Low to High)</li>
+                                <li data-value="price-desc">Price (High to Low)</li>
+                            </ul>
+                            <input type="hidden" id="friendWishlistSort" value="date-desc">
+                        </div>
                     </div>
                     <div id="friendWishlistContainer" class="wishlist-grid">
                         <!-- Friend's wishes will be summoned here -->
@@ -167,14 +197,19 @@
                 <form id="addWishForm">
                     <label for="itemName">Wish Title</label>
                     <input type="text" id="itemName" name="itemName" placeholder="e.g., A Book of Spells" required>
-                    <label for="itemLink">Link to Item (optional)</label>
+                    <label for="itemLink">Link to Item (optional) <span id="linkLoading" class="hidden">✨ Summoning details...</span></label>
                     <input type="url" id="itemLink" name="itemLink" placeholder="https://magical-emporium.com/...">
                     <label for="itemNotes">Notes (optional)</label>
                     <textarea id="itemNotes" name="itemNotes" rows="3"
                         placeholder="Any details, colors, or enchantments..."></textarea>
+                    <label for="itemPrice">Price (optional)</label>
+                    <input type="number" id="itemPrice" name="itemPrice" step="0.01" min="0" placeholder="e.g., 29.99">
                     <label for="itemImage">Image URL (optional)</label>
                     <input type="url" id="itemImage" name="itemImage"
                         placeholder="https://magical-emporium.com/image.png">
+                    <div id="imagePreviewContainer" class="hidden">
+                        <img id="itemImagePreview" src="" alt="Image Preview">
+                    </div>
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" id="cancelAddWishBtn">Cancel</button>
                         <button type="submit" class="btn-primary">Add Wish</button>
@@ -269,10 +304,8 @@
     </script>
 
     <!-- === YOUR MAGICAL SPELLBOOK (Perfect) === -->
-    <script type="module" src="script.js?v=3.4"></script>
+    <script type="module" src="script.js?v=8.0"></script>
     
-    <!-- 3D Tilt Interaction -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 </body>
 
 </html>
