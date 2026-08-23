@@ -165,6 +165,11 @@ h1 {
     transform: scale(1.1);
 }
 
+/* Hide FAB when any modal is open */
+body:has(.modal-backdrop.active) .floating-add-btn {
+    display: none !important;
+}
+
 .floating-add-btn-small {
     width: 40px;
     height: 40px;
