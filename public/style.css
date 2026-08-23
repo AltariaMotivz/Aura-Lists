@@ -765,8 +765,9 @@ h1 {
     }
 
     .floating-add-btn {
-        bottom: 100px;
-        right: 1.5rem;
+        bottom: 120px !important;
+        right: 1.5rem !important;
+        z-index: 2000 !important;
     }
 }
 
