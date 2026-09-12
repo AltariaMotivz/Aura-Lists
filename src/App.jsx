@@ -11,7 +11,6 @@ import Dashboard from './pages/Dashboard';
 import MyWishlist from './pages/MyWishlist';
 import FriendWishlist from './pages/FriendWishlist';
 import ParticleCanvas from './components/ParticleCanvas';
-import vineCanopy from './assets/vine_canopy.png';
 import './index.css';
 import styles from './components/AppLayout.module.css';
 
@@ -76,16 +75,6 @@ const AppLayout = () => {
           <feBlend mode="overlay" in="composite" in2="SourceGraphic" />
         </filter>
       </svg>
-      
-      {/* Global Vine Canopy */}
-      <div 
-        style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '150px',
-          backgroundImage: `url(${vineCanopy})`,
-          backgroundRepeat: 'repeat-x', backgroundSize: 'auto 100%',
-          zIndex: 900, pointerEvents: 'none', filter: 'drop-shadow(0 5px 15px rgba(0,0,0,0.5))'
-        }}
-      />
       
       <ParticleCanvas />
       <GlobalNav />

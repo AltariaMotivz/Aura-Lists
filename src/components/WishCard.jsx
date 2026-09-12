@@ -27,6 +27,7 @@ const WishCard = ({
   const theme = THEME_ACCENTS[item.theme] || THEME_ACCENTS.Default;
 
   // Determine Anomaly Status based on name
+  const isForestStaff = item.name?.toLowerCase().includes('staff');
   const isCrystalOrb = item.name?.toLowerCase().includes('orb') || item.name?.toLowerCase().includes('crystal');
   const isLightningSword = item.name?.toLowerCase().includes('sword') || item.name?.toLowerCase().includes('lightning');
 
@@ -52,11 +53,11 @@ const WishCard = ({
   };
 
   return (
-    <div className={`${styles.liquidGlassCard} ${item.purchased ? 'is-claimed' : ''}`} style={{ 
+    <div className={`${styles.liquidGlassCard} ${item.purchased ? 'is-claimed' : ''} ${isForestStaff ? styles.isForestStaff : ''}`} style={{ 
       opacity: item.purchased ? 0.7 : 1, transform: item.purchased ? 'scale(0.98)' : ''
     }}>
       
-      <div className={styles.forestFrame} />
+      {isForestStaff && <div className={styles.forestFrame} />}
       
       {/* Media Container */}
       <div style={{ width: '100%', height: '220px', position: 'relative', overflow: 'hidden', backgroundColor: 'var(--color-bg-secondary)', zIndex: 1 }}>

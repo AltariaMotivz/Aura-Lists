@@ -56,7 +56,6 @@ const FriendCard = ({ friend }) => {
   return (
     <div className={styles.friendCard}>
       <div className={styles.glassBackground} />
-      <div className={styles.forestFrame} />
       
       {/* 3D Hologram Projection */}
       {topItem && (

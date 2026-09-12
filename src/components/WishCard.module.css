@@ -53,3 +53,10 @@
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+
+/* Clear borders for forest staff to let roots be the edge */
+.isForestStaff {
+  border: none !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: inset 0 0 30px rgba(22, 163, 74, 0.2);
+}
