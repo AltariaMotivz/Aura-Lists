@@ -1,0 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap');
+@import './styles/tokens.css';
+
+/* Any global styles that need to overwrite tokens or apply generally */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
