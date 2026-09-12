@@ -10,6 +10,7 @@ import AstralSidebar from './components/AstralSidebar';
 import Dashboard from './pages/Dashboard';
 import MyWishlist from './pages/MyWishlist';
 import FriendWishlist from './pages/FriendWishlist';
+import ParticleCanvas from './components/ParticleCanvas';
 import './index.css';
 import styles from './components/AppLayout.module.css';
 
@@ -65,6 +66,7 @@ const AppLayout = () => {
 
   return (
     <div className="app-container">
+      <ParticleCanvas />
       <GlobalNav />
       <div className={styles.astralLayout}>
         <AstralSidebar 

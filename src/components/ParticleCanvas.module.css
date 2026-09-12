@@ -1,0 +1,27 @@
+.particleContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  bottom: -10px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #fff;
+  will-change: transform;
+  animation-name: riseMotes;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes riseMotes {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-110vh); }
+}

@@ -55,6 +55,7 @@ const FriendCard = ({ friend }) => {
 
   return (
     <div className={styles.friendCard}>
+      <div className={styles.glassBackground} />
       
       {/* 3D Hologram Projection */}
       {topItem && (
@@ -78,10 +79,10 @@ const FriendCard = ({ friend }) => {
         )}
       </div>
 
-      <h3 className={styles.name}>{formatDisplayName(friend.displayName)}</h3>
+      <h3 className={styles.name} style={{ position: 'relative', zIndex: 2 }}>{formatDisplayName(friend.displayName)}</h3>
       
       {friend.username && friend.username.trim() !== '' && (
-        <p className={styles.username}>@{friend.username}</p>
+        <p className={styles.username} style={{ position: 'relative', zIndex: 2 }}>@{friend.username}</p>
       )}
 
     </div>
