@@ -1,0 +1,121 @@
+.profileLayout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stickySidebar {
+  position: sticky;
+  top: 6rem; /* Account for GlobalNav */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  height: max-content;
+}
+
+.glassCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.2) 100%);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 32px 0 rgba(167, 139, 250, 0.15);
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.glassCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px 0 rgba(167, 139, 250, 0.25);
+}
+
+.wishlistGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.categoryNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.categoryButton {
+  text-align: left;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.categoryButton:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.categoryButton.activeFilter {
+  background: rgba(167, 139, 250, 0.2);
+  border: 1px solid rgba(167, 139, 250, 0.5);
+  color: #2E1065;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .profileLayout {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .stickySidebar {
+    position: relative;
+    top: 0;
+    flex-direction: column;
+  }
+
+  .categoryNav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .categoryNav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .categoryButton {
+    white-space: nowrap;
+  }
+}
+
+/* Skeleton Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeletonCard {
+  background: linear-gradient(90deg, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: 24px;
+  height: 380px; /* Approximate height of a wish card */
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.05);
+}

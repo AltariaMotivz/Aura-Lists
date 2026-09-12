@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import AuthGateway from './components/AuthGateway';
+import GlobalNav from './components/GlobalNav';
 import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import MyWishlist from './pages/MyWishlist';
@@ -21,6 +22,7 @@ const AppContent = () => {
   return (
     <Router>
       <div className="app-container">
+        {currentUser && <GlobalNav />}
         {currentUser && <Navigation />}
         <main className="page-container">
           <Routes>

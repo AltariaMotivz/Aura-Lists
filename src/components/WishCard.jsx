@@ -17,7 +17,8 @@ const WishCard = ({
   isOwner, 
   isGuest = false,
   onUpdate,
-  onExternalClick
+  onExternalClick,
+  className
 }) => {
   const [imageError, setImageError] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -46,7 +47,7 @@ const WishCard = ({
   };
 
   return (
-    <div className={`glass-panel ${item.purchased ? 'is-claimed' : ''}`} style={{ 
+    <div className={`${className || 'glass-panel'} ${item.purchased ? 'is-claimed' : ''}`} style={{ 
       position: 'relative', display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden', height: '100%',
       opacity: item.purchased ? 0.7 : 1, transform: item.purchased ? 'scale(0.98)' : 'scale(1)',
       transition: 'all 0.3s ease'

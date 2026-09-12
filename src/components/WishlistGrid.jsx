@@ -1,7 +1,7 @@
 import React from 'react';
 import WishCard from './WishCard';
 
-const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick }) => {
+const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, cardClassName }) => {
   if (!items || items.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)' }}>
@@ -14,7 +14,7 @@ const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick }) =>
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
       gap: '2rem',
       alignItems: 'start'
     }}>
@@ -26,6 +26,7 @@ const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick }) =>
             isGuest={isGuest} 
             onUpdate={onUpdate}
             onExternalClick={onExternalClick}
+            className={cardClassName}
           />
         </div>
       ))}

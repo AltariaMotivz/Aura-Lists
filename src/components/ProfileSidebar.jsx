@@ -83,16 +83,6 @@ const ProfileSidebar = ({
 
   return (
     <aside className="profile-sidebar glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
-      
-      {/* Brand & Theme Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-accent-primary)', fontWeight: '700', fontSize: '1.2rem', fontFamily: 'var(--font-heading)' }}>
-          <Wand2 size={20} /> Aura Lists
-        </div>
-        <button onClick={toggleTheme} className="pill-badge" style={{ padding: '6px', cursor: 'pointer', background: 'transparent' }} aria-label="Toggle theme">
-          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
-      </div>
 
       {/* Compact Profile Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative' }}>
