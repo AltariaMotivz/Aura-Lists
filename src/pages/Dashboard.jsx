@@ -1,59 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
-import { useAuth } from '../contexts/AuthContext';
 import { Link, useOutletContext } from 'react-router-dom';
-import { Search, UserPlus } from 'lucide-react';
-import SkeletonGrid from '../components/SkeletonGrid';
 import FriendCard from '../components/FriendCard';
+import SkeletonGrid from '../components/SkeletonGrid';
+import { Search, UserPlus } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Tilt } from 'react-tilt';
 
-const formatDisplayName = (nameOrPhone) => {
-  if (!nameOrPhone) return 'Unknown';
-  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-  if (phoneRegex.test(nameOrPhone)) {
-    const lastFour = nameOrPhone.slice(-4);
-    return `User-...${lastFour}`;
-  }
-  return nameOrPhone;
+const defaultTiltOptions = {
+  reverse:        false,
+  max:            25,
+  perspective:    1000,
+  scale:          1.05,
+  speed:          1000,
+  transition:     true,
+  axis:           null,
+  reset:          true,
+  easing:         "cubic-bezier(.03,.98,.52,.99)",
 };
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
   const { friends, loadingFriends } = useOutletContext();
-  
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
 
+  const formatDisplayName = (nameOrPhone) => {
+    if (!nameOrPhone) return 'Unknown';
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    if (phoneRegex.test(nameOrPhone)) {
+      const lastFour = nameOrPhone.slice(-4);
+      return `User-...${lastFour}`;
+    }
+    return nameOrPhone;
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     setSearching(true);
+    setSearchResults([]);
+    
     try {
       const usersRef = collection(db, 'users');
+      // This is a naive search, in production use Algolia or Typesense
       const q = query(usersRef, where('searchableArray', 'array-contains', searchQuery.toLowerCase()));
       const querySnapshot = await getDocs(q);
+      
       const results = querySnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(user => user.id !== currentUser.uid);
+        .filter(user => user.id !== currentUser.uid); // Exclude self
+        
       setSearchResults(results);
     } catch (err) {
-      console.error('Search failed', err);
+      console.error("Search failed", err);
     }
     setSearching(false);
   };
 
   const handleAddFriend = async (friendId) => {
-    if (!currentUser) return;
     try {
       const friendRef = doc(db, 'users', currentUser.uid, 'friends', friendId);
-      await setDoc(friendRef, { addedAt: new Date().toISOString() });
+      await setDoc(friendRef, {
+        addedAt: new Date().toISOString()
+      });
       setShowAddFriend(false);
       setSearchQuery('');
       setSearchResults([]);
     } catch (err) {
-      console.error('Failed to add friend', err);
+      console.error("Failed to add friend", err);
     }
   };
 
@@ -82,7 +100,9 @@ const Dashboard = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start', marginTop: '2rem' }}>
           {friends.map(friend => (
             <Link key={friend.id} to={`/friend/${friend.id}`} style={{ textDecoration: 'none', height: '100%' }}>
-              <FriendCard friend={friend} />
+              <Tilt options={defaultTiltOptions} style={{ height: '100%' }}>
+                <FriendCard friend={friend} />
+              </Tilt>
             </Link>
           ))}
         </div>

@@ -25,6 +25,7 @@
   z-index: 1;
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
+  filter: url(#liquid-noise);
   box-shadow: 0 8px 32px 0 var(--color-accent-glow);
 }
 
@@ -132,4 +133,17 @@
 .username {
   font-size: 0.9rem;
   color: var(--color-text-secondary);
+}
+
+.forestFrame {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
+  z-index: 10;
+  pointer-events: none;
+  background-image: url('../assets/forest_staff_frame.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }

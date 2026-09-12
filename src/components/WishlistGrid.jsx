@@ -1,5 +1,18 @@
 import React from 'react';
 import WishCard from './WishCard';
+import { Tilt } from 'react-tilt';
+
+const defaultTiltOptions = {
+  reverse:        false,
+  max:            15, // Less extreme than friend cards
+  perspective:    1000,
+  scale:          1.02,
+  speed:          1000,
+  transition:     true,
+  axis:           null,
+  reset:          true,
+  easing:         "cubic-bezier(.03,.98,.52,.99)",
+};
 
 const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, cardClassName }) => {
   if (!items || items.length === 0) {
@@ -19,7 +32,7 @@ const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, card
       alignItems: 'start'
     }}>
       {items.map(item => (
-        <div key={item.id} style={{ height: '100%' }}>
+        <Tilt key={item.id} options={defaultTiltOptions} style={{ height: '100%' }}>
           <WishCard 
             item={item} 
             isOwner={isOwner} 
@@ -28,7 +41,7 @@ const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, card
             onExternalClick={onExternalClick}
             className={cardClassName}
           />
-        </div>
+        </Tilt>
       ))}
     </div>
   );
