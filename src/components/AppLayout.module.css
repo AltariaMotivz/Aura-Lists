@@ -1,0 +1,22 @@
+.astralLayout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+.mainArea {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .astralLayout {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+}

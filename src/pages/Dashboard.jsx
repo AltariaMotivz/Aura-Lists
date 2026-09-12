@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import { Search, UserPlus } from 'lucide-react';
-import styles from './Dashboard.module.css';
 import SkeletonGrid from '../components/SkeletonGrid';
 
 const formatDisplayName = (nameOrPhone) => {
   if (!nameOrPhone) return 'Unknown';
-  // Check if string matches phone number format (e.g. +17032209405)
   const phoneRegex = /^\+?[1-9]\d{1,14}$/;
   if (phoneRegex.test(nameOrPhone)) {
     const lastFour = nameOrPhone.slice(-4);
@@ -18,71 +16,14 @@ const formatDisplayName = (nameOrPhone) => {
   return nameOrPhone;
 };
 
-const UserSidebar = ({ profile }) => {
-  if (!profile) return null;
-  return (
-    <aside className={`${styles.userSidebar} ${styles.glassCard}`}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <div style={{
-          width: '96px', height: '96px', borderRadius: '50%', marginBottom: '1rem',
-          background: 'var(--color-bg-secondary)', border: '3px solid var(--color-accent-primary)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
-        }}>
-          {profile.photoURL ? (
-            <img src={profile.photoURL} alt={profile.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <span style={{ fontSize: '2.5rem', color: 'var(--color-accent-primary)' }}>
-              {profile.displayName?.charAt(0) || '?'}
-            </span>
-          )}
-        </div>
-        <h2 className={styles.primaryText} style={{ fontSize: '1.3rem' }}>
-          {formatDisplayName(profile.displayName)}
-        </h2>
-        {profile.username && profile.username.trim() !== '' && (
-          <p className={styles.secondaryText}>@{profile.username}</p>
-        )}
-      </div>
-    </aside>
-  );
-};
-
 const Dashboard = () => {
-  const { currentUser, userProfile } = useAuth();
-  const [friends, setFriends] = useState([]);
+  const { currentUser } = useAuth();
+  const { friends, loadingFriends } = useOutletContext();
+  
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
-  const [loadingFriends, setLoadingFriends] = useState(true);
-
-  // Fetch Friends List
-  useEffect(() => {
-    if (!currentUser) return;
-    
-    let isMounted = true;
-    const friendsRef = collection(db, 'users', currentUser.uid, 'friends');
-    
-    const unsubscribe = onSnapshot(friendsRef, async (snapshot) => {
-      if (!isMounted) return;
-      const friendProfiles = await Promise.all(snapshot.docs.map(async (d) => {
-        const profileDoc = await getDocs(query(collection(db, 'users'), where('__name__', '==', d.id)));
-        return profileDoc.empty ? null : { id: profileDoc.docs[0].id, ...profileDoc.docs[0].data() };
-      }));
-      if (isMounted) {
-        setFriends(friendProfiles.filter(Boolean));
-        setLoadingFriends(false);
-      }
-    }, (error) => {
-      console.error("Error fetching friends:", error);
-      if (isMounted) setLoadingFriends(false);
-    });
-
-    return () => {
-      isMounted = false;
-      unsubscribe();
-    };
-  }, [currentUser]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -90,12 +31,11 @@ const Dashboard = () => {
     setSearching(true);
     try {
       const usersRef = collection(db, 'users');
-      // Case-insensitive type-ahead search using searchableArray
       const q = query(usersRef, where('searchableArray', 'array-contains', searchQuery.toLowerCase()));
       const querySnapshot = await getDocs(q);
       const results = querySnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(user => user.id !== currentUser.uid); // Exclude self
+        .filter(user => user.id !== currentUser.uid);
       setSearchResults(results);
     } catch (err) {
       console.error('Search failed', err);
@@ -117,59 +57,55 @@ const Dashboard = () => {
   };
 
   return (
-    <div className={styles.dashboardLayout}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       
-      <UserSidebar profile={userProfile} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.8rem', color: '#2E1065', fontFamily: 'var(--font-heading)' }}>Friends' Wishlists</h2>
+        <button 
+          className="btn-glossy" 
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 20px', borderRadius: '999px', fontWeight: '600' }}
+          onClick={() => setShowAddFriend(true)}
+        >
+          <UserPlus size={18} /> Add Friend
+        </button>
+      </div>
 
-      <main className={styles.mainContent}>
-        <div className={styles.headerRow}>
-          <h2 className={styles.primaryText} style={{ fontSize: '1.8rem' }}>Friends' Wishlists</h2>
-          <button 
-            className="btn-glossy" 
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 20px', borderRadius: '999px', fontWeight: '600' }}
-            onClick={() => setShowAddFriend(true)}
-          >
-            <UserPlus size={18} /> Add Friend
-          </button>
+      {loadingFriends ? (
+        <SkeletonGrid count={4} />
+      ) : friends.length === 0 ? (
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: '#2E1065' }}>No friends added yet.</p>
+          <p style={{ color: '#7C3AED' }}>Click "Add Friend" to search and view their wishlists!</p>
         </div>
-
-        {loadingFriends ? (
-          <SkeletonGrid count={4} />
-        ) : friends.length === 0 ? (
-          <div className={styles.glassCard} style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)', alignItems: 'center', justifyContent: 'center' }}>
-            <p className={styles.primaryText} style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>No friends added yet.</p>
-            <p style={{ color: '#7C3AED' }}>Click "Add Friend" to search and view their wishlists!</p>
-          </div>
-        ) : (
-          <div className={styles.friendsGrid}>
-            {friends.map(friend => (
-              <Link key={friend.id} to={`/friend/${friend.id}`} style={{ textDecoration: 'none', height: '100%' }}>
-                <div className={styles.glassCard} style={{ padding: '2rem 1rem', alignItems: 'center', textAlign: 'center', height: '100%' }}>
-                  <div style={{
-                    width: '80px', height: '80px', borderRadius: '50%', marginBottom: '1rem',
-                    background: 'var(--color-bg-secondary)', border: '2px solid rgba(167, 139, 250, 0.5)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
-                  }}>
-                    {friend.photoURL ? (
-                      <img src={friend.photoURL} alt={friend.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <span style={{ fontSize: '2rem', color: '#7C3AED' }}>
-                        {formatDisplayName(friend.displayName).charAt(0)}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className={styles.primaryText} style={{ fontSize: '1.1rem' }}>
-                    {formatDisplayName(friend.displayName)}
-                  </h3>
-                  {friend.username && friend.username.trim() !== '' && (
-                    <p className={styles.secondaryText}>@{friend.username}</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
+          {friends.map(friend => (
+            <Link key={friend.id} to={`/friend/${friend.id}`} style={{ textDecoration: 'none', height: '100%' }}>
+              <div className="glass-panel" style={{ padding: '2rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '100%', transition: 'all 0.3s ease' }}>
+                <div style={{
+                  width: '80px', height: '80px', borderRadius: '50%', marginBottom: '1rem',
+                  background: 'var(--color-bg-secondary)', border: '2px solid rgba(167, 139, 250, 0.5)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
+                }}>
+                  {friend.photoURL ? (
+                    <img src={friend.photoURL} alt={friend.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ fontSize: '2rem', color: '#7C3AED' }}>
+                      {formatDisplayName(friend.displayName).charAt(0)}
+                    </span>
                   )}
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </main>
+                <h3 style={{ fontSize: '1.1rem', color: '#2E1065' }}>
+                  {formatDisplayName(friend.displayName)}
+                </h3>
+                {friend.username && friend.username.trim() !== '' && (
+                  <p style={{ fontSize: '0.9rem', color: '#7C3AED' }}>@{friend.username}</p>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Add Friend Modal */}
       {showAddFriend && (
@@ -179,8 +115,8 @@ const Dashboard = () => {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           zIndex: 1000, padding: '1rem'
         }}>
-          <div className={styles.glassCard} style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-            <h3 className={styles.primaryText} style={{ marginBottom: '1rem', textAlign: 'center' }}>Add a Friend</h3>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
+            <h3 style={{ marginBottom: '1rem', textAlign: 'center', color: '#2E1065' }}>Add a Friend</h3>
             
             <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <input 
@@ -203,11 +139,11 @@ const Dashboard = () => {
                 searchResults.map(res => (
                   <div key={res.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'rgba(255,255,255,0.4)', borderRadius: '12px' }}>
                     <div>
-                      <p className={styles.primaryText} style={{ fontSize: '0.9rem', marginBottom: 0 }}>
+                      <p style={{ fontSize: '0.9rem', marginBottom: 0, color: '#2E1065' }}>
                         {formatDisplayName(res.displayName)}
                       </p>
                       {res.username && res.username.trim() !== '' && (
-                        <p className={styles.secondaryText} style={{ fontSize: '0.8rem' }}>@{res.username}</p>
+                        <p style={{ fontSize: '0.8rem', color: '#7C3AED' }}>@{res.username}</p>
                       )}
                     </div>
                     <button onClick={() => handleAddFriend(res.id)} className="btn-glossy" style={{ padding: '4px 12px', fontSize: '0.8rem', borderRadius: '999px' }}>

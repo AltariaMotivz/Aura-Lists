@@ -1,0 +1,190 @@
+.astralMonolith {
+  position: sticky;
+  top: 2rem;
+  width: 280px;
+  height: max-content;
+  max-height: calc(100vh - 4rem);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 32px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(167, 139, 250, 0.15);
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 0 -0.5rem;
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  color: #2E1065;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: #7C3AED;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #2E1065;
+}
+
+.navLink.active {
+  background: rgba(255, 255, 255, 0.5);
+  color: #2E1065;
+  font-weight: 700;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.pillContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.categoryPill {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #7C3AED;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryPill:hover {
+  background: rgba(255, 255, 255, 0.4);
+  color: #2E1065;
+}
+
+.categoryPill.activePill {
+  background: rgba(167, 139, 250, 0.2);
+  border-color: #8B5CF6;
+  color: #2E1065;
+  box-shadow: inset 0 0 10px rgba(167, 139, 250, 0.2);
+}
+
+.friendsSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.friendsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.friendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.friendItem:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.friendItem.activeFriend {
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.friendAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.friendAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.friendAvatar span {
+  color: #7C3AED;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.friendInfo {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.friendName {
+  color: #2E1065;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friendHandle {
+  color: #7C3AED;
+  font-size: 0.75rem;
+}
+
+.emptyText, .loadingText {
+  color: #7C3AED;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* Custom Scrollbar for Monolith */
+.astralMonolith::-webkit-scrollbar {
+  width: 6px;
+}
+.astralMonolith::-webkit-scrollbar-track {
+  background: transparent;
+}
+.astralMonolith::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.3);
+  border-radius: 10px;
+}

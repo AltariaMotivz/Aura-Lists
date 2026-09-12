@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ExternalLink, Edit2, Trash2, CheckCircle } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
+import styles from './WishCard.module.css';
+import { CrystalOrbEffect, LightningSwordEffect } from './Anomalies';
 
 const THEME_ACCENTS = {
   Birthday: { bg: '#fce7f3', text: '#be185d', icon: '🎂' },
@@ -17,13 +19,17 @@ const WishCard = ({
   isOwner, 
   isGuest = false,
   onUpdate,
-  onExternalClick,
-  className
+  onExternalClick
 }) => {
   const [imageError, setImageError] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   
   const theme = THEME_ACCENTS[item.theme] || THEME_ACCENTS.Default;
+
+  // Determine Anomaly Status based on name
+  const isForestStaff = item.name?.toLowerCase().includes('staff');
+  const isCrystalOrb = item.name?.toLowerCase().includes('orb') || item.name?.toLowerCase().includes('crystal');
+  const isLightningSword = item.name?.toLowerCase().includes('sword') || item.name?.toLowerCase().includes('lightning');
 
   const handleStoreRedirect = (e) => {
     if (isGuest && !item.purchased) {
@@ -47,17 +53,17 @@ const WishCard = ({
   };
 
   return (
-    <div className={`${className || 'glass-panel'} ${item.purchased ? 'is-claimed' : ''}`} style={{ 
-      position: 'relative', display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden', height: '100%',
-      opacity: item.purchased ? 0.7 : 1, transform: item.purchased ? 'scale(0.98)' : 'scale(1)',
-      transition: 'all 0.3s ease'
+    <div className={`${styles.liquidGlassCard} ${item.purchased ? 'is-claimed' : ''} ${isForestStaff ? styles.isForestStaff : ''}`} style={{ 
+      opacity: item.purchased ? 0.7 : 1, transform: item.purchased ? 'scale(0.98)' : ''
     }}>
       
+      {isForestStaff && <div className={styles.forestFrame} />}
+      
       {/* Media Container */}
-      <div style={{ width: '100%', height: '220px', position: 'relative', overflow: 'hidden', backgroundColor: 'var(--color-bg-secondary)' }}>
+      <div style={{ width: '100%', height: '220px', position: 'relative', overflow: 'hidden', backgroundColor: 'var(--color-bg-secondary)', zIndex: 1 }}>
         <span 
           style={{ 
-            position: 'absolute', top: '12px', left: '12px', zIndex: 2,
+            position: 'absolute', top: '12px', left: '12px', zIndex: 10,
             backgroundColor: theme.bg, color: theme.text, padding: '4px 10px',
             borderRadius: 'var(--radius-pill)', fontSize: '0.85rem', fontWeight: '600',
             display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
@@ -65,6 +71,9 @@ const WishCard = ({
         >
           {theme.icon} {item.theme || 'Wish'}
         </span>
+
+        {isCrystalOrb && <CrystalOrbEffect />}
+        {isLightningSword && <LightningSwordEffect />}
 
         {item.imageURL && !imageError ? (
           <img 
@@ -79,15 +88,15 @@ const WishCard = ({
             width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: `radial-gradient(circle, ${theme.bg} 0%, var(--color-bg-secondary) 100%)`
           }}>
-            <span style={{ fontSize: '4rem', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}>{theme.icon}</span>
+            <span style={{ fontSize: '4rem', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))', zIndex: 2 }}>{theme.icon}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', zIndex: 2, position: 'relative' }}>
         <div>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem', color: 'var(--color-text-primary)' }}>{item.name}</h3>
+          <h3 className={styles.primaryText} style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>{item.name}</h3>
           {item.price && <p style={{ fontWeight: '700', color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>${Number(item.price).toFixed(2)}</p>}
         </div>
 
@@ -119,9 +128,8 @@ const WishCard = ({
 
               {isGuest && (
                 <button 
-                  className="btn-glossy"
+                  className={styles.markBoughtBtn}
                   onClick={() => setShowPurchaseModal(true)}
-                  style={{ padding: '8px 16px', fontSize: '0.85rem' }}
                 >
                   Mark Bought
                 </button>
@@ -145,9 +153,9 @@ const WishCard = ({
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
           background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          padding: '2rem', textAlign: 'center', zIndex: 10
+          padding: '2rem', textAlign: 'center', zIndex: 20
         }}>
-          <h4 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', fontSize: '1.2rem', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
+          <h4 className={styles.primaryText} style={{ marginBottom: '1rem', fontSize: '1.2rem', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
           <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
             Marking this as purchased hides it from other guests to prevent duplicates!
           </p>

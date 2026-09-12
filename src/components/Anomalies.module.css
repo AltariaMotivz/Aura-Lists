@@ -1,0 +1,95 @@
+.orbContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.crystalBubble {
+  position: absolute;
+  bottom: -50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset -5px -5px 15px rgba(255,255,255,0.8), inset 5px 5px 15px rgba(167, 139, 250, 0.3);
+  backdrop-filter: blur(4px);
+  animation: float-up 5s ease-in infinite;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-300px) translateX(20px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.lightningContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.lightningSvg {
+  width: 100%;
+  height: 100%;
+}
+
+.lightningPath {
+  fill: none;
+  stroke: #a78bfa;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 8px #c084fc);
+  stroke-dasharray: 10 50;
+  stroke-dashoffset: 0;
+  animation: discharge 2s infinite linear;
+}
+
+.delay1 {
+  animation-delay: 0.3s;
+  animation-duration: 1.5s;
+}
+
+.delay2 {
+  animation-delay: 0.7s;
+  animation-duration: 2.5s;
+}
+
+@keyframes discharge {
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
