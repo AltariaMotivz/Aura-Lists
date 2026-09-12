@@ -61,7 +61,7 @@ const Dashboard = () => {
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.8rem', color: '#2E1065', fontFamily: 'var(--font-heading)' }}>Friends' Wishlists</h2>
+        <h2 style={{ fontSize: '2.5rem', color: '#F5F3FF', fontFamily: 'var(--font-heading)', textShadow: '0 0 20px rgba(167, 139, 250, 0.6)' }}>Friends' Wishlists</h2>
         <button 
           className="btn-glossy" 
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 20px', borderRadius: '999px', fontWeight: '600' }}
@@ -74,9 +74,9 @@ const Dashboard = () => {
       {loadingFriends ? (
         <SkeletonGrid count={4} />
       ) : friends.length === 0 ? (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: '#2E1065' }}>No friends added yet.</p>
-          <p style={{ color: '#7C3AED' }}>Click "Add Friend" to search and view their wishlists!</p>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: '#C4B5FD', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: '#F5F3FF' }}>No friends added yet.</p>
+          <p style={{ color: '#C4B5FD' }}>Click "Add Friend" to search and view their wishlists!</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start', marginTop: '2rem' }}>
@@ -92,12 +92,12 @@ const Dashboard = () => {
       {showAddFriend && (
         <div style={{
           position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)',
+          background: 'rgba(10, 5, 20, 0.6)', backdropFilter: 'blur(20px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           zIndex: 1000, padding: '1rem'
         }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem', textAlign: 'center', color: '#2E1065' }}>Add a Friend</h3>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(167, 139, 250, 0.4)' }}>
+            <h3 style={{ marginBottom: '1rem', textAlign: 'center', color: '#F5F3FF', textShadow: '0 0 10px rgba(167,139,250,0.5)' }}>Add a Friend</h3>
             
             <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <input 
@@ -106,25 +106,25 @@ const Dashboard = () => {
                 placeholder="Search name or @username" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ flex: 1 }}
+                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(167,139,250,0.3)' }}
               />
-              <button type="submit" className="btn-primary" style={{ padding: '0 1rem', borderRadius: 'var(--radius-pill)' }} disabled={searching}>
+              <button type="submit" className="btn-primary" style={{ padding: '0 1rem', borderRadius: 'var(--radius-pill)', background: 'linear-gradient(45deg, #A78BFA, #FF6B6B)' }} disabled={searching}>
                 <Search size={18} />
               </button>
             </form>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '300px', overflowY: 'auto' }}>
               {searching ? (
-                <p style={{ textAlign: 'center', color: '#7C3AED' }}>Searching...</p>
+                <p style={{ textAlign: 'center', color: '#C4B5FD' }}>Searching...</p>
               ) : searchResults.length > 0 ? (
                 searchResults.map(res => (
-                  <div key={res.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'rgba(255,255,255,0.4)', borderRadius: '12px' }}>
+                  <div key={res.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div>
-                      <p style={{ fontSize: '0.9rem', marginBottom: 0, color: '#2E1065' }}>
+                      <p style={{ fontSize: '0.9rem', marginBottom: 0, color: '#F5F3FF', fontWeight: 'bold' }}>
                         {formatDisplayName(res.displayName)}
                       </p>
                       {res.username && res.username.trim() !== '' && (
-                        <p style={{ fontSize: '0.8rem', color: '#7C3AED' }}>@{res.username}</p>
+                        <p style={{ fontSize: '0.8rem', color: '#A78BFA' }}>@{res.username}</p>
                       )}
                     </div>
                     <button onClick={() => handleAddFriend(res.id)} className="btn-glossy" style={{ padding: '4px 12px', fontSize: '0.8rem', borderRadius: '999px' }}>
@@ -133,12 +133,12 @@ const Dashboard = () => {
                   </div>
                 ))
               ) : searchQuery && !searching ? (
-                <p style={{ textAlign: 'center', color: '#7C3AED' }}>No users found.</p>
+                <p style={{ textAlign: 'center', color: '#C4B5FD' }}>No users found.</p>
               ) : null}
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-              <button onClick={() => setShowAddFriend(false)} className="pill-badge" style={{ cursor: 'pointer', background: 'transparent', border: '1px solid #7C3AED', color: '#7C3AED' }}>
+              <button onClick={() => setShowAddFriend(false)} className="pill-badge" style={{ cursor: 'pointer', background: 'transparent', border: '1px solid #A78BFA', color: '#A78BFA' }}>
                 Close
               </button>
             </div>
