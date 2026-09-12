@@ -42,24 +42,24 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
     }
 
-    // Wishes collection
-    match /wishes/{wishId} {
+    // Wishlist collection
+    match /wishlist/{wishId} {
       // Allow public read access (for sharing links)
       allow read: if true;
       
-      // Allow create if the 'ownerId' matches the authenticated user
-      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      // Allow create if the 'userId' matches the authenticated user
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       
       // Allow update if:
       // 1. User is the owner (can edit name, notes, etc.)
       // 2. User is a friend claiming the item (only updating 'claimedBy')
       allow update: if isAuthenticated() && (
-        resource.data.ownerId == request.auth.uid || 
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedBy', 'claimedByName', 'claimedAt']))
+        resource.data.userId == request.auth.uid || 
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedBy', 'claimedByName', 'claimedAt', 'purchased']))
       );
 
       // Allow delete only if user is the owner
-      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
   }
 }
