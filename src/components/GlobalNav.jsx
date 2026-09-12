@@ -41,16 +41,16 @@ const GlobalNav = () => {
           fontFamily: 'var(--font-heading)',
           cursor: 'pointer',
           color: 'transparent',
-          backgroundImage: 'linear-gradient(45deg, #FF6B6B, #93C5FD, #A78BFA)',
+          backgroundImage: 'linear-gradient(45deg, var(--orb-1), var(--orb-2), var(--color-accent-primary))',
           WebkitBackgroundClip: 'text',
-          textShadow: '0 0 20px rgba(167, 139, 250, 0.4)'
+          textShadow: '0 0 20px var(--color-accent-glow)'
         }}
       >
-        <Wand2 size={24} color="#A78BFA" /> Aura Wishlist
+        <Wand2 size={24} color="var(--color-accent-primary)" /> Aura Wishlist
       </div>
 
       {/* Grouped Actions Cluster */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.05)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--color-glass-bg)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid var(--color-border)' }}>
         
         <button 
           onClick={toggleTheme} 
@@ -62,7 +62,7 @@ const GlobalNav = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#A78BFA'
+            color: 'var(--color-accent-primary)'
           }} 
           aria-label="Toggle theme"
         >
@@ -72,13 +72,13 @@ const GlobalNav = () => {
         {userProfile && (
           <div style={{
             width: '32px', height: '32px', borderRadius: '50%',
-            background: 'rgba(255,255,255,0.1)', border: '2px solid #A78BFA',
+            background: 'var(--color-glass-bg)', border: '2px solid var(--color-accent-primary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
           }}>
             {userProfile.photoURL ? (
               <img src={userProfile.photoURL} alt={userProfile.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <span style={{ fontSize: '1rem', color: '#F5F3FF', fontWeight: 'bold' }}>
+              <span style={{ fontSize: '1rem', color: 'var(--color-text-primary)', fontWeight: 'bold' }}>
                 {userProfile.displayName?.charAt(0) || '?'}
               </span>
             )}
@@ -95,7 +95,7 @@ const GlobalNav = () => {
             gap: '6px',
             background: 'transparent',
             border: 'none',
-            color: '#C4B5FD',
+            color: 'var(--color-text-secondary)',
             cursor: 'pointer',
             fontWeight: '600'
           }}

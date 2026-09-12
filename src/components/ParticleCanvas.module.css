@@ -15,13 +15,20 @@
   background: white;
   border-radius: 50%;
   box-shadow: 0 0 10px #fff;
-  will-change: transform;
-  animation-name: riseMotes;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
+  will-change: transform, filter;
+  animation-name: riseMotes, rainbowPulse;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: normal, alternate;
 }
 
 @keyframes riseMotes {
   0% { transform: translateY(0); }
   100% { transform: translateY(-110vh); }
+}
+
+@keyframes rainbowPulse {
+  0% { filter: hue-rotate(0deg) drop-shadow(0 0 10px var(--orb-1)) scale(1); }
+  50% { filter: hue-rotate(180deg) drop-shadow(0 0 20px var(--orb-2)) scale(1.5); }
+  100% { filter: hue-rotate(360deg) drop-shadow(0 0 10px var(--orb-3)) scale(1); }
 }

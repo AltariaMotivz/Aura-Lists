@@ -1,9 +1,13 @@
 :root, [data-theme="light"] {
   /* Core Colors - Light Mode (Y2K Soft Purple) */
-  --color-bg-primary: #f9f8ff;
+  --color-bg-primary: #fff0f5;
   --color-bg-secondary: rgba(255, 255, 255, 0.8);
   --color-text-primary: #4c1d95;
   --color-text-secondary: #7c3aed;
+  
+  --orb-1: rgba(255, 0, 255, 0.6);
+  --orb-2: rgba(0, 255, 255, 0.6);
+  --orb-3: rgba(255, 182, 193, 0.7);
   
   --color-accent-primary: #8b5cf6;
   --color-accent-hover: #7c3aed;
@@ -40,10 +44,14 @@
 
 [data-theme="dark"] {
   /* Core Colors - Dark Mode (Y2K Neon Nights) */
-  --color-bg-primary: #0f0a1c;
+  --color-bg-primary: #0a0514;
   --color-bg-secondary: rgba(25, 18, 43, 0.7);
   --color-text-primary: #f5f3ff;
   --color-text-secondary: #c4b5fd;
+  
+  --orb-1: rgba(138, 43, 226, 0.6);
+  --orb-2: rgba(57, 255, 20, 0.6);
+  --orb-3: rgba(255, 87, 34, 0.6);
   
   --color-accent-primary: #a78bfa;
   --color-accent-hover: #c4b5fd;
@@ -71,9 +79,9 @@
 }
 
 body {
-  background: #0a0514; /* Deep dark space */
+  background: var(--color-bg-primary);
   font-family: var(--font-body);
-  color: #f5f3ff;
+  color: var(--color-text-primary);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -81,42 +89,45 @@ body {
 }
 
 :root, [data-theme="light"] body {
-  background: #0a0514;
-  color: #f5f3ff;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 body::before {
   content: '';
   position: fixed;
   top: 10%; left: 10%; width: 50vw; height: 50vw;
-  background: rgba(255, 107, 107, 0.5);
+  background: var(--orb-1);
   border-radius: 50%;
   filter: blur(100px);
   z-index: -2;
   animation: sentientPulse 20s infinite alternate ease-in-out;
+  transition: background 0.5s ease;
 }
 
 body::after {
   content: '';
   position: fixed;
   bottom: -10%; right: -10%; width: 60vw; height: 60vw;
-  background: rgba(147, 197, 253, 0.6);
+  background: var(--orb-2);
   border-radius: 50%;
   filter: blur(120px);
   z-index: -2;
   animation: sentientPulse 22s infinite alternate-reverse ease-in-out;
+  transition: background 0.5s ease;
 }
 
 .app-container::before {
   content: '';
   position: fixed;
   top: 25%; left: 25%; width: 55vw; height: 55vw;
-  background: rgba(167, 139, 250, 0.5);
+  background: var(--orb-3);
   border-radius: 50%;
   filter: blur(110px);
   z-index: -2;
   animation: sentientPulse 25s infinite alternate ease-in-out;
   pointer-events: none;
+  transition: background 0.5s ease;
 }
 
 @keyframes sentientPulse {
@@ -146,6 +157,16 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   letter-spacing: 0.5px;
+}
+
+@keyframes chromatic-shift {
+  0% { text-shadow: 2px 0 0 rgba(255,0,0,0.5), -2px 0 0 rgba(0,255,255,0.5); }
+  50% { text-shadow: -2px 0 0 rgba(255,0,0,0.5), 2px 0 0 rgba(0,255,255,0.5); }
+  100% { text-shadow: 2px 0 0 rgba(255,0,0,0.5), -2px 0 0 rgba(0,255,255,0.5); }
+}
+
+.chromatic-text {
+  animation: chromatic-shift 0.1s infinite linear;
 }
 
 /* Utilities */
