@@ -1,0 +1,105 @@
+.friendCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 32px;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.friendCard:hover {
+  transform: scale(1.05) perspective(1000px) rotateX(5deg);
+  box-shadow: 0 0 40px rgba(167, 139, 250, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
+.hologramContainer {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: luminosity;
+  opacity: 0.8;
+  animation: float-hologram 4s infinite alternate ease-in-out;
+}
+
+@keyframes float-hologram {
+  0% { transform: translateX(-50%) translateY(0px) scale(0.9); opacity: 0.6; filter: drop-shadow(0 10px 20px rgba(167, 139, 250, 0.4)); }
+  100% { transform: translateX(-50%) translateY(-20px) scale(1); opacity: 0.9; filter: drop-shadow(0 30px 40px rgba(147, 197, 253, 0.6)); }
+}
+
+.hologramImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+}
+
+.hologramPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.8);
+  animation: pulseRing 20s infinite alternate ease-in-out;
+  position: relative;
+  z-index: 2;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar span {
+  font-weight: 900;
+  font-size: 2.5rem;
+  background: linear-gradient(45deg, #FF6B6B, #93C5FD, #A78BFA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: iridescentText 5s infinite linear;
+}
+
+.name {
+  font-size: 1.1rem;
+  color: #2E1065;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-heading);
+}
+
+.username {
+  font-size: 0.9rem;
+  color: #7C3AED;
+}

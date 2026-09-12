@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Link, useOutletContext } from 'react-router-dom';
 import { Search, UserPlus } from 'lucide-react';
 import SkeletonGrid from '../components/SkeletonGrid';
+import FriendCard from '../components/FriendCard';
 
 const formatDisplayName = (nameOrPhone) => {
   if (!nameOrPhone) return 'Unknown';
@@ -78,30 +79,10 @@ const Dashboard = () => {
           <p style={{ color: '#7C3AED' }}>Click "Add Friend" to search and view their wishlists!</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start', marginTop: '2rem' }}>
           {friends.map(friend => (
             <Link key={friend.id} to={`/friend/${friend.id}`} style={{ textDecoration: 'none', height: '100%' }}>
-              <div className="glass-panel" style={{ padding: '2rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: '100%', transition: 'all 0.3s ease' }}>
-                <div style={{
-                  width: '80px', height: '80px', borderRadius: '50%', marginBottom: '1rem',
-                  background: 'var(--color-bg-secondary)', border: '2px solid rgba(167, 139, 250, 0.5)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
-                }}>
-                  {friend.photoURL ? (
-                    <img src={friend.photoURL} alt={friend.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <span style={{ fontSize: '2rem', color: '#7C3AED' }}>
-                      {formatDisplayName(friend.displayName).charAt(0)}
-                    </span>
-                  )}
-                </div>
-                <h3 style={{ fontSize: '1.1rem', color: '#2E1065' }}>
-                  {formatDisplayName(friend.displayName)}
-                </h3>
-                {friend.username && friend.username.trim() !== '' && (
-                  <p style={{ fontSize: '0.9rem', color: '#7C3AED' }}>@{friend.username}</p>
-                )}
-              </div>
+              <FriendCard friend={friend} />
             </Link>
           ))}
         </div>
