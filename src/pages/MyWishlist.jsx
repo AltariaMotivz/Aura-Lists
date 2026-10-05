@@ -55,7 +55,7 @@ const MyWishlist = () => {
       unsubscribeWishes();
       unsubscribeLegacy();
     };
-  }, [currentUser]);
+  }, [currentUser, setActiveCategory]);
 
   const filteredItems = items.filter(item => {
     const matchesCategory = activeCategory === 'All' || item.theme === activeCategory || item.tags?.includes(activeCategory);

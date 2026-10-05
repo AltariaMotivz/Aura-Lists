@@ -3,6 +3,7 @@ import { ExternalLink, Edit2, Trash2, CheckCircle, ChevronDown, ChevronUp, Alert
 import { db } from '../firebase';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import AddWishModal from './AddWishModal';
+import Dialog from './Dialog';
 import styles from './WishCard.module.css';
 
 const THEME_ACCENTS = {
@@ -35,7 +36,9 @@ const WishCard = ({
   };
   const theme = THEME_ACCENTS[item.theme] || THEME_ACCENTS.Default;
 
-  const handleStoreRedirect = (e) => {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const handleStoreRedirect = () => {
     if (isGuest && !item.purchased) {
       if (onExternalClick) {
         onExternalClick(item);
@@ -46,26 +49,28 @@ const WishCard = ({
   };
 
   const handleMarkPurchased = async () => {
+    setBusy(true); setError('');
     try {
       const collectionName = item.collectionName || 'wishes';
       const itemRef = doc(db, collectionName, item.id);
       await updateDoc(itemRef, { purchased: true });
       setShowPurchaseModal(false);
       if (onUpdate) onUpdate();
-    } catch (err) {
-      console.error('Failed to mark purchased', err);
-    }
+    } catch {
+      setError('Could not mark this wish as purchased. Try again.');
+    } finally { setBusy(false); }
   };
 
   const handleDelete = async () => {
+    setBusy(true); setError('');
     try {
       const collectionName = item.collectionName || 'wishes';
       await deleteDoc(doc(db, collectionName, item.id));
       setShowDeleteModal(false);
       if (onUpdate) onUpdate();
-    } catch (err) {
-      console.error('Failed to delete wish', err);
-    }
+    } catch {
+      setError('Could not delete this wish. Try again.');
+    } finally { setBusy(false); }
   };
 
   return (
@@ -145,7 +150,7 @@ const WishCard = ({
                 {isGuest && (
                   <button
                     className="btn-primary"
-                    onClick={() => setShowPurchaseModal(true)}
+                    onClick={() => {setError('');setShowPurchaseModal(true);}}
                   >
                     Mark Bought
                   </button>
@@ -157,51 +162,15 @@ const WishCard = ({
             {isOwner && !item.purchased && (
               <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
                 <button className="pill-badge aura-action" aria-label={`Edit ${item.name}`} onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} aria-hidden="true" /> Edit</button>
-                <button className="pill-badge aura-action" aria-label={`Delete ${item.name}`} onClick={() => setShowDeleteModal(true)} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} aria-hidden="true" /> Delete</button>
+                <button className="pill-badge aura-action" aria-label={`Delete ${item.name}`} onClick={() => {setError('');setShowDeleteModal(true);}} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} aria-hidden="true" /> Delete</button>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Inline Purchase Modal */}
-      {showPurchaseModal && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
-        }}>
-          <h4 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: '#fff', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
-          <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', maxWidth: '300px' }}>
-            Marking this as purchased hides it from other guests to prevent duplicates!
-          </p>
-          <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '300px' }}>
-            <button className="btn-primary" onClick={handleMarkPurchased} style={{ flex: 1 }}>Confirm</button>
-            <button className="btn-glossy" onClick={() => setShowPurchaseModal(false)} style={{ flex: 1 }}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {/* Inline Delete Modal */}
-      {showDeleteModal && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(12px)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
-        }}>
-          <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
-          <h4 style={{ marginBottom: '0.5rem', fontSize: '1.4rem', color: '#ef4444', fontFamily: 'var(--font-heading)' }}>Delete Wish?</h4>
-          <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', maxWidth: '300px' }}>
-            Are you sure you want to delete this? This cannot be undone.
-          </p>
-          <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '300px' }}>
-            <button className="btn-primary" style={{ background: '#ef4444', borderColor: '#ef4444', flex: 1 }} onClick={handleDelete}>Delete</button>
-            <button className="btn-glossy" onClick={() => setShowDeleteModal(false)} style={{ flex: 1 }}>Cancel</button>
-          </div>
-        </div>
-      )}
+      {showPurchaseModal && <Dialog onClose={()=>{if(!busy)setShowPurchaseModal(false);}} labelledBy={`${bodyId}-purchase`}><CheckCircle className="universe-confirm-icon" size={40} /><h2 id={`${bodyId}-purchase`}>A wish, fulfilled.</h2><p className="aura-preview-description">Bought “{item.name}”? Mark it as purchased so other friends know it’s covered.</p><div className="universe-actions"><button className="btn-primary" disabled={busy} onClick={handleMarkPurchased}>{busy?'Saving…':'Yes, I bought it'}</button><button className="btn-glossy" disabled={busy} onClick={()=>setShowPurchaseModal(false)}>Just looking</button></div>{error && <p role="alert" className="aura-error">{error}</p>}</Dialog>}
+      {showDeleteModal && <Dialog onClose={()=>{if(!busy)setShowDeleteModal(false);}} labelledBy={`${bodyId}-delete`}><AlertTriangle className="universe-danger" size={40} /><h2 id={`${bodyId}-delete`}>Let this wish go?</h2><p className="aura-preview-description">“{item.name}” will be permanently deleted. This cannot be undone.</p><div className="universe-actions"><button className="btn-glossy" disabled={busy} onClick={()=>setShowDeleteModal(false)}>Keep my wish</button><button className="btn-primary universe-danger" disabled={busy} onClick={handleDelete}>{busy?'Deleting…':'Delete wish'}</button></div>{error && <p role="alert" className="aura-error">{error}</p>}</Dialog>}
 
       {/* Edit Modal (renders globally) */}
       {showEditModal && (

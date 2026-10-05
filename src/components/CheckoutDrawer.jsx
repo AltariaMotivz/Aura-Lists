@@ -1,62 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
+import { Check, Gift } from 'lucide-react';
 import { db } from '../firebase';
-
-export default function CheckoutDrawer({ pendingItem, onClose, onConfirmPurchase }) {
-  const [hasReturned, setHasReturned] = useState(false);
-
-  useEffect(() => {
-    // Detect when the user leaves and refocuses the Aura Wishlist tab
-    const handleFocus = () => setHasReturned(true);
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
-
-  if (!pendingItem) return null;
-
-  const handleConfirm = async () => {
-    try {
-      const itemRef = doc(db, 'wishes', pendingItem.id);
-      await updateDoc(itemRef, { purchased: true });
-      if (onConfirmPurchase) onConfirmPurchase(pendingItem.id);
-    } catch (err) {
-      console.error('Failed to mark purchased', err);
-    }
-  };
-
-  return (
-    <div style={{
-      position: 'fixed', bottom: 0, left: 0, width: '100%',
-      background: hasReturned ? 'var(--color-bg-secondary)' : 'var(--color-bg-primary)',
-      backdropFilter: 'blur(10px)',
-      borderTop: '1px solid var(--color-accent-primary)',
-      boxShadow: hasReturned ? '0 -10px 30px var(--color-accent-glow)' : '0 -4px 15px rgba(0,0,0,0.1)',
-      zIndex: 1000, padding: '1.5rem',
-      transition: 'all var(--transition-base)'
-    }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <p style={{ fontSize: '1.1rem', color: 'var(--color-text-primary)', marginBottom: '1.5rem', fontFamily: 'var(--font-heading)', fontWeight: '600' }}>
-          {hasReturned 
-            ? `Welcome back! Did you pick up "${pendingItem.name}"?` 
-            : `Shopping for "${pendingItem.name}" in a new tab...`}
-        </p>
-        <div style={{ display: 'flex', gap: '1rem', width: '100%', justifyContent: 'center' }}>
-          <button 
-            className="btn-glossy" 
-            onClick={handleConfirm}
-            style={{ maxWidth: '250px', width: '100%' }}
-          >
-            Yes, mark as purchased
-          </button>
-          <button 
-            className="pill-badge" 
-            onClick={onClose}
-            style={{ maxWidth: '250px', width: '100%', justifyContent: 'center', background: 'transparent' }}
-          >
-            Just looking
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+import Dialog from './Dialog';
+export default function CheckoutDrawer({pendingItem,onClose,onConfirmPurchase}) {
+  const [returned,setReturned]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState('');
+  useEffect(()=>{setReturned(false);setError('');const focus=()=>setReturned(true);window.addEventListener('focus',focus);return()=>window.removeEventListener('focus',focus);},[pendingItem?.id]);
+  if(!pendingItem)return null;
+  const confirm=async()=>{setBusy(true);setError('');try{await updateDoc(doc(db,pendingItem.collectionName || 'wishes',pendingItem.id),{purchased:true});onConfirmPurchase?.(pendingItem.id);window.dispatchEvent(new CustomEvent('aura-wish-saved'));}catch{setError('Could not mark this gift as purchased. Try again.');}finally{setBusy(false);}};
+  return <Dialog onClose={()=>{if(!busy)onClose();}} labelledBy="checkout-title"><div className="universe-confirm-icon"><Gift size={32} /></div><span className="aura-eyebrow">A little generosity</span><h2 id="checkout-title">{returned?'Welcome back. Make their day?':'Found the perfect gift?'}</h2><p className="aura-preview-description">If you bought “{pendingItem.name}”, mark it as purchased so other friends know it’s covered.</p><div className="universe-actions"><button className="btn-primary" onClick={confirm} disabled={busy}><Check size={18} />{busy?'Saving…':'Yes, I bought it'}</button><button className="btn-glossy" onClick={onClose} disabled={busy}>Just looking</button></div>{error && <p role="alert" className="aura-error">{error}</p>}</Dialog>;
 }

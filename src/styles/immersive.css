@@ -112,3 +112,79 @@
 .aura-empty-state h3 { margin-bottom: 10px; }
 .aura-empty-state p { color: #b1adc6; font-size: .85rem; margin-bottom: 24px; }
 .aura-dialog-subtitle { color: #b1adc6; text-align: center; font-size: .8rem; line-height: 1.7; margin: -8px 0 24px; }
+
+/* The same Aura language throughout the signed-in universe. */
+.universe-page { width: 100%; min-width: 0; }
+.universe-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.universe-actions > button, .universe-actions > a, .universe-photo-label { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: .8rem; }
+.universe-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin-bottom: 32px; }
+.universe-stats > div { padding: 22px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; border-color: rgba(167,139,250,.22); background: linear-gradient(145deg,rgba(48,31,73,.48),rgba(12,16,28,.65)); }
+.universe-stats svg { color: #a5ffff; }
+.universe-stats strong { font: 600 2rem var(--font-heading); letter-spacing: -.04em; }
+.universe-stats span { font-size: .75rem; color: #b1adc6; line-height: 1.6; }
+.universe-stat-invitation strong { font-size: 1.4rem; }
+.universe-section { margin-bottom: 32px; }
+.universe-section-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.universe-section-heading h3 { font-size: 1.1rem; }
+.universe-section-heading a { display: flex; gap: 6px; align-items: center; font-size: .75rem; color: #bcefee; text-decoration: none; }
+.universe-orbit { display: flex; align-items: flex-start; gap: 18px; overflow-x: auto; padding: 8px 0 16px; }
+.universe-orbit > a, .universe-orbit > button { display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: 0; color: #d4cae5; text-decoration: none; font: 500 .7rem var(--font-body); flex: 0 0 85px; cursor: pointer; }
+.universe-orbit > a > span:last-child, .universe-orbit > button > span:last-child { max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.universe-avatar { display: inline-grid; place-items: center; width: 56px; height: 56px; flex-shrink: 0; border-radius: 50%; border: 1px solid rgba(0,255,255,.35); background: radial-gradient(circle at 25% 20%,rgba(167,139,250,.45),rgba(0,255,255,.05)); color: #e5d7ff; font: 600 1.3rem var(--font-heading); box-shadow: 0 0 25px rgba(130,70,255,.15); overflow: hidden; transition: transform 300ms ease, box-shadow 300ms ease; }
+.universe-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.universe-avatar-add { border-style: dashed; background: rgba(0,255,255,.04); color: #99ffff; }
+.universe-feed { display: flex; flex-direction: column; gap: 12px; }
+.universe-empty-orb { display: inline-grid; place-items: center; width: 76px; height: 76px; border-radius: 50%; margin-bottom: 20px; background: radial-gradient(circle at 30% 20%,rgba(167,139,250,.4),rgba(0,255,255,.04)); color: #d5bbff; box-shadow: 0 0 50px rgba(141,80,255,.13); }
+.universe-directory-search { margin-bottom: 24px; }
+.universe-friends-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(100%,260px),1fr)); gap: 16px; }
+.universe-friend-card { display: flex; align-items: center; gap: 16px; padding: 24px; border-radius: 22px; border: 1px solid rgba(167,139,250,.23); background: linear-gradient(145deg,rgba(48,31,73,.48),rgba(12,16,28,.7)); color: white; text-decoration: none; text-align: left; cursor: pointer; font-family: var(--font-body); transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease; }
+.universe-friend-card > div { min-width: 0; flex: 1; }
+.universe-friend-card h3 { font-size: 1rem; overflow-wrap: anywhere; }
+.universe-friend-card p { color: #b1adc6; font-size: .75rem; margin-top: 6px; overflow-wrap: anywhere; }
+.universe-friend-card > svg { flex-shrink: 0; color: #a5ffff; }
+.universe-find-form { display: flex; gap: 10px; margin: 24px 0; }
+.universe-find-form input { min-width: 0; }
+.universe-search-results { display: flex; flex-direction: column; gap: 12px; max-height: 45vh; overflow: auto; }
+.universe-search-results > p { color: #b1adc6; font-size: .85rem; line-height: 1.7; }
+.universe-person-result { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(167,139,250,.07); padding: 15px; border-radius: 15px; }
+.universe-person-result > div { min-width: 0; overflow-wrap: anywhere; }
+.universe-person-result p { color: #b1adc6; font-size: .75rem; }
+.universe-person-result button { display: flex; gap: 6px; align-items: center; font-size: .75rem; padding: 10px 12px; }
+.universe-profile { padding: 32px; border-color: rgba(167,139,250,.25); background: linear-gradient(145deg,rgba(48,31,73,.48),rgba(12,16,28,.65)); }
+.universe-profile-identity { display: flex; align-items: center; gap: 24px; margin: 28px 0; }
+.universe-profile-identity > div { min-width: 0; }
+.universe-profile-identity h2 { font-size: clamp(1.5rem,3vw,2rem); letter-spacing: -.04em; overflow-wrap: anywhere; }
+.universe-profile-identity p { font-size: .8rem; color: #b1adc6; line-height: 1.7; margin-top: 8px; overflow-wrap: anywhere; }
+.universe-profile-avatar { width: 96px; height: 96px; font-size: 2.4rem; }
+.universe-photo-label { position: relative; overflow: hidden; cursor: pointer; }
+.universe-photo-label input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.universe-photo-label:focus-within { outline: 2px solid #00ffff; outline-offset: 4px; }
+.universe-profile-form { margin-top: 26px; padding-top: 26px; border-top: 1px solid rgba(167,139,250,.2); display: flex; flex-direction: column; gap: 18px; }
+.universe-profile-form label { font-size: .8rem; color: #d0c4e1; display: flex; flex-direction: column; gap: 8px; }
+.universe-profile-form > p { font-size: .75rem; color: #b1adc6; line-height: 1.7; }
+.universe-notice { display: flex; gap: 8px; align-items: center; margin-top: 18px; font-size: .8rem; color: #99e9dc; }
+.universe-profile-tip { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 24px; padding: 26px; }
+.universe-profile-tip > svg { color: #b49cff; }
+.universe-profile-tip > div { flex: 1; min-width: min(100%,230px); }
+.universe-profile-tip h3 { font-size: 1rem; }
+.universe-profile-tip p { color: #b1adc6; font-size: .8rem; margin-top: 8px; line-height: 1.7; }
+.universe-profile-tip a { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: .8rem; }
+.universe-back { display: inline-flex; gap: 8px; align-items: center; color: #bcefee; text-decoration: none; font-size: .8rem; }
+.universe-friend-banner { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; padding: 24px; }
+.universe-friend-banner > div { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.universe-friend-banner strong { font-size: .85rem; }
+.universe-friend-banner p { color: #b1adc6; font-size: .75rem; margin-top: 6px; }
+.universe-friend-banner > svg { color: #b49cff; flex-shrink: 0; }
+.universe-danger { color: #ff9aa9 !important; border-color: rgba(255,120,150,.3); }
+.universe-confirm-icon { color: #a5ffff; margin-bottom: 20px; }
+@media (hover:hover) and (pointer:fine) { .universe-friend-card:hover { transform: translateY(-4px); border-color: rgba(0,255,255,.4); box-shadow: 0 16px 40px rgba(0,0,0,.2); } .universe-orbit > a:hover .universe-avatar, .universe-orbit > button:hover .universe-avatar { transform: translateY(-5px); box-shadow: 0 0 35px rgba(167,139,250,.3); } }
+@media (max-width: 900px) { .universe-sidebar { padding: 12px !important; } .universe-sidebar > div:first-child { flex-direction: row; flex-wrap: wrap; gap: 4px; } .universe-sidebar > div:first-child a { flex: 1 1 120px; font-size: .8rem; justify-content: center; padding: 10px 8px; } .universe-sidebar-friends { display: none !important; } .universe-sidebar > div:last-of-type:not(.universe-sidebar-friends) { display: none; } .universe-sidebar-filters { padding: 0 6px; } }
+@media (max-width: 600px) { .universe-stats { grid-template-columns: 1fr 1fr; } .universe-stat-invitation { grid-column: 1 / -1; } .universe-stats > div { padding: 18px; } .universe-profile { padding: 24px; } .universe-profile-identity { gap: 16px; } .universe-profile-avatar { width: 72px; height: 72px; font-size: 2rem; } .universe-profile-tip { padding: 22px; } .universe-friend-banner { padding: 18px; } .universe-friend-banner > svg { display: none; } }
+@media (prefers-reduced-motion: reduce) { .universe-friend-card:hover, .universe-orbit > a:hover .universe-avatar, .universe-orbit > button:hover .universe-avatar { transform: none; } }
+.universe-preview { width: min(1040px,calc(100% - 32px)); }
+.universe-preview-tabs button { display: flex; align-items: center; gap: 7px; }
+.universe-preview-content { animation: aura-appear 250ms ease both; }
+.universe-preview .aura-wish-heading { padding-top: 0; }
+.universe-preview .aura-wish-heading h2 { font-size: clamp(1.7rem,4vw,2.5rem); }
+.universe-back-button { background: none; border: 0; cursor: pointer; margin-bottom: 16px; padding: 0; }
+@media (max-width:900px) { .universe-sidebar > div:first-child { flex-wrap: nowrap; } .universe-sidebar > div:first-child a { flex: 1 1 0; min-width: 0; flex-direction: column; font-size: .65rem; gap: 7px; white-space: nowrap; padding: 10px 3px; } .universe-sidebar > div:empty { display: none; } }

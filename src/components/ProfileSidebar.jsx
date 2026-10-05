@@ -1,187 +1,47 @@
 import React, { useState } from 'react';
-import { Camera, Share2, Save, Sun, Moon, MoreVertical, Wand2 } from 'lucide-react';
+import { Camera, Share2, Save, Edit2, Check, X } from 'lucide-react';
 import { db, storage } from '../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
+import { displayName as readableName } from '../utils/profile';
 
-const generateSearchableArray = (name, username) => {
-  const arr = [];
-  const addPrefixes = (str) => {
-    if (!str) return;
-    const lower = str.toLowerCase();
-    for (let i = 1; i <= lower.length; i++) {
-      arr.push(lower.substring(0, i));
-    }
+const prefixes = (...values) => [...new Set(values.flatMap(value=>Array.from({length:value.length},(_,i)=>value.toLowerCase().slice(0,i+1))))];
+export function ProfilePanel({ profile, isOwner, onSave, onPhoto, onShare, busy = false, error = '', notice = '', preview = false }) {
+  const [editing,setEditing]=useState(false);
+  const [name,setName]=useState(profile?.displayName || '');
+  const [username,setUsername]=useState(profile?.username || '');
+  const begin = () => {setName(profile?.displayName || '');setUsername(profile?.username || '');setEditing(true);};
+  const save = async event => {event.preventDefault();if(await onSave({displayName:name.trim(),username:username.trim().replace(/^@/,'').toLowerCase()})) setEditing(false);};
+  return <section className="glass-panel universe-profile aura-enter"><span className="aura-eyebrow">{isOwner?'Your signature':'In your orbit'}</span><div className="universe-profile-identity"><span className="universe-avatar universe-profile-avatar">{profile?.photoURL ? <img src={profile.photoURL} alt="" /> : readableName(profile?.displayName).charAt(0)}</span><div><h2>{profile?.displayName ? readableName(profile.displayName) : 'Make yourself known.'}</h2><p>{profile?.username ? `@${profile.username}` : 'Add a name and username so friends can find you.'}</p></div></div><div className="universe-actions">{isOwner && <><button className="btn-glossy" onClick={begin} disabled={busy}><Edit2 size={17} />Edit profile</button>{!preview && <label className="btn-glossy universe-photo-label"><Camera size={17} />{busy?'Please wait…':'Change photo'}<input type="file" accept="image/*" aria-label="Change profile photo" onChange={onPhoto} disabled={busy} /></label>}</>}<button className="btn-glossy" onClick={onShare} disabled={busy}><Share2 size={17} />{preview?'Try sharing':'Share my list'}</button></div>{editing && <form className="universe-profile-form" onSubmit={save}><label>Display name<input className="input-field" required maxLength={60} value={name} onChange={event=>setName(event.target.value)} /></label><label>Username<input className="input-field" required pattern="[A-Za-z0-9_]{3,30}" title="3–30 letters, numbers or underscores" value={username} onChange={event=>setUsername(event.target.value)} /></label><p>Friends can search for this name or username. Usernames aren’t guaranteed to be unique.</p><div className="universe-actions"><button className="btn-primary" disabled={busy || !name.trim()}><Save size={17} />{busy?'Saving…':'Save profile'}</button><button type="button" className="btn-glossy" onClick={()=>setEditing(false)} disabled={busy}><X size={17} />Cancel</button></div></form>}{error && <p role="alert" className="aura-error">{error}</p>}{notice && <p role="status" className="universe-notice"><Check size={17} />{notice}</p>}</section>;
+}
+export default function ProfileSidebar({profile,isOwner=false}) {
+  const {currentUser,setUserProfile}=useAuth();
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState('');
+  const [notice,setNotice]=useState('');
+  const save = async updates => {
+    if(!currentUser) return false;
+    setBusy(true);setError('');setNotice('');
+    try {const changes={...updates,searchableArray:prefixes(updates.displayName,updates.username)};await updateDoc(doc(db,'users',currentUser.uid),changes);setUserProfile(previous=>({...previous,...changes}));setNotice('Your signature is saved.');return true;}
+    catch {setError('Your profile could not be saved. Please try again.');return false;}
+    finally {setBusy(false);}
   };
-  addPrefixes(name);
-  addPrefixes(username);
-  return [...new Set(arr)];
-};
-
-const ProfileSidebar = ({ 
-  profile, 
-  isOwner = false, 
-  activeCategory = 'All', 
-  onCategoryChange 
-}) => {
-  const { currentUser, setUserProfile } = useAuth();
-  const { theme, toggleTheme } = useTheme();
-  const [editing, setEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(profile?.displayName || '');
-  const [username, setUsername] = useState(profile?.username || '');
-  const [uploading, setUploading] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-
-  const defaultCategories = ['All', 'Birthday', 'Wedding', 'Holiday', 'Tech', 'Books'];
-
-  const handleSaveProfile = async () => {
-    if (!currentUser) return;
-    try {
-      const userRef = doc(db, 'users', currentUser.uid);
-      const searchableArray = generateSearchableArray(displayName, username);
-      const updates = { displayName, username, searchableArray };
-      await updateDoc(userRef, updates);
-      setUserProfile(prev => ({ ...prev, ...updates }));
-      setEditing(false);
-    } catch (err) {
-      console.error('Failed to update profile', err);
-    }
+  const photo = async event => {
+    const input=event.target;const file=input.files?.[0];
+    if(!file || !currentUser) return;
+    setError('');setNotice('');
+    if(!file.type.startsWith('image/') || file.size>5*1024*1024){setError('Choose an image smaller than 5 MB.');input.value='';return;}
+    setBusy(true);
+    try {const target=ref(storage,`profiles/${currentUser.uid}`);await uploadBytes(target,file);const photoURL=await getDownloadURL(target);await updateDoc(doc(db,'users',currentUser.uid),{photoURL});setUserProfile(previous=>({...previous,photoURL}));setNotice('Looking good. Your photo is updated.');}
+    catch {setError('Your photo could not be uploaded. Try again.');}
+    finally {setBusy(false);input.value='';}
   };
-
-  const handlePhotoUpload = async (e) => {
-    if (!currentUser || !e.target.files[0]) return;
-    setUploading(true);
-    try {
-      const file = e.target.files[0];
-      const storageRef = ref(storage, `profiles/${currentUser.uid}`);
-      await uploadBytes(storageRef, file);
-      const photoURL = await getDownloadURL(storageRef);
-      const userRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userRef, { photoURL });
-      setUserProfile(prev => ({ ...prev, photoURL }));
-    } catch (err) {
-      console.error('Failed to upload photo', err);
-    }
-    setUploading(false);
+  const share = async () => {
+    const uid=profile?.uid || currentUser?.uid;if(!uid)return;
+    setError('');setNotice('');const url=`${window.location.origin}/friend/${uid}`;
+    try {if(navigator.share) await navigator.share({title:`${profile?.displayName || 'My'} Aura List`,url});else {await navigator.clipboard.writeText(url);setNotice('List link copied. Friends will need to sign in to view it.');}}
+    catch(err){if(err.name!=='AbortError')setError('Could not share the link. Please try again.');}
   };
-
-  const handleShare = () => {
-    const url = `${window.location.origin}/friend/${profile?.uid || currentUser?.uid}`;
-    if (navigator.share) {
-      navigator.share({
-        title: `${profile?.displayName || 'Someone'}'s Aura List`,
-        url
-      });
-    } else {
-      navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
-    }
-    setShowMenu(false);
-  };
-
-  return (
-    <aside className="profile-sidebar glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
-
-      {/* Compact Profile Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative' }}>
-        <div style={{ position: 'relative', flexShrink: 0 }}>
-          <div style={{
-            width: '60px', height: '60px', borderRadius: '50%',
-            background: 'var(--color-bg-secondary)', border: '2px solid var(--color-accent-primary)',
-            overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
-            {profile?.photoURL ? (
-              <img src={profile.photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <span style={{ fontSize: '1.5rem', color: 'var(--color-accent-primary)' }}>
-                {profile?.displayName?.charAt(0) || '?'}
-              </span>
-            )}
-          </div>
-          {isOwner && (
-            <label style={{
-              position: 'absolute', bottom: -5, right: -5,
-              background: 'var(--color-accent-primary)', color: 'white',
-              borderRadius: '50%', padding: '4px', cursor: 'pointer',
-              boxShadow: 'var(--shadow-sm)'
-            }}>
-              <Camera size={12} />
-              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} disabled={uploading} />
-            </label>
-          )}
-        </div>
-
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <h2 style={{ fontSize: '1.1rem', margin: '0', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-            {profile?.displayName || 'New User'}
-          </h2>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>
-            @{profile?.username || `user_${profile?.uid?.substring(0,5)}`}
-          </p>
-        </div>
-
-        {/* Dropdown Menu */}
-        <div style={{ position: 'relative' }}>
-          <button onClick={() => setShowMenu(!showMenu)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text-primary)' }}>
-            <MoreVertical size={20} />
-          </button>
-          
-          {showMenu && (
-            <div className="glass-panel" style={{
-              position: 'absolute', top: '100%', right: 0, marginTop: '0.5rem',
-              display: 'flex', flexDirection: 'column', padding: '0.5rem',
-              minWidth: '150px', zIndex: 10
-            }}>
-              {isOwner && (
-                <button onClick={() => { setEditing(true); setShowMenu(false); }} style={{ padding: '8px', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text-primary)' }}>
-                  Edit Profile
-                </button>
-              )}
-              <button onClick={handleShare} style={{ padding: '8px', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-text-primary)' }}>
-                Share Profile
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Edit Form Modal/Inline */}
-      {isOwner && editing && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-sm)' }}>
-          <input className="input-field" placeholder="Display Name" value={displayName} onChange={e => setDisplayName(e.target.value)} />
-          <input className="input-field" placeholder="@username" value={username} onChange={e => setUsername(e.target.value)} />
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button className="btn-primary" onClick={handleSaveProfile} style={{ flex: 1, padding: '8px' }}>Save</button>
-            <button className="pill-badge" onClick={() => setEditing(false)} style={{ flex: 1, cursor: 'pointer', background: 'transparent' }}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {/* Categories Nav (Collateral Sidebar logic) */}
-      {onCategoryChange && (
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '1rem' }}>
-          <h3 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Occasions</h3>
-          {defaultCategories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => onCategoryChange(cat)}
-              style={{
-                textAlign: 'left', padding: '10px 16px', borderRadius: 'var(--radius-pill)',
-                background: activeCategory === cat ? 'var(--color-accent-glow)' : 'transparent',
-                color: activeCategory === cat ? 'var(--color-accent-primary)' : 'var(--color-text-primary)',
-                border: 'none', cursor: 'pointer', fontWeight: activeCategory === cat ? '700' : '500',
-                transition: 'all var(--transition-fast)'
-              }}
-            >
-              {cat}
-            </button>
-          ))}
-        </nav>
-      )}
-    </aside>
-  );
-};
-
-export default ProfileSidebar;
+  return <ProfilePanel profile={profile} isOwner={isOwner} onSave={save} onPhoto={photo} onShare={share} busy={busy} error={error} notice={notice} />;
+}
