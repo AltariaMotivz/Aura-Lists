@@ -1,9 +1,14 @@
 import React, { useState, useRef } from 'react';
+import WishPortal from './WishPortal';
+import ExperiencePreview from './ExperiencePreview';
+import { EnergyToggle } from './AuraExperience';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const AuthGateway = () => {
+  const [showPreview, setShowPreview] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [confirmationResult, setConfirmationResult] = useState(null);
@@ -85,10 +90,14 @@ const AuthGateway = () => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="glass-panel aura-enter" style={{ width: '100%', maxWidth: '400px', textAlign: 'center', padding: '3rem 2rem' }}>
-        <h1 style={{ marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>Aura List</h1>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>Enter your phone number to begin</p>
+    <div className="aura-gateway">
+      <header className="aura-gateway-header"><div className="aura-gateway-brand"><Sparkles size={24} aria-hidden="true" /> Aura Lists</div><EnergyToggle /></header>
+      <main className="aura-gateway-main">
+      <WishPortal onExplore={() => setShowPreview(true)} />
+      <div className="glass-panel aura-enter aura-auth-panel">
+        <span className="aura-eyebrow">Your universe awaits</span>
+        <h2 style={{ marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>Make it yours.</h2>
+        <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>Sign in with your phone to start collecting wishes.</p>
 
         {!confirmationResult ? (
           <form onSubmit={handleSendCode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -104,7 +113,7 @@ const AuthGateway = () => {
               style={{ textAlign: 'center' }}
             />
             <button type="submit" className="btn-primary" disabled={loading || needsReload}>
-              {needsReload ? 'Verification unavailable' : loading ? 'Sending...' : 'Send Code'}
+              {needsReload ? 'Verification unavailable' : loading ? 'Opening your universe…' : 'Let’s get started'} {!loading && !needsReload && <ArrowRight size={18} aria-hidden="true" />}
             </button>
           </form>
         ) : (
@@ -133,7 +142,11 @@ const AuthGateway = () => {
         <div id="recaptcha-container"></div>
         {needsReload && <button type="button" className="btn-glossy" style={{ marginTop: '1rem' }} onClick={() => window.location.reload()}>Reload verification</button>}
         {error && <p role="alert" style={{ color: '#e57373', marginTop: '1rem', fontSize: '0.9rem' }}>{error}</p>}
+        <p className="aura-auth-caption">One code. Your whole universe.<br />SMS verification · Message and data rates may apply.</p>
       </div>
+      </main>
+      <footer className="aura-gateway-footer">Good things start with a little wish.</footer>
+      {showPreview && <ExperiencePreview onClose={() => setShowPreview(false)} />}
     </div>
   );
 };

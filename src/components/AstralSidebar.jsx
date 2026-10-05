@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import styles from './AstralSidebar.module.css';
 import { LayoutDashboard, Gift, Filter, Users } from 'lucide-react';
 
-const CATEGORIES = ['All', 'Tech', 'Home', 'Apparel', 'Books', 'Other'];
+const CATEGORIES = ['All', 'Birthday', 'Wedding', 'Holiday', 'Tech', 'Books'];
 
 const formatDisplayName = (nameOrPhone) => {
   if (!nameOrPhone) return 'Unknown';
@@ -35,6 +35,7 @@ const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFrie
         <div className={styles.pillContainer}>
           {CATEGORIES.map(category => (
             <button
+              aria-pressed={activeCategory === category}
               key={category}
               className={`${styles.categoryPill} ${activeCategory === category ? styles.activePill : ''}`}
               onClick={() => setActiveCategory(category)}

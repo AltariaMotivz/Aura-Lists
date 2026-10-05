@@ -52,6 +52,7 @@ const AddWishModal = ({ onClose, onAdded, initialData = null }) => {
       
       if (onAdded) onAdded();
       onClose();
+      window.dispatchEvent(new CustomEvent('aura-wish-saved'));
     } catch (err) {
       console.error('Failed to save wish', err);
       setError('Your wish could not be saved. Please try again.');
@@ -60,11 +61,12 @@ const AddWishModal = ({ onClose, onAdded, initialData = null }) => {
   };
 
   return (
-    <Dialog onClose={onClose} labelledBy="wish-dialog-title">
+    <Dialog onClose={() => { if (!loading) onClose(); }} labelledBy="wish-dialog-title">
         <h2 id="wish-dialog-title" style={{ fontFamily: 'var(--font-heading)', textAlign: 'center', marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>
           {initialData ? 'Edit Wish' : 'Add a New Wish'}
         </h2>
         
+        <p className="aura-dialog-subtitle">Give that little obsession a place in your universe.</p>
         <form onSubmit={handleSubmit} aria-busy={loading} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <label htmlFor="wish-name" style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Wish Title *</label>
@@ -100,8 +102,8 @@ const AddWishModal = ({ onClose, onAdded, initialData = null }) => {
 
           {error && <p role="alert" className="aura-error">{error}</p>}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-            <button type="button" onClick={onClose} className="pill-badge" style={{ background: 'transparent', cursor: 'pointer' }}>Cancel</button>
-            <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Saving...' : (initialData ? 'Save Changes' : 'Add Wish')}</button>
+            <button type="button" disabled={loading} onClick={onClose} className="pill-badge" style={{ background: 'transparent', cursor: 'pointer' }}>Cancel</button>
+            <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Making it happen…' : (initialData ? 'Save Changes' : 'Add Wish')}</button>
           </div>
         </form>
     </Dialog>

@@ -10,7 +10,7 @@ import AstralSidebar from './components/AstralSidebar';
 import Dashboard from './pages/Dashboard';
 import MyWishlist from './pages/MyWishlist';
 import FriendWishlist from './pages/FriendWishlist';
-import ParticleCanvas from './components/ParticleCanvas';
+import AuraExperience from './components/AuraExperience';
 import './index.css';
 import styles from './components/AppLayout.module.css';
 
@@ -82,7 +82,6 @@ const AppLayout = () => {
         </filter>
       </svg>
       
-      <ParticleCanvas />
       <GlobalNav />
       <div className={styles.astralLayout}>
         <AstralSidebar 
@@ -122,9 +121,11 @@ const AppContent = () => {
 function App() {
   return (
     <ThemeProvider>
+      <AuraExperience>
       <AuthProvider>
         <AppContent />
       </AuthProvider>
+      </AuraExperience>
     </ThemeProvider>
   );
 }

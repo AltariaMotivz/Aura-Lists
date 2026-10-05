@@ -1,34 +1,6 @@
-.particleContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: -1;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  bottom: -10px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #fff;
-  will-change: transform, filter;
-  animation-name: riseMotes, rainbowPulse;
-  animation-timing-function: linear, ease-in-out;
-  animation-iteration-count: infinite, infinite;
-  animation-direction: normal, alternate;
-}
-
-@keyframes riseMotes {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-110vh); }
-}
-
-@keyframes rainbowPulse {
-  0% { filter: hue-rotate(0deg) drop-shadow(0 0 10px var(--orb-1)) scale(1); }
-  50% { filter: hue-rotate(180deg) drop-shadow(0 0 20px var(--orb-2)) scale(1.5); }
-  100% { filter: hue-rotate(360deg) drop-shadow(0 0 10px var(--orb-3)) scale(1); }
-}
+.particleContainer { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle { position: absolute; bottom: -100px; border-radius: 50%; border: 1px solid rgba(var(--bubble-color), .32); background: radial-gradient(circle at 28% 25%, rgba(255,255,255,.35), rgba(var(--bubble-color),.1) 35%, transparent 70%); box-shadow: inset -4px -4px 12px rgba(var(--bubble-color),.12), 0 0 22px rgba(var(--bubble-color),.1); animation: floatBubble var(--duration) var(--delay) linear infinite; }
+@keyframes floatBubble { 0% { transform: translate3d(0,0,0); opacity: 0; } 8% { opacity: .65; } 50% { transform: translate3d(var(--drift), -60vh, 0); } 92% { opacity: .65; } 100% { transform: translate3d(0,calc(-100vh - 180px),0); opacity: 0; } }
+:global([data-energy='calm']) .particle { animation-play-state: paused; opacity: .16; }
+@media (max-width: 600px) { .particle:nth-child(n+17) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .particle { animation: none; bottom: auto; top: 25%; opacity: .12; } .particle:nth-child(n+5) { display: none; } }

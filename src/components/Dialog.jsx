@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 // Native modal semantics provide a focus trap, Escape handling and focus return.
-export default function Dialog({ children, onClose, labelledBy }) {
+export default function Dialog({ children, onClose, labelledBy, className = '' }) {
   const dialogRef = useRef(null);
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -14,7 +14,7 @@ export default function Dialog({ children, onClose, labelledBy }) {
     };
   }, []);
   return createPortal(
-    <dialog ref={dialogRef} className="aura-dialog" aria-labelledby={labelledBy} onCancel={onClose}>
+    <dialog ref={dialogRef} className={`aura-dialog ${className}`} aria-labelledby={labelledBy} onCancel={event => { event.preventDefault(); onClose(); }}>
       {children}
     </dialog>, document.body
   );

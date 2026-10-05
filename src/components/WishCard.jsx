@@ -14,9 +14,9 @@ const THEME_ACCENTS = {
   Default: { bg: '#f5f3ff', text: '#7c3aed', icon: '✨' }
 };
 
-const WishCard = ({ 
-  item, 
-  isOwner, 
+const WishCard = ({
+  item,
+  isOwner,
   isGuest = false,
   onUpdate,
   onExternalClick
@@ -26,7 +26,13 @@ const WishCard = ({
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  
+
+  const handlePointerMove = event => {
+    if (event.pointerType !== 'mouse' || window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.energy === 'calm') return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty('--card-x', `${(event.clientX - bounds.left) / bounds.width * 100}%`);
+    event.currentTarget.style.setProperty('--card-y', `${(event.clientY - bounds.top) / bounds.height * 100}%`);
+  };
   const theme = THEME_ACCENTS[item.theme] || THEME_ACCENTS.Default;
 
   const handleStoreRedirect = (e) => {
@@ -63,13 +69,13 @@ const WishCard = ({
   };
 
   return (
-    <div className={`aura-enter ${styles.accordionCard} ${item.purchased ? styles.isClaimed : ''}`} style={{ 
+    <div onPointerMove={handlePointerMove} data-expanded={isExpanded} className={`aura-enter ${styles.accordionCard} ${item.purchased ? styles.isClaimed : ''}`} style={{
       opacity: item.purchased ? 0.6 : 1,
     }}>
-      
+
       {/* Accordion Header (Always Visible) */}
-      <div 
-        className={styles.accordionHeader} 
+      <div
+        className={styles.accordionHeader}
         role="button"
         tabIndex={0}
         aria-expanded={isExpanded}
@@ -83,12 +89,12 @@ const WishCard = ({
           gap: '1.5rem', borderBottom: isExpanded ? '1px solid var(--color-glass-border)' : 'none'
         }}
       >
-        <span style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }}>
+        <span className={styles.wishIcon} style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }}>
           {theme.icon}
         </span>
-        
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <h3 className="chromatic-text" style={{ fontSize: '1.4rem', margin: 0, lineHeight: 1.2 }}>{item.name}</h3>
+
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <h3 className="chromatic-text" style={{ fontSize: '1.4rem', margin: 0, lineHeight: 1.2, overflowWrap: 'anywhere' }}>{item.name}</h3>
           <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             {item.theme || 'Wish'}
           </span>
@@ -108,7 +114,8 @@ const WishCard = ({
       {/* Accordion Body (Expanded) */}
       {isExpanded && (
         <div id={bodyId} className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
-          
+
+          {item.imageURL && <img className={styles.wishImage} src={item.imageURL} alt={item.name} loading="lazy" onError={event => { event.currentTarget.hidden = true; }} />}
           {item.notes && (
             <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', margin: 0, padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
               {item.notes}
@@ -123,10 +130,10 @@ const WishCard = ({
             ) : (
               <>
                 {item.link && (
-                  <a 
-                    href={item.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={handleStoreRedirect}
                     className="btn-glossy"
                     style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
@@ -136,7 +143,7 @@ const WishCard = ({
                 )}
 
                 {isGuest && (
-                  <button 
+                  <button
                     className="btn-primary"
                     onClick={() => setShowPurchaseModal(true)}
                   >
@@ -198,12 +205,12 @@ const WishCard = ({
 
       {/* Edit Modal (renders globally) */}
       {showEditModal && (
-        <AddWishModal 
-          onClose={() => setShowEditModal(false)} 
+        <AddWishModal
+          onClose={() => setShowEditModal(false)}
           onAdded={() => {
             setShowEditModal(false);
             if (onUpdate) onUpdate();
-          }} 
+          }}
           initialData={item}
         />
       )}

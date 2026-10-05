@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Wand2, Sun, Moon, LogOut } from 'lucide-react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
+import { EnergyToggle } from './AuraExperience';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -17,8 +18,10 @@ const GlobalNav = () => {
   };
 
   return (
-    <header style={{
+    <header className="aura-global-header" style={{
       display: 'flex',
+      flexWrap: 'wrap',
+      gap: '12px',
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '1.5rem 2rem',
@@ -30,7 +33,7 @@ const GlobalNav = () => {
       borderBottom: '1px solid rgba(255,255,255,0.1)'
     }}>
       {/* Brand Logo */}
-      <div 
+      <div className="aura-global-brand"
         onClick={() => navigate('/')}
         style={{ 
           display: 'flex', 
@@ -50,8 +53,9 @@ const GlobalNav = () => {
       </div>
 
       {/* Grouped Actions Cluster */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--color-glass-bg)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid var(--color-border)' }}>
+      <div className="aura-header-tools" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--color-glass-bg)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid var(--color-border)' }}>
         
+        <EnergyToggle />
         <button 
           onClick={toggleTheme} 
           style={{ 
