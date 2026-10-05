@@ -1,13 +1,15 @@
-/* --- Font & Color Spellbook (Aura Theme) --- */
+/* --- Font & Color Spellbook (Aura Nebula Theme) --- */
 :root {
-    --light-background: #f0f8ff;
-    --fairy-accent: #7dc4ff;
-    --glass-panel-bg: rgba(255, 255, 255, 0.6);
-    --border-color: rgba(255, 255, 255, 0.6);
-    --font-heading: 'Syne', sans-serif;
-    --font-body: 'Outfit', sans-serif;
-    --text-dark: #2c3e50;
-    --text-muted: #7f8c8d;
+    --light-background: #050508; /* Void black */
+    --fairy-accent: #8a2be2; /* Deep Violet Aura */
+    --glass-panel-bg: rgba(20, 20, 25, 0.4);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --font-heading: 'Cormorant Garamond', serif;
+    --font-body: 'Inter', sans-serif;
+    --text-dark: #f8f9fa; /* Text is now light */
+    --text-muted: #9ca3af;
+    --aura-cyan: #00ffff;
+    --aura-magenta: #ff00ff;
 }
 
 /* --- Base Enchantments --- */
@@ -24,26 +26,26 @@ body {
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 body::before {
     content: '';
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
+    top: -50%; left: -50%; width: 200vw; height: 200vh;
     background: 
-        radial-gradient(circle at 15% 50%, rgba(125, 196, 255, 0.15), transparent 50%),
-        radial-gradient(circle at 85% 30%, rgba(199, 206, 234, 0.2), transparent 50%),
-        radial-gradient(circle at 50% 80%, rgba(255, 183, 178, 0.15), transparent 50%),
-        radial-gradient(circle at 80% 90%, rgba(181, 234, 215, 0.15), transparent 50%);
+        radial-gradient(circle at 15% 50%, rgba(138, 43, 226, 0.15), transparent 30%),
+        radial-gradient(circle at 85% 30%, rgba(0, 255, 255, 0.1), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(255, 0, 255, 0.1), transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(65, 105, 225, 0.15), transparent 30%);
     z-index: -2;
-    animation: floatingMesh 30s ease-in-out infinite alternate;
+    animation: floatingMesh 40s ease-in-out infinite alternate;
 }
 
 @keyframes floatingMesh {
-    0% { transform: scale(1) translate(0, 0); }
-    33% { transform: scale(1.05) translate(2%, -2%); }
-    66% { transform: scale(0.95) translate(-2%, 2%); }
-    100% { transform: scale(1.02) translate(-1%, -1%); }
+    0% { transform: scale(1) translate(0, 0) rotate(0deg); }
+    50% { transform: scale(1.1) translate(3%, -3%) rotate(2deg); }
+    100% { transform: scale(1) translate(-2%, 2%) rotate(-1deg); }
 }
 
 .page-container {
@@ -79,18 +81,21 @@ h1 {
 }
 
 .wish-card {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--glass-panel-bg);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     position: relative;
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
 }
 
 .wish-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(125, 196, 255, 0.3);
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .wish-card img {
@@ -191,7 +196,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     /* A lighter backdrop */
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -250,20 +255,20 @@ body:has(.modal-backdrop.active) .floating-add-btn {
 
 .modal input,
 .modal textarea {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--glass-panel-bg);
     border: none;
     border-radius: 12px;
     padding: 1rem;
     color: var(--text-dark);
     font-family: var(--font-body);
     font-size: 1rem;
-    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.05), inset -4px -4px 8px rgba(255,255,255,0.8);
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.02);
     transition: all 0.3s ease;
 }
 .modal input:focus, .modal textarea:focus {
     outline: none;
-    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.8), 0 0 15px rgba(125, 196, 255, 0.5);
-    background: rgba(255, 255, 255, 0.6);
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5), inset -2px -2px 5px rgba(255,255,255,0.02), 0 0 15px rgba(125, 196, 255, 0.5);
+    background: var(--glass-panel-bg);
 }
 
 .modal-actions {
@@ -282,33 +287,44 @@ body:has(.modal-backdrop.active) .floating-add-btn {
     cursor: pointer;
     font-family: var(--font-body);
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
 .btn-primary {
     background: var(--fairy-accent);
     color: white;
-    box-shadow: 0 4px 15px rgba(125, 196, 255, 0.4);
-    border: none;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 1rem 1.5rem;
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-body);
     font-size: 1.1rem;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+}
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+    transition: all 0.4s ease;
 }
 .btn-primary:hover {
-    background: #6ab5f5;
+    box-shadow: 0 6px 20px var(--accent-glow), 0 0 15px rgba(0, 255, 255, 0.3);
     transform: translateY(-2px);
+}
+.btn-primary:hover::after {
+    left: 150%;
 }
 .btn-primary:active {
     transform: translateY(1px);
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--glass-panel-bg);
     color: var(--text-dark);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem 1.5rem;
@@ -316,11 +332,12 @@ body:has(.modal-backdrop.active) .floating-add-btn {
     cursor: pointer;
     font-family: var(--font-body);
     font-size: 1.1rem;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 .btn-secondary:hover {
-    background: white;
+    background: var(--glass-panel-hover);
     transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.15);
 }
 .btn-secondary:active {
     transform: translateY(1px);
@@ -368,7 +385,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
 }
 
 .auth-box input {
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--glass-panel-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
@@ -382,7 +399,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
     outline: none;
     border-color: var(--fairy-accent);
     box-shadow: 0 0 0 3px rgba(125, 196, 255, 0.2);
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--glass-panel-bg);
 }
 
 .auth-box button {
@@ -505,7 +522,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
 }
 
 .name-form input {
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--glass-panel-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.8rem 1rem;
@@ -520,7 +537,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
     outline: none;
     border-color: var(--fairy-accent);
     box-shadow: 0 0 0 3px rgba(125, 196, 255, 0.2);
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--glass-panel-bg);
 }
 
 .btn-primary-small {
@@ -654,7 +671,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
     overflow-y: auto;
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--glass-panel-bg);
 }
 
 .search-result-item {
@@ -671,7 +688,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
 }
 
 .search-result-item:hover {
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--glass-panel-bg);
 }
 
 .result-avatar {
@@ -879,8 +896,8 @@ body:has(.modal-backdrop.active) .floating-add-btn {
 .dropdown-selected {
     padding: 0.5rem 1rem;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--border-color);
+    background: var(--glass-panel-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     font-size: 0.95rem;
@@ -901,7 +918,7 @@ body:has(.modal-backdrop.active) .floating-add-btn {
 }
 
 .custom-dropdown.open .dropdown-selected {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--glass-panel-bg);
     border-color: var(--fairy-accent);
 }
 
@@ -999,8 +1016,8 @@ body:has(.modal-backdrop.active) .floating-add-btn {
     max-width: 250px;
     height: 140px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--border-color);
+    background: var(--glass-panel-bg);
     overflow: hidden;
     display: flex;
     justify-content: center;

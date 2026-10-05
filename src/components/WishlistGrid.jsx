@@ -1,18 +1,5 @@
 import React from 'react';
 import WishCard from './WishCard';
-import { Tilt } from 'react-tilt';
-
-const defaultTiltOptions = {
-  reverse:        false,
-  max:            15, // Less extreme than friend cards
-  perspective:    1000,
-  scale:          1.02,
-  speed:          1000,
-  transition:     true,
-  axis:           null,
-  reset:          true,
-  easing:         "cubic-bezier(.03,.98,.52,.99)",
-};
 
 const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, cardClassName }) => {
   if (!items || items.length === 0) {
@@ -26,22 +13,21 @@ const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, card
 
   return (
     <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-      gap: '2rem',
-      alignItems: 'start'
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1.5rem',
+      alignItems: 'stretch'
     }}>
       {items.map(item => (
-        <Tilt key={item.id} options={defaultTiltOptions} style={{ height: '100%' }}>
-          <WishCard 
-            item={item} 
-            isOwner={isOwner} 
-            isGuest={isGuest} 
-            onUpdate={onUpdate}
-            onExternalClick={onExternalClick}
-            className={cardClassName}
-          />
-        </Tilt>
+        <WishCard 
+          key={item.id}
+          item={item} 
+          isOwner={isOwner} 
+          isGuest={isGuest} 
+          onUpdate={onUpdate}
+          onExternalClick={onExternalClick}
+          className={cardClassName}
+        />
       ))}
     </div>
   );

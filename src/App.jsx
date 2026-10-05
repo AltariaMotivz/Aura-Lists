@@ -40,7 +40,13 @@ const AppLayout = () => {
         return profileDoc.exists() ? { id: profileDoc.id, ...profileDoc.data() } : null;
       }));
       if (isMounted) {
-        setFriends(friendProfiles.filter(Boolean));
+        const validFriends = friendProfiles.filter(Boolean);
+        validFriends.sort((a, b) => {
+          const nameA = (a.displayName || '').toLowerCase();
+          const nameB = (b.displayName || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+        setFriends(validFriends);
         setLoadingFriends(false);
       }
     }, (error) => {

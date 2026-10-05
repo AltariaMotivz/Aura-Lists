@@ -9,7 +9,7 @@ import { Plus } from 'lucide-react';
 
 const MyWishlist = () => {
   const { currentUser } = useAuth();
-  const { activeCategory } = useOutletContext();
+  const { activeCategory, setActiveCategory } = useOutletContext();
   const [items, setItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -17,18 +17,35 @@ const MyWishlist = () => {
   useEffect(() => {
     if (!currentUser) return;
     
+    if (setActiveCategory) {
+      setActiveCategory('All');
+    }
+
     let isMounted = true;
-    const q = query(collection(db, 'wishlist'), where('userId', '==', currentUser.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    
+    let wishesData = [];
+    let legacyData = [];
+
+    const qWishes = query(collection(db, 'wishes'), where('ownerId', '==', currentUser.uid));
+    const unsubscribeWishes = onSnapshot(qWishes, (snapshot) => {
       if (!isMounted) return;
-      const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setItems(fetched.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      wishesData = snapshot.docs.map(doc => ({ id: doc.id, collectionName: 'wishes', ...doc.data() }));
+      setItems([...wishesData, ...legacyData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      setLoading(false);
+    });
+
+    const qLegacy = query(collection(db, 'wishlist'), where('userId', '==', currentUser.uid));
+    const unsubscribeLegacy = onSnapshot(qLegacy, (snapshot) => {
+      if (!isMounted) return;
+      legacyData = snapshot.docs.map(doc => ({ id: doc.id, collectionName: 'wishlist', ...doc.data() }));
+      setItems([...wishesData, ...legacyData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       setLoading(false);
     });
 
     return () => {
       isMounted = false;
-      unsubscribe();
+      unsubscribeWishes();
+      unsubscribeLegacy();
     };
   }, [currentUser]);
 

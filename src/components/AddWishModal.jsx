@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 
 const THEMES = ['Birthday', 'Wedding', 'Holiday', 'Tech', 'Books'];
 
-const AddWishModal = ({ onClose, onAdded }) => {
+const AddWishModal = ({ onClose, onAdded, initialData = null }) => {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    link: '',
-    price: '',
-    imageURL: '',
-    notes: '',
-    theme: THEMES[0]
+    name: initialData?.name || '',
+    link: initialData?.link || '',
+    price: initialData?.price || '',
+    imageURL: initialData?.imageURL || '',
+    notes: initialData?.notes || '',
+    theme: initialData?.theme || THEMES[0]
   });
 
   const handleChange = (e) => {
@@ -27,19 +27,30 @@ const AddWishModal = ({ onClose, onAdded }) => {
     setLoading(true);
 
     try {
-      const newItem = {
-        ...formData,
-        userId: currentUser.uid,
-        createdAt: new Date().toISOString(),
-        purchased: false,
-        tags: [formData.theme] // Add the theme as a tag for categorization
-      };
+      if (initialData && initialData.id) {
+        // Edit mode
+        const collectionName = initialData.collectionName || 'wishes';
+        const itemRef = doc(db, collectionName, initialData.id);
+        await updateDoc(itemRef, {
+          ...formData,
+          tags: [formData.theme]
+        });
+      } else {
+        // Add mode
+        const newItem = {
+          ...formData,
+          ownerId: currentUser.uid,
+          createdAt: new Date().toISOString(),
+          purchased: false,
+          tags: [formData.theme]
+        };
+        await addDoc(collection(db, 'wishes'), newItem);
+      }
       
-      await addDoc(collection(db, 'wishlist'), newItem);
       if (onAdded) onAdded();
       onClose();
     } catch (err) {
-      console.error('Failed to add wish', err);
+      console.error('Failed to save wish', err);
     }
     setLoading(false);
   };
@@ -53,7 +64,7 @@ const AddWishModal = ({ onClose, onAdded }) => {
     }}>
       <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
         <h2 style={{ fontFamily: 'var(--font-heading)', textAlign: 'center', marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>
-          Add a New Wish
+          {initialData ? 'Edit Wish' : 'Add a New Wish'}
         </h2>
         
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -91,7 +102,7 @@ const AddWishModal = ({ onClose, onAdded }) => {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
             <button type="button" onClick={onClose} className="pill-badge" style={{ background: 'transparent', cursor: 'pointer' }}>Cancel</button>
-            <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Adding...' : 'Add Wish'}</button>
+            <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Saving...' : (initialData ? 'Save Changes' : 'Add Wish')}</button>
           </div>
         </form>
       </div>

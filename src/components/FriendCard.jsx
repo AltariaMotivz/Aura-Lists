@@ -30,7 +30,7 @@ const FriendCard = ({ friend }) => {
     
     const fetchTopItem = async () => {
       try {
-        const q = query(collection(db, 'wishlist'), where('userId', '==', friend.id));
+        const q = query(collection(db, 'wishes'), where('ownerId', '==', friend.id));
         const snapshot = await getDocs(q);
         if (snapshot.empty) return;
 

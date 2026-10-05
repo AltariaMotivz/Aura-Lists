@@ -1,24 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { Link, useOutletContext } from 'react-router-dom';
-import FriendCard from '../components/FriendCard';
+import ActivityItem from '../components/ActivityItem';
 import SkeletonGrid from '../components/SkeletonGrid';
-import { Search, UserPlus } from 'lucide-react';
+import { Search, UserPlus, Activity } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { Tilt } from 'react-tilt';
 
-const defaultTiltOptions = {
-  reverse:        false,
-  max:            25,
-  perspective:    1000,
-  scale:          1.05,
-  speed:          1000,
-  transition:     true,
-  axis:           null,
-  reset:          true,
-  easing:         "cubic-bezier(.03,.98,.52,.99)",
-};
+
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -27,6 +16,61 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [activities, setActivities] = useState([]);
+  const [loadingActivities, setLoadingActivities] = useState(true);
+
+  useEffect(() => {
+    if (loadingFriends) return;
+    
+    if (!friends || friends.length === 0) {
+      setLoadingActivities(false);
+      return;
+    }
+
+    let isMounted = true;
+    setLoadingActivities(true);
+
+    const unsubscribes = [];
+    const stateRef = { wishes: {}, wishlist: {} };
+
+    const updateState = () => {
+      if (!isMounted) return;
+      const allActivities = [];
+      Object.values(stateRef.wishes).forEach(arr => allActivities.push(...arr));
+      Object.values(stateRef.wishlist).forEach(arr => allActivities.push(...arr));
+      const sorted = allActivities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setActivities(sorted.slice(0, 20));
+      setLoadingActivities(false);
+    };
+
+    friends.forEach(friend => {
+      const qW = query(collection(db, 'wishes'), where('ownerId', '==', friend.id));
+      const unsubW = onSnapshot(qW, (snap) => {
+        stateRef.wishes[friend.id] = snap.docs.map(d => ({ ...d.data(), id: d.id, friend }));
+        updateState();
+      }, (error) => {
+        console.error("Error fetching wishes for friend:", friend.id, error);
+        // Continue updating state even if one friend fails
+        updateState();
+      });
+      unsubscribes.push(unsubW);
+
+      const qL = query(collection(db, 'wishlist'), where('userId', '==', friend.id));
+      const unsubL = onSnapshot(qL, (snap) => {
+        stateRef.wishlist[friend.id] = snap.docs.map(d => ({ ...d.data(), id: d.id, friend }));
+        updateState();
+      }, (error) => {
+        console.error("Error fetching legacy wishlist for friend:", friend.id, error);
+        updateState();
+      });
+      unsubscribes.push(unsubL);
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribes.forEach(unsub => unsub());
+    };
+  }, [friends, loadingFriends]);
 
   const formatDisplayName = (nameOrPhone) => {
     if (!nameOrPhone) return 'Unknown';
@@ -79,7 +123,7 @@ const Dashboard = () => {
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2 className="chromatic-text" style={{ fontSize: '2.5rem', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)' }}>Friends' Wishlists</h2>
+        <h2 className="chromatic-text" style={{ fontSize: '2.5rem', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)' }}>Activity Feed</h2>
         <button 
           className="btn-glossy" 
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 20px', borderRadius: '999px', fontWeight: '600' }}
@@ -89,21 +133,25 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {loadingFriends ? (
-        <SkeletonGrid count={4} />
+      {(loadingFriends || loadingActivities) ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <SkeletonGrid count={3} />
+        </div>
       ) : friends.length === 0 ? (
         <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>No friends added yet.</p>
           <p style={{ color: 'var(--color-text-secondary)' }}>Click "Add Friend" to search and view their wishlists!</p>
         </div>
+      ) : activities.length === 0 ? (
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)' }}>
+          <Activity size={48} color="rgba(255,255,255,0.2)" style={{ marginBottom: '1rem' }} />
+          <p style={{ fontSize: '1.2rem', color: 'var(--color-text-primary)' }}>No recent activity.</p>
+          <p>Your friends haven't added any wishes yet.</p>
+        </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'start', marginTop: '2rem' }}>
-          {friends.map(friend => (
-            <Link key={friend.id} to={`/friend/${friend.id}`} style={{ textDecoration: 'none', height: '100%' }}>
-              <Tilt options={defaultTiltOptions} style={{ height: '100%' }}>
-                <FriendCard friend={friend} />
-              </Tilt>
-            </Link>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+          {activities.map(item => (
+            <ActivityItem key={item.id} item={item} friend={item.friend} />
           ))}
         </div>
       )}

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ExternalLink, Edit2, Trash2, CheckCircle } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, CheckCircle, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { db } from '../firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import AddWishModal from './AddWishModal';
 import styles from './WishCard.module.css';
-import { CrystalOrbEffect, LightningSwordEffect } from './Anomalies';
 
 const THEME_ACCENTS = {
   Birthday: { bg: '#fce7f3', text: '#be185d', icon: '🎂' },
@@ -21,15 +21,12 @@ const WishCard = ({
   onUpdate,
   onExternalClick
 }) => {
-  const [imageError, setImageError] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   
   const theme = THEME_ACCENTS[item.theme] || THEME_ACCENTS.Default;
-
-  // Determine Anomaly Status based on name
-  const isForestStaff = item.name?.toLowerCase().includes('staff');
-  const isCrystalOrb = item.name?.toLowerCase().includes('orb') || item.name?.toLowerCase().includes('crystal');
-  const isLightningSword = item.name?.toLowerCase().includes('sword') || item.name?.toLowerCase().includes('lightning');
 
   const handleStoreRedirect = (e) => {
     if (isGuest && !item.purchased) {
@@ -43,7 +40,8 @@ const WishCard = ({
 
   const handleMarkPurchased = async () => {
     try {
-      const itemRef = doc(db, 'wishlist', item.id);
+      const collectionName = item.collectionName || 'wishes';
+      const itemRef = doc(db, collectionName, item.id);
       await updateDoc(itemRef, { purchased: true });
       setShowPurchaseModal(false);
       if (onUpdate) onUpdate();
@@ -52,118 +50,154 @@ const WishCard = ({
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const collectionName = item.collectionName || 'wishes';
+      await deleteDoc(doc(db, collectionName, item.id));
+      setShowDeleteModal(false);
+      if (onUpdate) onUpdate();
+    } catch (err) {
+      console.error('Failed to delete wish', err);
+    }
+  };
+
   return (
-    <div className={`${styles.liquidGlassCard} ${item.purchased ? 'is-claimed' : ''} ${isForestStaff ? styles.isForestStaff : ''}`} style={{ 
-      opacity: item.purchased ? 0.7 : 1, transform: item.purchased ? 'scale(0.98)' : ''
+    <div className={`${styles.accordionCard} ${item.purchased ? styles.isClaimed : ''}`} style={{ 
+      opacity: item.purchased ? 0.6 : 1,
     }}>
       
-      {isForestStaff && <div className={styles.forestFrame} />}
-      
-      {/* Media Container */}
-      <div style={{ width: '100%', height: '220px', position: 'relative', overflow: 'hidden', backgroundColor: 'var(--color-bg-secondary)', zIndex: 1 }}>
-        <span 
-          style={{ 
-            position: 'absolute', top: '12px', left: '12px', zIndex: 10,
-            backgroundColor: theme.bg, color: theme.text, padding: '4px 10px',
-            borderRadius: 'var(--radius-pill)', fontSize: '0.85rem', fontWeight: '600',
-            display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-          }}
-        >
-          {theme.icon} {item.theme || 'Wish'}
+      {/* Accordion Header (Always Visible) */}
+      <div 
+        className={styles.accordionHeader} 
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{
+          display: 'flex', alignItems: 'center', padding: '1.5rem', cursor: 'pointer',
+          gap: '1.5rem', borderBottom: isExpanded ? '1px solid var(--color-glass-border)' : 'none'
+        }}
+      >
+        <span style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }}>
+          {theme.icon}
         </span>
+        
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <h3 className="chromatic-text" style={{ fontSize: '1.4rem', margin: 0, lineHeight: 1.2 }}>{item.name}</h3>
+          <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            {item.theme || 'Wish'}
+          </span>
+        </div>
 
-        {isCrystalOrb && <CrystalOrbEffect />}
-        {isLightningSword && <LightningSwordEffect />}
-
-        {item.imageURL && !imageError ? (
-          <img 
-            src={item.imageURL} 
-            alt={item.name} 
-            onError={() => setImageError(true)} 
-            loading="lazy" 
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        ) : (
-          <div style={{ 
-            width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: `radial-gradient(circle, ${theme.bg} 0%, var(--color-bg-secondary) 100%)`
-          }}>
-            <span style={{ fontSize: '4rem', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))', zIndex: 2 }}>{theme.icon}</span>
+        {item.price && (
+          <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#fff' }}>
+            ${Number(item.price).toFixed(2)}
           </div>
         )}
+
+        <div style={{ color: 'var(--color-text-secondary)', marginLeft: '1rem', display: 'flex', alignItems: 'center' }}>
+          {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+        </div>
       </div>
 
-      {/* Content */}
-      <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', zIndex: 2, position: 'relative' }}>
-        <div>
-          <h3 className={styles.primaryText} style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>{item.name}</h3>
-          {item.price && <p style={{ fontWeight: '700', color: 'var(--color-text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>${Number(item.price).toFixed(2)}</p>}
-        </div>
-
-        {item.notes && <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', flex: 1, lineHeight: '1.5' }}>{item.notes}</p>}
-
-        <div style={{ marginTop: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* Accordion Body (Expanded) */}
+      {isExpanded && (
+        <div className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
           
-          {item.purchased ? (
-            <span className="pill-badge" style={{ background: theme.bg, color: theme.text, border: 'none' }}>
-              <CheckCircle size={14} style={{ marginRight: '4px' }} /> Claimed ✨
-            </span>
-          ) : (
-            <>
-              {item.link ? (
-                <a 
-                  href={item.link} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  onClick={handleStoreRedirect}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                    color: 'var(--color-accent-primary)', textDecoration: 'none',
-                    fontWeight: '600', fontSize: '0.95rem'
-                  }}
-                >
-                  Visit Store <ExternalLink size={14} />
-                </a>
-              ) : <div />}
-
-              {isGuest && (
-                <button 
-                  className={styles.markBoughtBtn}
-                  onClick={() => setShowPurchaseModal(true)}
-                >
-                  Mark Bought
-                </button>
-              )}
-            </>
+          {item.notes && (
+            <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', margin: 0, padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
+              {item.notes}
+            </p>
           )}
 
-          {/* Owner Actions */}
-          {isOwner && !item.purchased && (
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="pill-badge" style={{ padding: '6px', background: 'transparent' }}><Edit2 size={16} /></button>
-              <button className="pill-badge" style={{ padding: '6px', background: 'transparent', color: '#ef4444', borderColor: '#fca5a5' }}><Trash2 size={16} /></button>
-            </div>
-          )}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            {item.purchased ? (
+              <span className="pill-badge" style={{ background: 'rgba(255,255,255,0.1)', color: '#a1a1aa', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <CheckCircle size={16} style={{ marginRight: '6px' }} /> Claimed
+              </span>
+            ) : (
+              <>
+                {item.link && (
+                  <a 
+                    href={item.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onClick={handleStoreRedirect}
+                    className="btn-glossy"
+                    style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    Visit Store <ExternalLink size={16} />
+                  </a>
+                )}
+
+                {isGuest && (
+                  <button 
+                    className="btn-primary"
+                    onClick={() => setShowPurchaseModal(true)}
+                  >
+                    Mark Bought
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Owner Actions */}
+            {isOwner && !item.purchased && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
+                <button className="pill-badge" onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} /></button>
+                <button className="pill-badge" onClick={() => setShowDeleteModal(true)} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} /></button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Inline Purchase Modal */}
       {showPurchaseModal && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)',
+          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          padding: '2rem', textAlign: 'center', zIndex: 20
+          padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
         }}>
-          <h4 className={styles.primaryText} style={{ marginBottom: '1rem', fontSize: '1.2rem', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
-          <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+          <h4 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: '#fff', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
+          <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', maxWidth: '300px' }}>
             Marking this as purchased hides it from other guests to prevent duplicates!
           </p>
-          <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
-            <button className="btn-glossy" onClick={handleMarkPurchased} style={{ flex: 1, padding: '10px' }}>Confirm</button>
-            <button className="pill-badge" onClick={() => setShowPurchaseModal(false)} style={{ flex: 1, cursor: 'pointer', background: 'transparent' }}>Cancel</button>
+          <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '300px' }}>
+            <button className="btn-primary" onClick={handleMarkPurchased} style={{ flex: 1 }}>Confirm</button>
+            <button className="btn-glossy" onClick={() => setShowPurchaseModal(false)} style={{ flex: 1 }}>Cancel</button>
           </div>
         </div>
+      )}
+
+      {/* Inline Delete Modal */}
+      {showDeleteModal && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(12px)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
+        }}>
+          <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
+          <h4 style={{ marginBottom: '0.5rem', fontSize: '1.4rem', color: '#ef4444', fontFamily: 'var(--font-heading)' }}>Delete Wish?</h4>
+          <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', maxWidth: '300px' }}>
+            Are you sure you want to delete this? This cannot be undone.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '300px' }}>
+            <button className="btn-primary" style={{ background: '#ef4444', borderColor: '#ef4444', flex: 1 }} onClick={handleDelete}>Delete</button>
+            <button className="btn-glossy" onClick={() => setShowDeleteModal(false)} style={{ flex: 1 }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal (renders globally) */}
+      {showEditModal && (
+        <AddWishModal 
+          onClose={() => setShowEditModal(false)} 
+          onAdded={() => {
+            setShowEditModal(false);
+            if (onUpdate) onUpdate();
+          }} 
+          initialData={item}
+        />
       )}
 
     </div>

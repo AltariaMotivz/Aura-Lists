@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "crystal-wishlist",
     "public": "dist",
     "ignore": [
       "firebase.json",

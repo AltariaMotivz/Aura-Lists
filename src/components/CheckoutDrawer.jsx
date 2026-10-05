@@ -16,7 +16,7 @@ export default function CheckoutDrawer({ pendingItem, onClose, onConfirmPurchase
 
   const handleConfirm = async () => {
     try {
-      const itemRef = doc(db, 'wishlist', pendingItem.id);
+      const itemRef = doc(db, 'wishes', pendingItem.id);
       await updateDoc(itemRef, { purchased: true });
       if (onConfirmPurchase) onConfirmPurchase(pendingItem.id);
     } catch (err) {
