@@ -93,7 +93,7 @@ const AuthGateway = () => {
     <div className="aura-gateway">
       <header className="aura-gateway-header"><div className="aura-gateway-brand"><Sparkles size={24} aria-hidden="true" /> Aura Lists</div><EnergyToggle /></header>
       <main className="aura-gateway-main">
-      <WishPortal onExplore={() => setShowPreview(true)} />
+      <section className="aura-auth-stage" aria-label="Sign in">
       <div className="glass-panel aura-enter aura-auth-panel">
         <span className="aura-eyebrow">Your universe awaits</span>
         <h2 style={{ marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>Make it yours.</h2>
@@ -144,6 +144,8 @@ const AuthGateway = () => {
         {error && <p role="alert" style={{ color: '#e57373', marginTop: '1rem', fontSize: '0.9rem' }}>{error}</p>}
         <p className="aura-auth-caption">One code. Your whole universe.<br />SMS verification · Message and data rates may apply.</p>
       </div>
+      </section>
+      <WishPortal onExplore={() => setShowPreview(true)} />
       </main>
       <footer className="aura-gateway-footer">Good things start with a little wish.</footer>
       {showPreview && <ExperiencePreview onClose={() => setShowPreview(false)} />}
