@@ -1,6 +1,6 @@
 # Themes, mobile navigation and wish-feed fixes
 
-Branch: `codex/themes-mobile-feed`, based on merged `master` (`2ad51dc`).
+Branch: `codex/aura-theme-fixes-v2`, based on merged `master` (`2ad51dc`).
 
 ## What changed
 
@@ -19,4 +19,4 @@ Branch: `codex/themes-mobile-feed`, based on merged `master` (`2ad51dc`).
 
 ## Partner staging handoff
 
-Fetch `codex/themes-mobile-feed`, run `npm ci --legacy-peer-deps`, run the tests and build, then deploy to the Firebase staging preview channel for `crystal-wishlist`. Review modes, palette persistence, bottom navigation, current wishes and a profile photo upload with an authorized test account. If a current-wishes error remains, use the browser console to identify that specific Firebase error. Merge and release after review; a GitHub merge alone does not deploy Hosting.
+Fetch `codex/aura-theme-fixes-v2`, run `npm ci --legacy-peer-deps`, run the tests and build, then deploy to the Firebase staging preview channel for `crystal-wishlist`. Review modes, palette persistence, bottom navigation, current wishes and a profile photo upload with an authorized test account. If a current-wishes error remains, use the browser console to identify that specific Firebase error. Merge and release after review; a GitHub merge alone does not deploy Hosting.
