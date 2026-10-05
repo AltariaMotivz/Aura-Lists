@@ -14,8 +14,8 @@
 
 .accordionCard:hover {
   box-shadow: var(--shadow-md);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+  border-color: var(--color-accent-primary);
+
 }
 
 .accordionHeader {
@@ -23,7 +23,7 @@
 }
 
 .accordionHeader:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-secondary);
 }
 
 .accordionBody {
@@ -87,3 +87,5 @@
     padding: 1rem !important;
   }
 }
+
+@media (hover: hover) and (pointer: fine) { .accordionCard:hover { transform: translateY(-2px); } }

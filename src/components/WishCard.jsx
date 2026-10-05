@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { ExternalLink, Edit2, Trash2, CheckCircle, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -21,6 +21,7 @@ const WishCard = ({
   onUpdate,
   onExternalClick
 }) => {
+  const bodyId = useId();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -69,7 +70,14 @@ const WishCard = ({
       {/* Accordion Header (Always Visible) */}
       <div 
         className={styles.accordionHeader} 
-        onClick={() => setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        aria-controls={isExpanded ? bodyId : undefined}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsExpanded(value => !value); }
+        }}
+        onClick={() => setIsExpanded(value => !value)}
         style={{
           display: 'flex', alignItems: 'center', padding: '1.5rem', cursor: 'pointer',
           gap: '1.5rem', borderBottom: isExpanded ? '1px solid var(--color-glass-border)' : 'none'
@@ -87,7 +95,7 @@ const WishCard = ({
         </div>
 
         {item.price && (
-          <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#fff' }}>
+          <div style={{ fontWeight: '700', fontSize: '1.3rem', color: 'var(--color-text-primary)' }}>
             ${Number(item.price).toFixed(2)}
           </div>
         )}
@@ -99,7 +107,7 @@ const WishCard = ({
 
       {/* Accordion Body (Expanded) */}
       {isExpanded && (
-        <div className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
+        <div id={bodyId} className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--color-bg-secondary)' }}>
           
           {item.notes && (
             <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', margin: 0, padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
@@ -141,8 +149,8 @@ const WishCard = ({
             {/* Owner Actions */}
             {isOwner && !item.purchased && (
               <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
-                <button className="pill-badge" onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} /></button>
-                <button className="pill-badge" onClick={() => setShowDeleteModal(true)} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} /></button>
+                <button className="pill-badge" aria-label={`Edit ${item.name}`} onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} /></button>
+                <button className="pill-badge" aria-label={`Delete ${item.name}`} onClick={() => setShowDeleteModal(true)} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} /></button>
               </div>
             )}
           </div>
@@ -153,11 +161,11 @@ const WishCard = ({
       {showPurchaseModal && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
+          background: 'var(--color-glass-bg)', backdropFilter: 'blur(12px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
         }}>
-          <h4 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: '#fff', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
+          <h4 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
           <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', maxWidth: '300px' }}>
             Marking this as purchased hides it from other guests to prevent duplicates!
           </p>
@@ -172,7 +180,7 @@ const WishCard = ({
       {showDeleteModal && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(12px)',
+          background: 'var(--color-glass-bg)', backdropFilter: 'blur(12px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
         }}>

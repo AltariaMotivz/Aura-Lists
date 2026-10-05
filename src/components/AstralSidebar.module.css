@@ -1,20 +1,18 @@
 .astralMonolith {
   position: sticky;
-  top: 2rem;
+  top: 100px;
   width: 280px;
   height: max-content;
-  max-height: calc(100vh - 4rem);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  max-height: calc(100dvh - 120px);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
   border-radius: 32px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   overflow-y: auto;
-  box-shadow: 0 12px 40px rgba(167, 139, 250, 0.15);
+  box-shadow: var(--shadow-sm);
   z-index: 10;
 }
 
@@ -32,7 +30,7 @@
 
 .divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--color-bg-secondary);
   margin: 0 -0.5rem;
 }
 
@@ -67,15 +65,15 @@
 }
 
 .navLink:hover {
-  background: rgba(255, 255, 255, 0.3);
-  color: #2E1065;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 .navLink.active {
   background: var(--color-glass-bg);
   color: var(--color-text-primary);
   font-weight: 700;
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 2px 4px var(--color-bg-secondary);
 }
 
 .pillContainer {
@@ -97,8 +95,8 @@
 }
 
 .categoryPill:hover {
-  background: rgba(255, 255, 255, 0.4);
-  color: #2E1065;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 .categoryPill.activePill {
@@ -130,19 +128,19 @@
 }
 
 .friendItem:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--color-bg-secondary);
 }
 
 .friendItem.activeFriend {
-  background: rgba(255, 255, 255, 0.5);
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  background: var(--color-bg-secondary);
+  box-shadow: inset 0 2px 4px var(--color-bg-secondary);
 }
 
 .friendAvatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--color-bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,3 +216,6 @@
   background: rgba(167, 139, 250, 0.3);
   border-radius: 10px;
 }
+
+.friendAvatar { animation: none; box-shadow: none; border: 1px solid var(--color-border); }
+.friendAvatar span { animation: none; background: none; -webkit-text-fill-color: var(--color-text-primary); }

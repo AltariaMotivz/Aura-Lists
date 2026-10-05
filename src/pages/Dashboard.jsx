@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { Link, useOutletContext } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
+import Dialog from '../components/Dialog';
 import ActivityItem from '../components/ActivityItem';
 import SkeletonGrid from '../components/SkeletonGrid';
 import { Search, UserPlus, Activity } from 'lucide-react';
@@ -23,6 +24,7 @@ const Dashboard = () => {
     if (loadingFriends) return;
     
     if (!friends || friends.length === 0) {
+      setActivities([]);
       setLoadingActivities(false);
       return;
     }
@@ -120,10 +122,10 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+    <div className="aura-route">
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2 className="chromatic-text" style={{ fontSize: '2.5rem', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)' }}>Activity Feed</h2>
+      <div className="aura-page-heading">
+        <div><span className="aura-kicker">Good things, shared</span><h2>Your circle</h2><p>A little inspiration from the people you care about.</p></div>
         <button 
           className="btn-glossy" 
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '10px 20px', borderRadius: '999px', fontWeight: '600' }}
@@ -158,25 +160,20 @@ const Dashboard = () => {
 
       {/* Add Friend Modal */}
       {showAddFriend && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(20px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1rem'
-        }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '2rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)' }}>
-            <h3 className="chromatic-text" style={{ marginBottom: '1rem', textAlign: 'center', color: 'var(--color-text-primary)' }}>Add a Friend</h3>
+        <Dialog onClose={() => setShowAddFriend(false)} labelledBy="friend-dialog-title">
+            <h3 id="friend-dialog-title" className="chromatic-text" style={{ marginBottom: '1rem', textAlign: 'center', color: 'var(--color-text-primary)' }}>Add a Friend</h3>
             
             <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <input 
-                type="text" 
+                type="text"
+                aria-label="Search friends by name or username"
                 className="input-field" 
                 placeholder="Search name or @username" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
               />
-              <button type="submit" className="btn-primary" style={{ padding: '0 1rem', borderRadius: 'var(--radius-pill)', background: 'linear-gradient(45deg, var(--orb-1), var(--orb-2))' }} disabled={searching}>
+              <button type="submit" aria-label="Search friends" className="btn-primary" style={{ padding: '0 1rem', borderRadius: 'var(--radius-pill)', background: 'linear-gradient(45deg, var(--orb-1), var(--orb-2))' }} disabled={searching}>
                 <Search size={18} />
               </button>
             </form>
@@ -210,8 +207,7 @@ const Dashboard = () => {
                 Close
               </button>
             </div>
-          </div>
-        </div>
+        </Dialog>
       )}
     </div>
   );

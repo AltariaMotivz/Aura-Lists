@@ -27,8 +27,8 @@
 
 .activityRow:hover {
   transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border);
 }
 
 .activityRow:hover::before {
@@ -59,7 +59,7 @@
 .avatar span {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .content {
@@ -80,7 +80,7 @@
 
 .friendName {
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .itemName {
@@ -100,7 +100,7 @@
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -108,7 +108,7 @@
 
 .timeAgo {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-secondary);
 }
 
 @media (max-width: 768px) {

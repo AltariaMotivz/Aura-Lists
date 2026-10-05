@@ -3,14 +3,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { db } from './firebase';
-import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
 import AuthGateway from './components/AuthGateway';
 import GlobalNav from './components/GlobalNav';
 import AstralSidebar from './components/AstralSidebar';
 import Dashboard from './pages/Dashboard';
 import MyWishlist from './pages/MyWishlist';
 import FriendWishlist from './pages/FriendWishlist';
-import ParticleCanvas from './components/ParticleCanvas';
 import './index.css';
 import styles from './components/AppLayout.module.css';
 
@@ -82,7 +81,6 @@ const AppLayout = () => {
         </filter>
       </svg>
       
-      <ParticleCanvas />
       <GlobalNav />
       <div className={styles.astralLayout}>
         <AstralSidebar 
@@ -91,8 +89,8 @@ const AppLayout = () => {
           friends={friends}
           loadingFriends={loadingFriends}
         />
-        <main className={styles.mainArea}>
-          <Outlet context={{ activeCategory, setActiveCategory, friends }} />
+        <main id="main-content" tabIndex={-1} className={styles.mainArea}>
+          <Outlet context={{ activeCategory, setActiveCategory, friends, loadingFriends }} />
         </main>
       </div>
     </div>
