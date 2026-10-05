@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, lazy, Suspense } from 'react';
 import WishPortal from './WishPortal';
-import ExperiencePreview from './ExperiencePreview';
+const ExperiencePreview = lazy(() => import('./ExperiencePreview'));
 import { EnergyToggle } from './AuraExperience';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { auth, db } from '../firebase';
@@ -148,7 +148,7 @@ const AuthGateway = () => {
       <WishPortal onExplore={() => setShowPreview(true)} />
       </main>
       <footer className="aura-gateway-footer">Good things start with a little wish.</footer>
-      {showPreview && <ExperiencePreview onClose={() => setShowPreview(false)} />}
+      {showPreview && <Suspense fallback={<p role="status">Opening the playground…</p>}><ExperiencePreview onClose={() => setShowPreview(false)} /></Suspense>}
     </div>
   );
 };

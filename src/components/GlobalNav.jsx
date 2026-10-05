@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wand2, Sun, Moon, LogOut } from 'lucide-react';
+import { Wand2, Sun, Moon, LogOut, Palette, X } from 'lucide-react';
+import Dialog from './Dialog';
+import AppearanceSettings from './AppearanceSettings';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { EnergyToggle } from './AuraExperience';
@@ -9,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const GlobalNav = () => {
   const navigate = useNavigate();
+  const [appearanceOpen,setAppearanceOpen]=useState(false);
   const { theme, toggleTheme } = useTheme();
   const { userProfile } = useAuth();
 
@@ -47,7 +50,7 @@ const GlobalNav = () => {
           padding: 0,
           backgroundColor: 'transparent',
           color: 'transparent',
-          backgroundImage: 'linear-gradient(90deg, #a5ffff, #d5bbff)',
+          backgroundImage: 'linear-gradient(90deg, var(--color-accent-primary), var(--color-accent-primary))',
           WebkitBackgroundClip: 'text',
           textShadow: '0 0 20px var(--color-accent-glow)'
         }}
@@ -59,6 +62,7 @@ const GlobalNav = () => {
       <div className="aura-header-tools" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--color-glass-bg)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid var(--color-border)' }}>
         
         <EnergyToggle />
+        <button className="aura-icon" aria-label="Choose appearance" onClick={()=>setAppearanceOpen(true)}><Palette size={18}/></button>
         <button 
           onClick={toggleTheme} 
           style={{ 
@@ -71,7 +75,7 @@ const GlobalNav = () => {
             justifyContent: 'center',
             color: 'var(--color-accent-primary)'
           }} 
-          aria-label="Toggle theme"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
@@ -94,6 +98,7 @@ const GlobalNav = () => {
         )}
         
         <button 
+          aria-label="Sign out"
           onClick={handleSignOut}
           style={{ 
             padding: '8px 16px', 
@@ -109,9 +114,10 @@ const GlobalNav = () => {
           }}
         >
           <LogOut size={16} />
-          Sign Out
+          <span className="signout-label">Sign Out</span>
         </button>
       </div>
+      {appearanceOpen && <Dialog onClose={()=>setAppearanceOpen(false)} labelledBy="appearance-title"><div className="aura-preview-header"><h2 id="appearance-title">Your atmosphere.</h2><button className="aura-icon" aria-label="Close appearance" onClick={()=>setAppearanceOpen(false)}><X size={20}/></button></div><AppearanceSettings/></Dialog>}
     </header>
   );
 };

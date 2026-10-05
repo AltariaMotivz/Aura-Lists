@@ -2,6 +2,7 @@
 @import './styles/tokens.css';
 @import './styles/motion.css';
 @import './styles/immersive.css';
+@import './styles/appearance.css';
 
 
 /* Any global styles that need to overwrite tokens or apply generally */

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Camera, Share2, Save, Edit2, Check, X } from 'lucide-react';
-import { db, storage } from '../firebase';
+import { db, app } from '../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../contexts/AuthContext';
 import { displayName as readableName } from '../utils/profile';
 
@@ -33,7 +32,7 @@ export default function ProfileSidebar({profile,isOwner=false}) {
     setError('');setNotice('');
     if(!file.type.startsWith('image/') || file.size>5*1024*1024){setError('Choose an image smaller than 5 MB.');input.value='';return;}
     setBusy(true);
-    try {const target=ref(storage,`profiles/${currentUser.uid}`);await uploadBytes(target,file);const photoURL=await getDownloadURL(target);await updateDoc(doc(db,'users',currentUser.uid),{photoURL});setUserProfile(previous=>({...previous,photoURL}));setNotice('Looking good. Your photo is updated.');}
+    try {const {getStorage,ref,uploadBytes,getDownloadURL}=await import('firebase/storage');const target=ref(getStorage(app),`profiles/${currentUser.uid}`);await uploadBytes(target,file);const photoURL=await getDownloadURL(target);await updateDoc(doc(db,'users',currentUser.uid),{photoURL});setUserProfile(previous=>({...previous,photoURL}));setNotice('Looking good. Your photo is updated.');}
     catch {setError('Your photo could not be uploaded. Try again.');}
     finally {setBusy(false);input.value='';}
   };

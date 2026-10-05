@@ -40,14 +40,14 @@ export default function AuraExperience({ children }) {
     const effectRoot = effects.current;
     const activeDots = new Set();
     const emitBurst = (x, y, count, layer) => {
-      if (reduced.matches || !vivid || !layer || activeDots.size > 48) return;
+      if (reduced.matches || !vivid || !layer || activeDots.size + count > 48) return;
       for (let i = 0; i < count; i++) {
         const dot = document.createElement('i');
         dot.className = 'aura-spark';
         dot.setAttribute('aria-hidden', 'true');
         dot.style.left = `${x}px`;
         dot.style.top = `${y}px`;
-        dot.style.background = ['#00ffff', '#ff00ff', '#b49cff'][i % 3];
+        dot.style.background = ['var(--color-accent-primary)', 'rgb(var(--aura-alt-rgb))', 'rgb(var(--aura-secondary-rgb))'][i % 3];
         layer.appendChild(dot);
         activeDots.add(dot);
         const angle = i / count * Math.PI * 2;

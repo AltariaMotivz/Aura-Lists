@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './ActivityItem.module.css';
+import { wishTime } from '../utils/wishSubscriptions';
 
 const ActivityItem = ({ item, friend, onSelect }) => {
   const navigate = useNavigate();
@@ -16,8 +17,8 @@ const ActivityItem = ({ item, friend, onSelect }) => {
 
   const getTimeAgo = (dateString) => {
     const now = new Date();
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return 'Just added';
+    const date = new Date(wishTime(dateString));
+    if (!date.getTime()) return 'Just added';
     const seconds = Math.max(0, Math.floor((now - date) / 1000));
     
     if (seconds < 60) return `${seconds}s ago`;

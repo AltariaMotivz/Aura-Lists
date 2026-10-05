@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -6,12 +6,13 @@ import { db } from './firebase';
 import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
 import AuthGateway from './components/AuthGateway';
 import GlobalNav from './components/GlobalNav';
+import MobileNavigation from './components/MobileNavigation';
 import AstralSidebar from './components/AstralSidebar';
-import Dashboard from './pages/Dashboard';
-import Friends from './pages/Friends';
-import Profile from './pages/Profile';
-import MyWishlist from './pages/MyWishlist';
-import FriendWishlist from './pages/FriendWishlist';
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Friends = lazy(() => import('./pages/Friends'));
+const Profile = lazy(() => import('./pages/Profile'));
+const MyWishlist = lazy(() => import('./pages/MyWishlist'));
+const FriendWishlist = lazy(() => import('./pages/FriendWishlist'));
 import AuraExperience from './components/AuraExperience';
 import './index.css';
 import styles from './components/AppLayout.module.css';
@@ -89,6 +90,7 @@ const AppLayout = () => {
       </svg>
       
       <GlobalNav />
+      <MobileNavigation />
       <div className={styles.astralLayout}>
         <AstralSidebar 
           activeCategory={activeCategory} 
@@ -110,6 +112,7 @@ const AppContent = () => {
 
   return (
     <Router>
+      <Suspense fallback={<div className="page-loading" role="status">Opening your universe…</div>}>
       <Routes>
         <Route path="/login" element={!currentUser ? <AuthGateway /> : <Navigate to="/" />} />
         
@@ -123,6 +126,7 @@ const AppContent = () => {
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      </Suspense>
     </Router>
   );
 };
