@@ -27,7 +27,7 @@ const ActivityItem = ({ item, friend }) => {
   };
 
   return (
-    <div className={styles.activityRow} onClick={() => navigate(`/friend/${friend.id}`)}>
+    <div className={`${styles.activityRow} aura-enter`} role="link" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter') navigate(`/friend/${friend.id}`); }} onClick={() => navigate(`/friend/${friend.id}`)}>
       <div className={styles.avatar}>
         {friend?.photoURL ? (
           <img src={friend.photoURL} alt={formatDisplayName(friend.displayName)} />

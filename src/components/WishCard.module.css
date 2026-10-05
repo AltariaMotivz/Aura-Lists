@@ -14,8 +14,8 @@
 
 .accordionCard:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--color-accent-primary);
-
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .accordionHeader {
@@ -23,7 +23,7 @@
 }
 
 .accordionHeader:hover {
-  background: var(--color-bg-secondary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .accordionBody {
@@ -35,14 +35,10 @@
   0% {
     opacity: 0;
     transform: scaleY(0.95);
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
   }
   100% {
     opacity: 1;
     transform: scaleY(1);
-    max-height: 500px;
   }
 }
 
@@ -87,5 +83,3 @@
     padding: 1rem !important;
   }
 }
-
-@media (hover: hover) and (pointer: fine) { .accordionCard:hover { transform: translateY(-2px); } }

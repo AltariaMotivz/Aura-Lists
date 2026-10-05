@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Sparkles, Gift, Heart, ArrowRight } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -50,7 +49,7 @@ const AuthGateway = () => {
     try {
       const result = await confirmationResult.confirm(verificationCode);
       const user = result.user;
-      
+
       // Check if user document exists, if not create a basic one
       const userRef = doc(db, 'users', user.uid);
       const userSnap = await getDoc(userRef);
@@ -70,43 +69,54 @@ const AuthGateway = () => {
   };
 
   return (
-    <div className="aura-auth">
-      <div className="aura-brand"><Sparkles size={24} aria-hidden="true" /> Aura Lists</div>
-      <main className="aura-auth-main">
-        <section className="aura-auth-story" aria-labelledby="welcome-title">
-          <span className="aura-kicker">Little wishes. Thoughtful gifts.</span>
-          <h1 id="welcome-title">The things you love.<br /><em>The people who know.</em></h1>
-          <p>A place for your wishes, big and small. Save what catches your eye and find a little inspiration in the people you care about.</p>
-          <div className="aura-auth-features">
-            <span><Gift size={17} aria-hidden="true" /> Collect your wishes</span>
-            <span><Heart size={17} aria-hidden="true" /> Give with meaning</span>
-          </div>
-        </section>
-        <section className="glass-panel aura-auth-card" aria-labelledby="signin-title">
-          <span className="aura-kicker">Your list starts here</span>
-          <h2 id="signin-title">{confirmationResult ? 'Check your messages' : 'Make room for a little joy.'}</h2>
-          <p>{confirmationResult ? `Enter the six-digit code sent to ${phoneNumber}.` : 'Sign in or create your account with your phone number.'}</p>
-          {!confirmationResult ? (
-            <form className="aura-auth-form" onSubmit={handleSendCode} aria-busy={loading}>
-              <label htmlFor="phone-number">Phone number</label>
-              <input id="phone-number" type="tel" autoComplete="tel" className="input-field" placeholder="+1 (201) 555-0123" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required disabled={loading} aria-describedby="phone-help" />
-              <p id="phone-help" className="aura-auth-note">Outside the US? Include your country code.</p>
-              <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Sending your code…' : 'Continue with phone'}{!loading && <ArrowRight size={18} aria-hidden="true" />}</button>
-            </form>
-          ) : (
-            <form className="aura-auth-form" onSubmit={handleVerifyCode} aria-busy={loading}>
-              <label htmlFor="verification-code">Verification code</label>
-              <input id="verification-code" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} className="input-field" placeholder="123456" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} required disabled={loading} autoFocus />
-              <button type="submit" className="btn-primary" disabled={loading}>{loading ? 'Verifying…' : 'Open my lists'}<ArrowRight size={18} aria-hidden="true" /></button>
-              <button type="button" className="btn-glossy" disabled={loading} onClick={() => { setConfirmationResult(null); setVerificationCode(''); setError(''); resetVerifier(); }}>Use a different number</button>
-            </form>
-          )}
-          <div id="recaptcha-container" />
-          {error && <p className="aura-error" role="alert" style={{ marginTop: 16 }}>{error}</p>}
-          <p className="aura-auth-note">We’ll send an SMS to verify your number. Message and data rates may apply.</p>
-        </section>
-      </main>
-      <footer className="aura-auth-footer">A little thought goes a long way.</footer>
+    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="glass-panel aura-enter" style={{ width: '100%', maxWidth: '400px', textAlign: 'center', padding: '3rem 2rem' }}>
+        <h1 style={{ marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>Aura List</h1>
+        <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>Enter your phone number to begin</p>
+
+        {!confirmationResult ? (
+          <form onSubmit={handleSendCode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <input
+              aria-label="Phone number"
+              autoComplete="tel"
+              type="tel"
+              className="input-field"
+              placeholder="+12015550123"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+              style={{ textAlign: 'center' }}
+            />
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? 'Sending...' : 'Send Code'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyCode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <input
+              aria-label="Verification code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{6}"
+              maxLength={6}
+              type="text"
+              className="input-field"
+              placeholder="123456"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              required
+              style={{ textAlign: 'center' }}
+            />
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? 'Verifying...' : 'Verify Code'}
+            </button>
+            <button type="button" className="btn-glossy" disabled={loading} onClick={() => { setConfirmationResult(null); setVerificationCode(''); setError(''); resetVerifier(); }}>Use a different number</button>
+          </form>
+        )}
+
+        <div id="recaptcha-container"></div>
+        {error && <p role="alert" style={{ color: '#e57373', marginTop: '1rem', fontSize: '0.9rem' }}>{error}</p>}
+      </div>
     </div>
   );
 };

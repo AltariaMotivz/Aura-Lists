@@ -63,7 +63,7 @@ const WishCard = ({
   };
 
   return (
-    <div className={`${styles.accordionCard} ${item.purchased ? styles.isClaimed : ''}`} style={{ 
+    <div className={`aura-enter ${styles.accordionCard} ${item.purchased ? styles.isClaimed : ''}`} style={{ 
       opacity: item.purchased ? 0.6 : 1,
     }}>
       
@@ -95,7 +95,7 @@ const WishCard = ({
         </div>
 
         {item.price && (
-          <div style={{ fontWeight: '700', fontSize: '1.3rem', color: 'var(--color-text-primary)' }}>
+          <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#fff' }}>
             ${Number(item.price).toFixed(2)}
           </div>
         )}
@@ -107,7 +107,7 @@ const WishCard = ({
 
       {/* Accordion Body (Expanded) */}
       {isExpanded && (
-        <div id={bodyId} className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--color-bg-secondary)' }}>
+        <div id={bodyId} className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
           
           {item.notes && (
             <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', margin: 0, padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
@@ -149,8 +149,8 @@ const WishCard = ({
             {/* Owner Actions */}
             {isOwner && !item.purchased && (
               <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
-                <button className="pill-badge" aria-label={`Edit ${item.name}`} onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} /></button>
-                <button className="pill-badge" aria-label={`Delete ${item.name}`} onClick={() => setShowDeleteModal(true)} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} /></button>
+                <button className="pill-badge aura-action" aria-label={`Edit ${item.name}`} onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} aria-hidden="true" /> Edit</button>
+                <button className="pill-badge aura-action" aria-label={`Delete ${item.name}`} onClick={() => setShowDeleteModal(true)} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} aria-hidden="true" /> Delete</button>
               </div>
             )}
           </div>
@@ -161,11 +161,11 @@ const WishCard = ({
       {showPurchaseModal && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'var(--color-glass-bg)', backdropFilter: 'blur(12px)',
+          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
         }}>
-          <h4 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
+          <h4 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: '#fff', fontFamily: 'var(--font-heading)' }}>Did you buy this?</h4>
           <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', marginBottom: '1.5rem', maxWidth: '300px' }}>
             Marking this as purchased hides it from other guests to prevent duplicates!
           </p>
@@ -180,7 +180,7 @@ const WishCard = ({
       {showDeleteModal && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'var(--color-glass-bg)', backdropFilter: 'blur(12px)',
+          background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(12px)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           padding: '2rem', textAlign: 'center', zIndex: 20, borderRadius: 'var(--radius-md)'
         }}>

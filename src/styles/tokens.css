@@ -1,67 +1,307 @@
-/* Shared editorial foundation, inspired by DigiTimes. */
-:root, [data-theme="light"] {
-  color-scheme: light;
-  --color-bg-primary: #faf8f5;
-  --color-bg-secondary: #f1ece4;
-  --color-text-primary: #0b1d36;
-  --color-text-secondary: #596575;
-  --color-accent-primary: #806035;
-  --color-accent-hover: #654b29;
-  --color-accent-glow: #b8905426;
-  --color-border: #e4ddd2;
-  --color-glass-bg: #fffdf9;
-  --color-glass-border: #e4ddd2;
-  --orb-1: #a07c44;
-  --orb-2: #0b1d36;
-  --orb-3: #e8dbbf;
-  --shadow-sm: 0 6px 24px rgb(11 29 54 / 5%);
-  --shadow-md: 0 12px 32px rgb(11 29 54 / 9%);
-  --shadow-lg: 0 24px 80px rgb(11 29 54 / 18%);
-  --font-heading: 'DM Serif Display', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+/* =========================================================================
+   HOLOGRAPHIC PRISM - TOKENS & BASE STYLES
+   ========================================================================= */
+
+:root, [data-theme="light"], [data-theme="dark"] {
+  /* Core Colors */
+  --color-bg-primary: #030305; /* Deep obsidian */
+  --color-bg-secondary: rgba(15, 15, 20, 0.6);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  
+  /* Prism Glows */
+  --orb-1: rgba(0, 255, 255, 0.4);   /* Electric Cyan */
+  --orb-2: rgba(255, 0, 255, 0.4);   /* Magenta */
+  --orb-3: rgba(100, 50, 255, 0.5);  /* Deep Sapphire */
+  
+  /* Accents */
+  --color-accent-primary: #00ffff;
+  --color-accent-hover: #ff00ff;
+  --color-accent-glow: rgba(0, 255, 255, 0.4);
+  
+  /* Glassmorphism */
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-glass-bg: rgba(20, 20, 25, 0.35);
+  --color-glass-border: rgba(255, 255, 255, 0.15);
+  
+  /* Shadows with intense Bloom */
+  --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 255, 255, 0.15);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 0, 255, 0.2);
+  
+  /* Typography */
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  
+  /* Radii */
   --radius-sm: 12px;
-  --radius-md: 22px;
+  --radius-md: 20px;
   --radius-lg: 28px;
-  --radius-pill: 999px;
-  --transition-fast: 180ms ease;
-  --transition-base: 300ms cubic-bezier(.22, 1, .36, 1);
-  --transition-slow: 500ms cubic-bezier(.22, 1, .36, 1);
+  --radius-pill: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  --transition-slow: 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
-[data-theme="dark"] {
-  color-scheme: dark;
-  --color-bg-primary: #101b2b;
-  --color-bg-secondary: #1c293b;
-  --color-text-primary: #f7f1e7;
-  --color-text-secondary: #bdc5d0;
-  --color-accent-primary: #d7b47a;
-  --color-accent-hover: #e9c995;
-  --color-accent-glow: #d7b47a26;
-  --color-border: #344153;
-  --color-glass-bg: #182538;
-  --color-glass-border: #344153;
-  --orb-1: #d7b47a;
-  --orb-2: #9baec9;
-  --orb-3: #26364b;
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--color-bg-primary); color: var(--color-text-primary); font-family: var(--font-body); min-height: 100vh; -webkit-font-smoothing: antialiased; }
-h1,h2,h3,h4,h5,h6 { font-family: var(--font-heading); font-weight: 400; letter-spacing: -.025em; }
-button,input,select,textarea { font: inherit; }
-button,a,input,select,textarea { -webkit-tap-highlight-color: transparent; }
-button { cursor: pointer; }
-button:disabled { cursor: wait; opacity: .65; }
-a { color: inherit; }
-:focus-visible { outline: 3px solid var(--color-accent-primary); outline-offset: 4px; }
-.chromatic-text { color: var(--color-text-primary); }
-.glass-panel { position: relative; background: var(--color-glass-bg); border: 1px solid var(--color-glass-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
-.btn-primary,.btn-glossy,.pill-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 22px; border-radius: var(--radius-pill); font-family: var(--font-body); font-size: .9rem; font-weight: 600; transition: transform var(--transition-base), background var(--transition-fast), box-shadow var(--transition-base); }
-.btn-primary { background: var(--color-text-primary); color: var(--color-bg-primary); border: 1px solid transparent; box-shadow: var(--shadow-sm); }
-.btn-glossy,.pill-badge { background: var(--color-glass-bg); color: var(--color-text-primary); border: 1px solid var(--color-border); }
-.btn-primary:active:not(:disabled),.btn-glossy:active:not(:disabled) { transform: scale(.96); }
-.input-field { width: 100%; min-width: 0; padding: 14px 16px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-bg-primary); color: var(--color-text-primary); font-size: 16px; transition: border-color var(--transition-fast); }
-.input-field:focus { border-color: var(--color-accent-primary); }
-.input-field::placeholder { color: var(--color-text-secondary); }
-.hidden { display: none !important; }
-.nav-tab { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: var(--radius-pill); color: var(--color-text-secondary); text-decoration: none; font-size: .85rem; }
-.nav-tab.active { background: var(--color-glass-bg); color: var(--color-text-primary); box-shadow: var(--shadow-sm); }
-@media (hover:hover) and (pointer:fine) { .btn-primary:hover:not(:disabled),.btn-glossy:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--shadow-md); } }
+
+body {
+  background: var(--color-bg-primary);
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Animated Liquid Prism Background --- */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%; left: -50%; width: 200vw; height: 200vh;
+  background: 
+    radial-gradient(circle at 15% 50%, var(--orb-1), transparent 30%),
+    radial-gradient(circle at 85% 30%, var(--orb-2), transparent 30%),
+    radial-gradient(circle at 50% 80%, var(--orb-3), transparent 40%);
+  filter: blur(120px) saturate(150%);
+  z-index: -2;
+  animation: liquidPrism 30s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes liquidPrism {
+  0% { transform: scale(1) translate(0, 0) rotate(0deg); }
+  33% { transform: scale(1.1) translate(5%, -5%) rotate(5deg); }
+  66% { transform: scale(0.9) translate(-5%, 5%) rotate(-5deg); }
+  100% { transform: scale(1.1) translate(-2%, -2%) rotate(2deg); }
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Holographic Text Effect */
+.chromatic-text {
+  background: linear-gradient(135deg, #00ffff, #ff00ff, #00ffff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 5s linear infinite;
+}
+
+@keyframes shimmerText {
+  to { background-position: 200% center; }
+}
+
+/* --- Glass Panels (Holo Style) --- */
+.glass-panel {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(30px) saturate(120%);
+  -webkit-backdrop-filter: blur(30px) saturate(120%);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+  transform: skewX(-20deg);
+  transition: var(--transition-slow);
+}
+
+.glass-panel:hover {
+  box-shadow: var(--shadow-md);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.glass-panel:hover::before {
+  left: 200%;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  position: relative;
+  background: rgba(20, 20, 25, 0.8);
+  color: white;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Glowing Animated Border Effect */
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+  background-size: 200% 200%;
+  z-index: -1;
+  border-radius: calc(var(--radius-pill) + 2px);
+  animation: gradientBorder 3s ease infinite;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 1px; left: 1px; right: 1px; bottom: 1px;
+  background: #101014;
+  border-radius: var(--radius-pill);
+  z-index: -1;
+  transition: background var(--transition-base);
+}
+
+@keyframes gradientBorder {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 0, 255, 0.3);
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+.btn-primary:hover::after {
+  background: rgba(20, 20, 25, 0.9);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* Secondary Button */
+.btn-glossy {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+  padding: 10px 24px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.btn-glossy:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Forms */
+.input-field {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  transition: all var(--transition-base);
+  font-size: 16px; /* Prevents iOS auto-zoom */
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--orb-1);
+  box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Nav Tabs */
+.nav-tab {
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tab:hover {
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-tab.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Pill Badges */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  backdrop-filter: blur(5px);
+}
+
+/* =========================================================================
+   MOBILE OPTIMIZATIONS
+   ========================================================================= */
+@media (max-width: 768px) {
+  /* Scale down massive headings */
+  h1 { font-size: 2rem !important; }
+  h2 { font-size: 1.6rem !important; }
+  h3 { font-size: 1.3rem !important; }
+  
+  /* Reduce excessive padding inside glass panels */
+  .glass-panel {
+    padding: 1.5rem !important;
+    border-radius: var(--radius-md);
+  }
+  
+  /* Make buttons slightly smaller */
+  .btn-primary, .btn-secondary, .btn-glossy {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
+}

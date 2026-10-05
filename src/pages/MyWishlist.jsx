@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useOutletContext } from 'react-router-dom';
 import WishlistGrid from '../components/WishlistGrid';
 import AddWishModal from '../components/AddWishModal';
-import SkeletonGrid from '../components/SkeletonGrid';
 import { Plus } from 'lucide-react';
 
 const MyWishlist = () => {
@@ -14,7 +13,6 @@ const MyWishlist = () => {
   const [items, setItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!currentUser) return;
@@ -23,12 +21,7 @@ const MyWishlist = () => {
       setActiveCategory('All');
     }
 
-    setLoading(true);
-    setError('');
     let isMounted = true;
-    const handleLoadError = () => {
-      if (isMounted) { setError('Some wishes could not be loaded. Please refresh to try again.'); setLoading(false); }
-    };
     
     let wishesData = [];
     let legacyData = [];
@@ -39,7 +32,7 @@ const MyWishlist = () => {
       wishesData = snapshot.docs.map(doc => ({ id: doc.id, collectionName: 'wishes', ...doc.data() }));
       setItems([...wishesData, ...legacyData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       setLoading(false);
-    }, handleLoadError);
+    });
 
     const qLegacy = query(collection(db, 'wishlist'), where('userId', '==', currentUser.uid));
     const unsubscribeLegacy = onSnapshot(qLegacy, (snapshot) => {
@@ -47,14 +40,14 @@ const MyWishlist = () => {
       legacyData = snapshot.docs.map(doc => ({ id: doc.id, collectionName: 'wishlist', ...doc.data() }));
       setItems([...wishesData, ...legacyData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       setLoading(false);
-    }, handleLoadError);
+    });
 
     return () => {
       isMounted = false;
       unsubscribeWishes();
       unsubscribeLegacy();
     };
-  }, [currentUser, setActiveCategory]);
+  }, [currentUser]);
 
   const filteredItems = items.filter(item => {
     if (activeCategory === 'All') return true;
@@ -62,9 +55,9 @@ const MyWishlist = () => {
   });
 
   return (
-    <div className="aura-route">
-      <div className="aura-page-heading">
-        <div><span className="aura-kicker">A collection of possibilities</span><h2>My wishes</h2><p>Keep the things you love in one thoughtful place.</p></div>
+    <div className="aura-enter" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h2 style={{ fontFamily: 'var(--font-heading)', color: '#2E1065', fontSize: '1.8rem' }}>My Wishes</h2>
         <button 
           className="btn-primary" 
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: 'var(--radius-pill)', padding: '10px 20px' }}
@@ -74,11 +67,10 @@ const MyWishlist = () => {
         </button>
       </div>
       
-      {error && <p className="aura-error" role="alert" style={{ marginBottom: 16 }}>{error}</p>}
       {loading ? (
-        <SkeletonGrid count={3} />
+        <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>Summoning your wishes...</p>
       ) : (
-        <WishlistGrid items={filteredItems} isOwner={true} isGuest={false} />
+        <WishlistGrid items={filteredItems} isOwner={true} isGuest={false} onAddWish={items.length === 0 ? () => setShowAddModal(true) : undefined} />
       )}
 
       {showAddModal && <AddWishModal onClose={() => setShowAddModal(false)} />}

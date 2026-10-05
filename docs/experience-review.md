@@ -1,20 +1,17 @@
-# DigiTimes-inspired experience
+# Aura motion and button polish
 
-This first design pass carries DigiTimes' warm paper, navy ink, muted gold, serif headings, rounded surfaces and gentle motion into Aura Lists. The light and dark themes have separate palettes. Phone layouts use a floating navigation dock; large screens retain the sidebar.
+Preserve Aura Lists' existing theme: its neon cyan/magenta palette, Space Grotesk/Inter typography, glass panels, animated background, particle effects and navigation. The theme tokens and existing navigation styles match the original master branch.
 
-The entry page explains the app before phone verification. Phone and code inputs have labels, autocomplete hints and validation. The reCAPTCHA verifier is scoped to the component and recreated after a failed send. Wish and friend dialogs use native modal semantics with Escape handling and explicit focus return. Wish cards expand with Enter or Space, and owner action buttons have accessible names. Wish loading and save failures have visible feedback.
+Interaction enhancements:
+- Gentle opacity entrances for sign-in, lists and activity cards, with reduced-motion support.
+- Spring-like button press feedback, action-button hover feedback and visible keyboard focus.
+- Visible Edit/Delete labels and keyboard expansion for wish cards.
+- Direct Add your first wish and Find a friend buttons in empty states.
+- Animated add/edit wish dialog with native modal semantics, Escape dismissal and focus return.
+- Phone/code input labels and a Use a different number button, plus recovery after failed SMS requests.
+- Stable particle positions across rerenders so the background does not jump.
+- Pass the friends loading state through the layout to the activity feed.
 
-## Verification
+Validation: production build passed; lint completed without errors (existing warnings remain). Browser inspection confirmed the original background, cyan accent, typeface and sign-in layout, with the new entrance animation active. Native dialog focus return and keyboard wish expansion were checked during the preceding component review; live Firebase account flows still need an authorized test account.
 
-- `npm ci --legacy-peer-deps`: installation succeeded. Plain `npm ci` encounters an existing React 19 / react-tilt peer conflict.
-- `npm run build`: passed. Vite reports a large bundle warning.
-- `npm run lint`: completed without errors; existing warnings remain in legacy components.
-- Browser: entry page inspected at desktop size and 390 × 844; no horizontal overflow on the phone layout.
-- Invalid phone submission displays the validation error before Firebase is called.
-- Temporary local component harness: checked Enter expansion, mobile dark theme, Escape dismissal and focus return to the dialog trigger. Harness files were removed.
-
-Live SMS verification, authenticated Firestore reads/writes and full account journeys still need testing with an authorized test account before merging. Review the friends feed, add/edit wish, category filtering and gift claiming in both themes. Existing specialized friend-list styling and legacy profile components may need a later visual pass.
-
-## Local preview
-
-Run `npm ci --legacy-peer-deps` and `npm run dev`. This app continues to use the Firebase project configured in `src/firebase.js`; use test credentials when reviewing authenticated flows.
+Run `npm ci --legacy-peer-deps` then `npm run dev` for a local preview. Plain npm ci encounters the repository's existing React 19/react-tilt peer conflict. The build retains its existing large-bundle warning.
