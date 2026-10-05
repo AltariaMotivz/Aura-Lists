@@ -1,9 +1,9 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import styles from './AstralSidebar.module.css';
-import { LayoutDashboard, Gift, Filter, Users } from 'lucide-react';
+import { LayoutDashboard, Gift, Filter, Users, UserRound } from 'lucide-react';
 
-const CATEGORIES = ['All', 'Tech', 'Home', 'Apparel', 'Books', 'Other'];
+const CATEGORIES = ['All', 'Birthday', 'Wedding', 'Holiday', 'Tech', 'Books'];
 
 const formatDisplayName = (nameOrPhone) => {
   if (!nameOrPhone) return 'Unknown';
@@ -16,8 +16,10 @@ const formatDisplayName = (nameOrPhone) => {
 };
 
 const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFriends }) => {
+  const location = useLocation();
+  const showFilters = location.pathname === '/my-wishlist' || location.pathname.startsWith('/friend/');
   return (
-    <aside className={styles.astralMonolith}>
+    <aside className={`${styles.astralMonolith} universe-sidebar`}>
       
       <div className={styles.navSection}>
         <NavLink to="/" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`} end>
@@ -26,15 +28,18 @@ const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFrie
         <NavLink to="/my-wishlist" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
           <Gift size={18} /> My Wishlist
         </NavLink>
+        <NavLink to="/friends" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}><Users size={18} /> My Friends</NavLink>
+        <NavLink to="/profile" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}><UserRound size={18} /> My Profile</NavLink>
       </div>
 
-      <div className={styles.divider} />
+      {showFilters && <div className={styles.divider} />}
 
-      <div className={styles.filterSection}>
+      {showFilters && <div className={`${styles.filterSection} universe-sidebar-filters`}>
         <h3 className={styles.sectionTitle}><Filter size={16} /> Occasions</h3>
         <div className={styles.pillContainer}>
           {CATEGORIES.map(category => (
             <button
+              aria-pressed={activeCategory === category}
               key={category}
               className={`${styles.categoryPill} ${activeCategory === category ? styles.activePill : ''}`}
               onClick={() => setActiveCategory(category)}
@@ -43,11 +48,11 @@ const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFrie
             </button>
           ))}
         </div>
-      </div>
+      </div>}
 
       <div className={styles.divider} />
 
-      <div className={styles.friendsSection}>
+      <div className={`${styles.friendsSection} universe-sidebar-friends`}>
         <h3 className={styles.sectionTitle}><Users size={16} /> Friends</h3>
         {loadingFriends ? (
           <p className={styles.loadingText}>Summoning friends...</p>

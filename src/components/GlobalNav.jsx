@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Wand2, Sun, Moon, LogOut } from 'lucide-react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
+import { EnergyToggle } from './AuraExperience';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -17,8 +18,10 @@ const GlobalNav = () => {
   };
 
   return (
-    <header style={{
+    <header className="aura-global-header" style={{
       display: 'flex',
+      flexWrap: 'wrap',
+      gap: '12px',
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '1.5rem 2rem',
@@ -30,7 +33,7 @@ const GlobalNav = () => {
       borderBottom: '1px solid rgba(255,255,255,0.1)'
     }}>
       {/* Brand Logo */}
-      <div 
+      <button type="button" className="aura-global-brand" aria-label="Aura Lists home"
         onClick={() => navigate('/')}
         style={{ 
           display: 'flex', 
@@ -40,18 +43,22 @@ const GlobalNav = () => {
           fontSize: '1.5rem', 
           fontFamily: 'var(--font-heading)',
           cursor: 'pointer',
+          border: 0,
+          padding: 0,
+          backgroundColor: 'transparent',
           color: 'transparent',
-          backgroundImage: 'linear-gradient(45deg, var(--orb-1), var(--orb-2), var(--color-accent-primary))',
+          backgroundImage: 'linear-gradient(90deg, #a5ffff, #d5bbff)',
           WebkitBackgroundClip: 'text',
           textShadow: '0 0 20px var(--color-accent-glow)'
         }}
       >
-        <Wand2 size={24} color="var(--color-accent-primary)" /> Aura Wishlist
-      </div>
+        <Wand2 size={24} color="var(--color-accent-primary)" /> Aura Lists
+      </button>
 
       {/* Grouped Actions Cluster */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--color-glass-bg)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid var(--color-border)' }}>
+      <div className="aura-header-tools" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--color-glass-bg)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid var(--color-border)' }}>
         
+        <EnergyToggle />
         <button 
           onClick={toggleTheme} 
           style={{ 
@@ -70,7 +77,8 @@ const GlobalNav = () => {
         </button>
 
         {userProfile && (
-          <div style={{
+          <button aria-label="Open my profile" onClick={()=>navigate('/profile')} style={{
+            cursor: 'pointer', padding: 0,
             width: '32px', height: '32px', borderRadius: '50%',
             background: 'var(--color-glass-bg)', border: '2px solid var(--color-accent-primary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
@@ -82,7 +90,7 @@ const GlobalNav = () => {
                 {userProfile.displayName?.charAt(0) || '?'}
               </span>
             )}
-          </div>
+          </button>
         )}
         
         <button 

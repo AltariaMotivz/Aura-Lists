@@ -2,8 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './ActivityItem.module.css';
 
-const ActivityItem = ({ item, friend }) => {
+const ActivityItem = ({ item, friend, onSelect }) => {
   const navigate = useNavigate();
+
+  const open = () => onSelect ? onSelect() : navigate(`/friend/${friend.id}`);
 
   const formatDisplayName = (name) => {
     if (!name) return 'Someone';
@@ -15,7 +17,8 @@ const ActivityItem = ({ item, friend }) => {
   const getTimeAgo = (dateString) => {
     const now = new Date();
     const date = new Date(dateString);
-    const seconds = Math.floor((now - date) / 1000);
+    if (Number.isNaN(date.getTime())) return 'Just added';
+    const seconds = Math.max(0, Math.floor((now - date) / 1000));
     
     if (seconds < 60) return `${seconds}s ago`;
     const minutes = Math.floor(seconds / 60);
@@ -27,7 +30,7 @@ const ActivityItem = ({ item, friend }) => {
   };
 
   return (
-    <div className={`${styles.activityRow} aura-enter`} role="link" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter') navigate(`/friend/${friend.id}`); }} onClick={() => navigate(`/friend/${friend.id}`)}>
+    <div className={`${styles.activityRow} aura-enter`} role="link" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter') open(); }} onClick={open}>
       <div className={styles.avatar}>
         {friend?.photoURL ? (
           <img src={friend.photoURL} alt={formatDisplayName(friend.displayName)} />
