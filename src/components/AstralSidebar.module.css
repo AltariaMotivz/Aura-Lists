@@ -14,7 +14,7 @@
   flex-direction: column;
   gap: 1.5rem;
   overflow-y: auto;
-  box-shadow: 0 12px 40px rgba(167, 139, 250, 0.15);
+  box-shadow: 0 12px 40px rgba(var(--aura-secondary-rgb), 0.15);
   z-index: 10;
 }
 
@@ -148,14 +148,14 @@
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 10px rgba(var(--aura-secondary-rgb), 0.5), inset 0 0 5px rgba(255, 255, 255, 0.8);
   animation: pulseRing 20s infinite alternate ease-in-out;
 }
 
 @keyframes pulseRing {
   0% { box-shadow: 0 0 10px rgba(255, 107, 107, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.8); }
   50% { box-shadow: 0 0 15px rgba(147, 197, 253, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.9); }
-  100% { box-shadow: 0 0 10px rgba(167, 139, 250, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.8); }
+  100% { box-shadow: 0 0 10px rgba(var(--aura-secondary-rgb), 0.5), inset 0 0 5px rgba(255, 255, 255, 0.8); }
 }
 
 .friendAvatar img {
@@ -215,14 +215,14 @@
   background: transparent;
 }
 .astralMonolith::-webkit-scrollbar-thumb {
-  background: rgba(167, 139, 250, 0.3);
+  background: rgba(var(--aura-secondary-rgb), 0.3);
   border-radius: 10px;
 }
 
 /* Keep the sidebar in Aura's neon glass family. */
-.astralMonolith { top: 110px; max-height: calc(100dvh - 130px); background: linear-gradient(145deg,rgba(48,31,73,.55),rgba(12,16,28,.65)); border-color: rgba(167,139,250,.25); }
-.navLink:hover, .categoryPill:hover { background: rgba(0,255,255,.08); color: var(--color-text-primary); }
-.navLink.active { border: 1px solid rgba(0,255,255,.2); background: rgba(0,255,255,.08); box-shadow: 0 0 20px rgba(0,255,255,.06); }
-.friendItem.activeFriend { background: rgba(167,139,250,.15); box-shadow: none; }
+.astralMonolith { top: 110px; max-height: calc(100dvh - 130px); background: var(--surface-gradient); border-color: rgba(var(--aura-secondary-rgb),.25); }
+.navLink:hover, .categoryPill:hover { background: rgba(var(--aura-accent-rgb),.08); color: var(--color-text-primary); }
+.navLink.active { border: 1px solid rgba(var(--aura-accent-rgb),.2); background: rgba(var(--aura-accent-rgb),.08); box-shadow: 0 0 20px rgba(var(--aura-accent-rgb),.06); }
+.friendItem.activeFriend { background: rgba(var(--aura-secondary-rgb),.15); box-shadow: none; }
 :global([data-energy='calm']) .friendAvatar, :global([data-energy='calm']) .friendAvatar span { animation-play-state: paused; }
 @media(max-width:900px) { .astralMonolith { top: 0; max-height: none; gap: 12px; margin-bottom: 0; } }

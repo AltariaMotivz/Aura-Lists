@@ -106,7 +106,7 @@ const WishCard = ({
         </div>
 
         {item.price && (
-          <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#fff' }}>
+          <div style={{ fontWeight: '700', fontSize: '1.3rem', color: 'var(--color-text-primary)' }}>
             ${Number(item.price).toFixed(2)}
           </div>
         )}
@@ -118,7 +118,7 @@ const WishCard = ({
 
       {/* Accordion Body (Expanded) */}
       {isExpanded && (
-        <div id={bodyId} className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(0,0,0,0.2)' }}>
+        <div id={bodyId} className={styles.accordionBody} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--field-bg)' }}>
 
           {item.imageURL && <img className={styles.wishImage} src={item.imageURL} alt={item.name} loading="lazy" onError={event => { event.currentTarget.hidden = true; }} />}
           {item.notes && (
@@ -129,7 +129,7 @@ const WishCard = ({
 
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
             {item.purchased ? (
-              <span className="pill-badge" style={{ background: 'rgba(255,255,255,0.1)', color: '#a1a1aa', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <span className="pill-badge" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--color-text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <CheckCircle size={16} style={{ marginRight: '6px' }} /> Claimed
               </span>
             ) : (
@@ -162,7 +162,7 @@ const WishCard = ({
             {isOwner && !item.purchased && (
               <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
                 <button className="pill-badge aura-action" aria-label={`Edit ${item.name}`} onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} aria-hidden="true" /> Edit</button>
-                <button className="pill-badge aura-action" aria-label={`Delete ${item.name}`} onClick={() => {setError('');setShowDeleteModal(true);}} style={{ padding: '8px', cursor: 'pointer', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} aria-hidden="true" /> Delete</button>
+                <button className="pill-badge aura-action" aria-label={`Delete ${item.name}`} onClick={() => {setError('');setShowDeleteModal(true);}} style={{ padding: '8px', cursor: 'pointer', color: 'var(--color-danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} aria-hidden="true" /> Delete</button>
               </div>
             )}
           </div>

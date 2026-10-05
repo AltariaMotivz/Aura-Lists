@@ -9,7 +9,7 @@ export default function ParticleCanvas() {
     duration: `${18 + Math.random() * 20}s`,
     delay: `${Math.random() * -38}s`,
     drift: `${Math.random() * 100 - 50}px`,
-    hue: i % 3 === 0 ? '0, 255, 255' : i % 3 === 1 ? '255, 0, 255' : '167, 139, 250'
+    hue: i % 3 === 0 ? 'var(--aura-accent-rgb)' : i % 3 === 1 ? 'var(--aura-alt-rgb)' : 'var(--aura-secondary-rgb)'
   })));
   return <div aria-hidden="true" className={styles.particleContainer}>
     {particles.map(p => <div key={p.id} className={styles.particle} style={{ left: p.left, width: p.size, height: p.size, '--duration': p.duration, '--delay': p.delay, '--drift': p.drift, '--bubble-color': p.hue }} />)}

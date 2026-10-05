@@ -85,12 +85,12 @@
 }
 
 /* A moving specular highlight follows the pointer across the glass. */
-.accordionCard { --card-x: 50%; --card-y: 0%; background: linear-gradient(145deg, rgba(48,31,73,.48), rgba(12,16,28,.7)); border-color: rgba(167,139,250,.23); }
-.accordionCard::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(300px circle at var(--card-x) var(--card-y), rgba(0,255,255,.1), transparent 75%); opacity: 0; transition: opacity 350ms ease; }
-.accordionCard[data-expanded='true'] { border-color: rgba(0,255,255,.4); box-shadow: 0 0 30px rgba(0,255,255,.08), 0 15px 40px rgba(0,0,0,.2); }
+.accordionCard { --card-x: 50%; --card-y: 0%; background: var(--surface-gradient); border-color: rgba(var(--aura-secondary-rgb),.23); }
+.accordionCard::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(300px circle at var(--card-x) var(--card-y), rgba(var(--aura-accent-rgb),.1), transparent 75%); opacity: 0; transition: opacity 350ms ease; }
+.accordionCard[data-expanded='true'] { border-color: rgba(var(--aura-accent-rgb),.4); box-shadow: 0 0 30px rgba(var(--aura-accent-rgb),.08), 0 15px 40px rgba(0,0,0,.2); }
 .accordionHeader { position: relative; z-index: 1; }
-.wishIcon { display: grid; place-items: center; width: 58px; height: 58px; flex-shrink: 0; border-radius: 18px; background: linear-gradient(140deg, rgba(167,139,250,.17), rgba(0,255,255,.06)); border: 1px solid rgba(167,139,250,.18); transition: transform 500ms cubic-bezier(.2,.85,.25,1.15), box-shadow 500ms ease; }
-.accordionCard[data-expanded='true'] .wishIcon { transform: rotate(-8deg) scale(1.06); box-shadow: 0 0 22px rgba(167,139,250,.2); }
+.wishIcon { display: grid; place-items: center; width: 58px; height: 58px; flex-shrink: 0; border-radius: 18px; background: linear-gradient(140deg, rgba(var(--aura-secondary-rgb),.17), rgba(var(--aura-accent-rgb),.06)); border: 1px solid rgba(var(--aura-secondary-rgb),.18); transition: transform 500ms cubic-bezier(.2,.85,.25,1.15), box-shadow 500ms ease; }
+.accordionCard[data-expanded='true'] .wishIcon { transform: rotate(-8deg) scale(1.06); box-shadow: 0 0 22px rgba(var(--aura-secondary-rgb),.2); }
 .wishImage { max-width: 100%; width: 100%; height: 220px; object-fit: contain; border-radius: 14px; background: rgba(255,255,255,.04); }
 @media (hover:hover) and (pointer:fine) { .accordionCard:hover::before { opacity: 1; } .accordionCard:hover .wishIcon { transform: rotate(-7deg) scale(1.08); } }
 @media (max-width:600px) { .wishIcon { width: 42px; height: 42px; border-radius: 12px; } }

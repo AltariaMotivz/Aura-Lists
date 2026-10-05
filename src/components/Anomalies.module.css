@@ -14,7 +14,7 @@
   bottom: -50px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
-  box-shadow: inset -5px -5px 15px rgba(255,255,255,0.8), inset 5px 5px 15px rgba(167, 139, 250, 0.3);
+  box-shadow: inset -5px -5px 15px rgba(255,255,255,0.8), inset 5px 5px 15px rgba(var(--aura-secondary-rgb), 0.3);
   backdrop-filter: blur(4px);
   animation: float-up 5s ease-in infinite;
 }

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import useWishes from '../hooks/useWishes';
 import { useAuth } from '../contexts/AuthContext';
 import { useOutletContext } from 'react-router-dom';
 import WishlistGrid from '../components/WishlistGrid';
@@ -12,9 +11,9 @@ const MyWishlist = () => {
   const { activeCategory, setActiveCategory } = useOutletContext();
   const [search, setSearch] = useState('');
   const [saved, setSaved] = useState(false);
-  const [items, setItems] = useState([]);
+  const {items, loading, error, retry} = useWishes([currentUser?.uid]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!saved) return;
@@ -22,40 +21,7 @@ const MyWishlist = () => {
     return () => clearTimeout(timer);
   }, [saved]);
 
-  useEffect(() => {
-    if (!currentUser) return;
-    
-    if (setActiveCategory) {
-      setActiveCategory('All');
-    }
-
-    let isMounted = true;
-    
-    let wishesData = [];
-    let legacyData = [];
-
-    const qWishes = query(collection(db, 'wishes'), where('ownerId', '==', currentUser.uid));
-    const unsubscribeWishes = onSnapshot(qWishes, (snapshot) => {
-      if (!isMounted) return;
-      wishesData = snapshot.docs.map(doc => ({ id: doc.id, collectionName: 'wishes', ...doc.data() }));
-      setItems([...wishesData, ...legacyData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-      setLoading(false);
-    });
-
-    const qLegacy = query(collection(db, 'wishlist'), where('userId', '==', currentUser.uid));
-    const unsubscribeLegacy = onSnapshot(qLegacy, (snapshot) => {
-      if (!isMounted) return;
-      legacyData = snapshot.docs.map(doc => ({ id: doc.id, collectionName: 'wishlist', ...doc.data() }));
-      setItems([...wishesData, ...legacyData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-      setLoading(false);
-    });
-
-    return () => {
-      isMounted = false;
-      unsubscribeWishes();
-      unsubscribeLegacy();
-    };
-  }, [currentUser, setActiveCategory]);
+  useEffect(() => { setActiveCategory('All'); }, [currentUser?.uid, setActiveCategory]);
 
   const filteredItems = items.filter(item => {
     const matchesCategory = activeCategory === 'All' || item.theme === activeCategory || item.tags?.includes(activeCategory);
@@ -69,6 +35,7 @@ const MyWishlist = () => {
         <button className="btn-primary" onClick={() => setShowAddModal(true)}><Plus size={18} aria-hidden="true" /> Add a wish</button>
       </div>
       <div className="aura-list-controls"><label className="aura-wish-search"><Search size={17} aria-hidden="true" /><input type="search" aria-label="Search your wishes" placeholder="Find your next obsession…" value={search} onChange={event => setSearch(event.target.value)} /></label><div className="aura-wish-count"><span>{filteredItems.length}</span> {filteredItems.length === 1 ? 'possibility' : 'possibilities'}</div></div>
+      {error && <p role="alert" className="aura-error">Some wishes could not load. <button className="btn-glossy" onClick={retry}>Try again</button></p>}
       {loading ? (
         <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>Summoning your wishes...</p>
       ) : (
