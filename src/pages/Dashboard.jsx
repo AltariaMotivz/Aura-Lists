@@ -120,7 +120,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+    <div className="aura-enter" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 className="chromatic-text" style={{ fontSize: '2.5rem', color: 'var(--color-text-primary)', fontFamily: 'var(--font-heading)' }}>Activity Feed</h2>
@@ -141,6 +141,7 @@ const Dashboard = () => {
         <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>No friends added yet.</p>
           <p style={{ color: 'var(--color-text-secondary)' }}>Click "Add Friend" to search and view their wishlists!</p>
+          <button className="btn-primary" style={{ marginTop: '1.5rem' }} onClick={() => setShowAddFriend(true)}><UserPlus size={18} aria-hidden="true" /> Find a friend</button>
         </div>
       ) : activities.length === 0 ? (
         <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-text-secondary)' }}>

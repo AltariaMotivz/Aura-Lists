@@ -1,0 +1,17 @@
+/* Interaction polish only: the existing Aura palette, type and surfaces stay in tokens.css. */
+@keyframes aura-appear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes aura-dialog-in { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
+.aura-enter { animation: aura-appear 400ms ease-out both; }
+/* Opacity-only entrances keep nested fixed overlays anchored to the viewport. */
+.btn-primary, .btn-glossy, button.pill-badge { transition: transform 220ms cubic-bezier(.2,.85,.25,1.15), box-shadow 220ms ease, background 180ms ease; }
+.btn-primary:active:not(:disabled), .btn-glossy:active:not(:disabled), button.pill-badge:active:not(:disabled) { transform: scale(.96); }
+button:disabled { cursor: wait; opacity: .65; }
+button:focus-visible, a:focus-visible, [role='button']:focus-visible, [role='link']:focus-visible { outline: 2px solid var(--color-accent-primary); outline-offset: 4px; }
+.aura-action { gap: 6px; min-height: 40px; }
+.aura-dialog { margin: auto; width: min(500px, calc(100% - 32px)); max-height: calc(100dvh - 48px); padding: 2rem; color: var(--color-text-primary); background: var(--color-glass-bg); backdrop-filter: blur(30px) saturate(120%); border: 1px solid var(--color-glass-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); animation: aura-dialog-in 300ms cubic-bezier(.22,1,.36,1) both; }
+.aura-dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(5px); animation: aura-appear 200ms ease; }
+.aura-error { color: #e57373; font-size: .9rem; line-height: 1.5; }
+@media (hover: hover) and (pointer: fine) { button.pill-badge:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--shadow-sm); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

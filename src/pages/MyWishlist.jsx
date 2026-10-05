@@ -55,7 +55,7 @@ const MyWishlist = () => {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+    <div className="aura-enter" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 style={{ fontFamily: 'var(--font-heading)', color: '#2E1065', fontSize: '1.8rem' }}>My Wishes</h2>
         <button 
@@ -70,7 +70,7 @@ const MyWishlist = () => {
       {loading ? (
         <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>Summoning your wishes...</p>
       ) : (
-        <WishlistGrid items={filteredItems} isOwner={true} isGuest={false} />
+        <WishlistGrid items={filteredItems} isOwner={true} isGuest={false} onAddWish={items.length === 0 ? () => setShowAddModal(true) : undefined} />
       )}
 
       {showAddModal && <AddWishModal onClose={() => setShowAddModal(false)} />}

@@ -92,7 +92,7 @@ const AppLayout = () => {
           loadingFriends={loadingFriends}
         />
         <main className={styles.mainArea}>
-          <Outlet context={{ activeCategory, setActiveCategory, friends }} />
+          <Outlet context={{ activeCategory, setActiveCategory, friends, loadingFriends }} />
         </main>
       </div>
     </div>
