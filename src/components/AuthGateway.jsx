@@ -9,6 +9,7 @@ const AuthGateway = () => {
   const [confirmationResult, setConfirmationResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [needsReload, setNeedsReload] = useState(false);
 
   const verifier = useRef(null);
   const resetVerifier = () => {
@@ -31,12 +32,27 @@ const AuthGateway = () => {
         throw new Error('Enter a valid phone number, including the country code outside the US.');
       }
       if (!verifier.current) {
-        verifier.current = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+        verifier.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+          'error-callback': () => {
+            // reCAPTCHA can fail without rejecting Firebase's pending verification.
+            // Require a fresh page instead of starting a second SMS request.
+            setError('Google verification could not connect. Reload this page, or open this same address in Chrome or Safari and try again.');
+            setNeedsReload(true);
+          }
+        });
       }
       const confirmation = await signInWithPhoneNumber(auth, formattedPhone, verifier.current);
       setConfirmationResult(confirmation);
     } catch (err) {
-      setError(err.message || 'Failed to send verification code.');
+      const messages = {
+        'auth/network-request-failed': 'Could not reach the sign-in service. Check your connection and try again.',
+        'auth/unauthorized-domain': 'Phone sign-in is not enabled for this website address. Please use the hosted Aura Lists app.',
+        'auth/captcha-check-failed': 'Google verification failed. Reload the page and try again. If this keeps happening, try Chrome or Safari.',
+        'auth/invalid-app-credential': 'Google could not verify this app. If you are using a local preview, try the hosted Aura Lists app.',
+        'auth/too-many-requests': 'Too many sign-in attempts. Please wait before trying again.'
+      };
+      setError(messages[err.code] || err.message || 'Failed to send verification code.');
       resetVerifier();
     }
     setLoading(false);
@@ -87,8 +103,8 @@ const AuthGateway = () => {
               required
               style={{ textAlign: 'center' }}
             />
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Sending...' : 'Send Code'}
+            <button type="submit" className="btn-primary" disabled={loading || needsReload}>
+              {needsReload ? 'Verification unavailable' : loading ? 'Sending...' : 'Send Code'}
             </button>
           </form>
         ) : (
@@ -115,6 +131,7 @@ const AuthGateway = () => {
         )}
 
         <div id="recaptcha-container"></div>
+        {needsReload && <button type="button" className="btn-glossy" style={{ marginTop: '1rem' }} onClick={() => window.location.reload()}>Reload verification</button>}
         {error && <p role="alert" style={{ color: '#e57373', marginTop: '1rem', fontSize: '0.9rem' }}>{error}</p>}
       </div>
     </div>
