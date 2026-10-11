@@ -1,5 +1,5 @@
 import React, { useState, useId } from 'react';
-import { ExternalLink, Edit2, Trash2, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, Sparkles } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, Sparkles, RotateCcw } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { getPriorityBadgeInfo, applyPriorityChange, isValidPriority } from '../utils/priority';
@@ -29,6 +29,7 @@ const WishCard = ({
   const [priorityBusy, setPriorityBusy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showUnclaimModal, setShowUnclaimModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -62,6 +63,24 @@ const WishCard = ({
       if (onUpdate) onUpdate();
     } catch {
       setError('Could not mark this wish as purchased. Try again.');
+    } finally { setBusy(false); }
+  };
+
+  const handleUnclaim = async () => {
+    setBusy(true); setError('');
+    try {
+      const collectionName = item.collectionName || 'wishes';
+      const itemRef = doc(db, collectionName, item.id);
+      await updateDoc(itemRef, {
+        purchased: false,
+        claimedBy: null,
+        claimedByName: null,
+        claimedAt: null
+      });
+      setShowUnclaimModal(false);
+      if (onUpdate) onUpdate();
+    } catch {
+      setError('Could not unclaim this wish. Try again.');
     } finally { setBusy(false); }
   };
 
@@ -135,6 +154,11 @@ const WishCard = ({
                 <span>{priorityInfo.fullLabel}</span>
               </span>
             )}
+            {item.purchased && (
+              <span className="pill-badge" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--color-text-secondary)', fontSize: '0.75rem', padding: '2px 8px', display: 'inline-flex', alignItems: 'center' }}>
+                <CheckCircle size={12} style={{ marginRight: '4px' }} /> Claimed
+              </span>
+            )}
           </div>
           <h3 className="chromatic-text" style={{ fontSize: '1.4rem', margin: 0, lineHeight: 1.2, overflowWrap: 'anywhere' }}>{item.name}</h3>
         </div>
@@ -163,9 +187,19 @@ const WishCard = ({
 
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
             {item.purchased ? (
-              <span className="pill-badge" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--color-text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <CheckCircle size={16} style={{ marginRight: '6px' }} /> Claimed
-              </span>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span className="pill-badge" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--color-text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <CheckCircle size={16} style={{ marginRight: '6px' }} /> Claimed
+                </span>
+                <button
+                  type="button"
+                  className="btn-glossy"
+                  onClick={() => { setError(''); setShowUnclaimModal(true); }}
+                  style={{ fontSize: '0.8rem', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <RotateCcw size={14} /> Unclaim wish
+                </button>
+              </div>
             ) : (
               <>
                 {item.link && (
@@ -224,6 +258,7 @@ const WishCard = ({
       )}
 
       {showPurchaseModal && <Dialog onClose={()=>{if(!busy)setShowPurchaseModal(false);}} labelledBy={`${bodyId}-purchase`}><CheckCircle className="universe-confirm-icon" size={40} /><h2 id={`${bodyId}-purchase`}>A wish, fulfilled.</h2><p className="aura-preview-description">Bought “{item.name}”? Mark it as purchased so other friends know it’s covered.</p><div className="universe-actions"><button className="btn-primary" disabled={busy} onClick={handleMarkPurchased}>{busy?'Saving…':'Yes, I bought it'}</button><button className="btn-glossy" disabled={busy} onClick={()=>setShowPurchaseModal(false)}>Just looking</button></div>{error && <p role="alert" className="aura-error">{error}</p>}</Dialog>}
+      {showUnclaimModal && <Dialog onClose={()=>{if(!busy)setShowUnclaimModal(false);}} labelledBy={`${bodyId}-unclaim`}><RotateCcw className="universe-confirm-icon" size={38} color="var(--color-accent-primary)" /><h2 id={`${bodyId}-unclaim`}>Unclaim this wish?</h2><p className="aura-preview-description">Mark “{item.name}” as available again so other friends know it’s still open to be gifted.</p><div className="universe-actions"><button className="btn-primary" disabled={busy} onClick={handleUnclaim}>{busy?'Restoring…':'Yes, mark available'}</button><button className="btn-glossy" disabled={busy} onClick={()=>setShowUnclaimModal(false)}>Keep claimed</button></div>{error && <p role="alert" className="aura-error">{error}</p>}</Dialog>}
       {showDeleteModal && <Dialog onClose={()=>{if(!busy)setShowDeleteModal(false);}} labelledBy={`${bodyId}-delete`}><AlertTriangle className="universe-danger" size={40} /><h2 id={`${bodyId}-delete`}>Let this wish go?</h2><p className="aura-preview-description">“{item.name}” will be permanently deleted. This cannot be undone.</p><div className="universe-actions"><button className="btn-glossy" disabled={busy} onClick={()=>setShowDeleteModal(false)}>Keep my wish</button><button className="btn-primary universe-danger" disabled={busy} onClick={handleDelete}>{busy?'Deleting…':'Delete wish'}</button></div>{error && <p role="alert" className="aura-error">{error}</p>}</Dialog>}
 
       {/* Edit Modal (renders globally) */}
