@@ -1,3 +1,5 @@
+import { compareWishesByPriority } from './priority.js';
+
 // Keep legacy data when available; older deployments intentionally deny that collection.
 export function wishTime(value) {
   if (typeof value?.toMillis === 'function') return value.toMillis();
@@ -17,8 +19,15 @@ export function subscribeWishSources(ownerIds, listen, onChange) {
   let active = true;
   const publish = () => {
     if (!active) return;
+    const all = sources.flatMap(source => source.items);
+    // Single user's wishlist is sorted by priority (#1, #2... then newest date).
+    // Multi-user feeds (dashboard activity) sort chronologically by newest activity.
+    const sorted = ids.length === 1
+      ? all.sort(compareWishesByPriority)
+      : all.sort((a, b) => wishTime(b.createdAt) - wishTime(a.createdAt));
+
     onChange({
-      items: sources.flatMap(source => source.items).sort((a, b) => wishTime(b.createdAt) - wishTime(a.createdAt)),
+      items: sorted,
       loading: sources.some(source => source.pending),
       error: sources.some(source => source.error)
     });

@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useOutletContext } from 'react-router-dom';
 import WishlistGrid from '../components/WishlistGrid';
 import AddWishModal from '../components/AddWishModal';
+import PrioritizeOrbitModal from '../components/PrioritizeOrbitModal';
 import { Plus, Search, Sparkles, Check } from 'lucide-react';
 
 const MyWishlist = () => {
@@ -13,6 +14,7 @@ const MyWishlist = () => {
   const [saved, setSaved] = useState(false);
   const {items, loading, error, retry} = useWishes([currentUser?.uid]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showPrioritizeModal, setShowPrioritizeModal] = useState(false);
 
 
   useEffect(() => {
@@ -32,7 +34,14 @@ const MyWishlist = () => {
     <div className="aura-enter" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       <div className="aura-wish-heading">
         <div><span className="aura-eyebrow"><Sparkles size={14} aria-hidden="true" /> Your universe</span><h2>What lights you up?</h2><p>Big dreams, little obsessions, and everything in between.</p></div>
-        <button className="btn-primary" onClick={() => setShowAddModal(true)}><Plus size={18} aria-hidden="true" /> Add a wish</button>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          {items.length > 0 && (
+            <button className="btn-glossy" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={() => setShowPrioritizeModal(true)}>
+              <Sparkles size={16} aria-hidden="true" /> Prioritize list
+            </button>
+          )}
+          <button className="btn-primary" onClick={() => setShowAddModal(true)}><Plus size={18} aria-hidden="true" /> Add a wish</button>
+        </div>
       </div>
       <div className="aura-list-controls"><label className="aura-wish-search"><Search size={17} aria-hidden="true" /><input type="search" aria-label="Search your wishes" placeholder="Find your next obsession…" value={search} onChange={event => setSearch(event.target.value)} /></label><div className="aura-wish-count"><span>{filteredItems.length}</span> {filteredItems.length === 1 ? 'possibility' : 'possibilities'}</div></div>
       {error && <p role="alert" className="aura-error">Some wishes could not load. <button className="btn-glossy" onClick={retry}>Try again</button></p>}
@@ -42,7 +51,8 @@ const MyWishlist = () => {
         filteredItems.length === 0 && items.length > 0 ? <div className="glass-panel aura-empty-state"><Sparkles size={32} aria-hidden="true" /><h3>Still out there somewhere.</h3><p>No wishes match this search. Try a different word or occasion.</p><button className="btn-glossy" onClick={() => { setSearch(''); setActiveCategory('All'); }}>Show all my wishes</button></div> : <WishlistGrid items={filteredItems} isOwner={true} isGuest={false} onAddWish={items.length === 0 ? () => setShowAddModal(true) : undefined} />
       )}
 
-      {showAddModal && <AddWishModal onClose={() => setShowAddModal(false)} onAdded={() => setSaved(true)} />}
+      {showAddModal && <AddWishModal onClose={() => setShowAddModal(false)} onAdded={() => setSaved(true)} allWishes={items} />}
+      {showPrioritizeModal && <PrioritizeOrbitModal wishes={items} onClose={() => setShowPrioritizeModal(false)} />}
     {saved && <div role="status" className="aura-success-toast"><Check size={18} aria-hidden="true" /> Your wish is out in the universe.</div>}
     </div>
   );

@@ -1,7 +1,8 @@
 import React, { useState, useId } from 'react';
-import { ExternalLink, Edit2, Trash2, CheckCircle, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, CheckCircle, ChevronDown, ChevronUp, AlertTriangle, Sparkles } from 'lucide-react';
 import { db } from '../firebase';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getPriorityBadgeInfo, applyPriorityChange, isValidPriority } from '../utils/priority';
 import AddWishModal from './AddWishModal';
 import Dialog from './Dialog';
 import styles from './WishCard.module.css';
@@ -20,9 +21,12 @@ const WishCard = ({
   isOwner,
   isGuest = false,
   onUpdate,
-  onExternalClick
+  onExternalClick,
+  allWishes = []
 }) => {
   const bodyId = useId();
+  const priorityInfo = getPriorityBadgeInfo(item.priority);
+  const [priorityBusy, setPriorityBusy] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -73,8 +77,30 @@ const WishCard = ({
     } finally { setBusy(false); }
   };
 
+  const tierClass = priorityInfo?.tier === 'crown'
+    ? styles.crownCard
+    : priorityInfo?.tier === 'radiant'
+    ? styles.radiantCard
+    : priorityInfo?.tier === 'harmonic'
+    ? styles.harmonicCard
+    : '';
+
+  const handlePrioritySelect = async (e) => {
+    const raw = e.target.value;
+    const newRank = raw === '' ? null : Number(raw);
+    setPriorityBusy(true);
+    try {
+      await applyPriorityChange(db, allWishes, item.id, newRank);
+      if (onUpdate) onUpdate();
+    } catch (err) {
+      console.error('Failed to change priority', err);
+    } finally {
+      setPriorityBusy(false);
+    }
+  };
+
   return (
-    <div onPointerMove={handlePointerMove} data-expanded={isExpanded} className={`aura-enter ${styles.accordionCard} ${item.purchased ? styles.isClaimed : ''}`} style={{
+    <div onPointerMove={handlePointerMove} data-expanded={isExpanded} className={`aura-enter ${styles.accordionCard} ${tierClass} ${item.purchased ? styles.isClaimed : ''}`} style={{
       opacity: item.purchased ? 0.6 : 1,
     }}>
 
@@ -98,11 +124,19 @@ const WishCard = ({
           {theme.icon}
         </span>
 
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              {item.theme || 'Wish'}
+            </span>
+            {priorityInfo && (
+              <span className={`${styles.priorityBadge} ${styles[priorityInfo.className] || ''}`}>
+                <span>{priorityInfo.icon}</span>
+                <span>{priorityInfo.fullLabel}</span>
+              </span>
+            )}
+          </div>
           <h3 className="chromatic-text" style={{ fontSize: '1.4rem', margin: 0, lineHeight: 1.2, overflowWrap: 'anywhere' }}>{item.name}</h3>
-          <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-            {item.theme || 'Wish'}
-          </span>
         </div>
 
         {item.price && (
@@ -160,7 +194,27 @@ const WishCard = ({
 
             {/* Owner Actions */}
             {isOwner && !item.purchased && (
-              <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginLeft: 'auto' }}>
+                <div className={styles.priorityControlGroup}>
+                  <label htmlFor={`priority-rank-${item.id}`} className={styles.priorityControlLabel}>
+                    <Sparkles size={13} aria-hidden="true" /> Priority:
+                  </label>
+                  <select
+                    id={`priority-rank-${item.id}`}
+                    className={styles.prioritySelect}
+                    value={isValidPriority(item.priority) ? item.priority : ''}
+                    disabled={priorityBusy}
+                    onChange={handlePrioritySelect}
+                    aria-label={`Priority rank for ${item.name}`}
+                  >
+                    <option value="">None</option>
+                    {Array.from({ length: Math.max(allWishes.length, 5) }, (_, i) => i + 1).map(rank => (
+                      <option key={rank} value={rank}>
+                        {rank === 1 ? '👑 #1 Dream' : rank === 2 ? '✨ #2 Most Wanted' : `💫 #${rank}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <button className="pill-badge aura-action" aria-label={`Edit ${item.name}`} onClick={() => setShowEditModal(true)} style={{ padding: '8px', cursor: 'pointer' }}><Edit2 size={16} aria-hidden="true" /> Edit</button>
                 <button className="pill-badge aura-action" aria-label={`Delete ${item.name}`} onClick={() => {setError('');setShowDeleteModal(true);}} style={{ padding: '8px', cursor: 'pointer', color: 'var(--color-danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }}><Trash2 size={16} aria-hidden="true" /> Delete</button>
               </div>
@@ -181,6 +235,7 @@ const WishCard = ({
             if (onUpdate) onUpdate();
           }}
           initialData={item}
+          allWishes={allWishes}
         />
       )}
 

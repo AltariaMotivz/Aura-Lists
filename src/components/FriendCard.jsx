@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { compareWishesByPriority } from '../utils/priority';
 import styles from './FriendCard.module.css';
 
 const THEME_ACCENTS = {
@@ -35,8 +36,8 @@ const FriendCard = ({ friend }) => {
         if (snapshot.empty) return;
 
         const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Client-side sort to avoid composite index requirements
-        items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // Client-side sort to prioritize top wish for the 3D hologram projection
+        items.sort(compareWishesByPriority);
         
         if (isMounted && items.length > 0) {
           setTopItem(items[0]);
