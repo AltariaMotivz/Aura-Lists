@@ -1,24 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Camera, Share2, Save, Edit2, Check, X } from 'lucide-react';
 import { db, app } from '../firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { displayName as readableName } from '../utils/profile';
 import { buildSearchableArray } from '../utils/search';
+import useFollowers from '../hooks/useFollowers';
 
-export function ProfilePanel({ profile, isOwner, onSave, onPhoto, onShare, busy = false, error = '', notice = '', preview = false }) {
+export function ProfilePanel({ profile, isOwner, onSave, onPhoto, onShare, busy = false, error = '', notice = '', preview = false, followersCount = 0, followingCount = 0 }) {
   const [editing,setEditing]=useState(false);
   const [name,setName]=useState(profile?.displayName || '');
   const [username,setUsername]=useState(profile?.username || '');
   const begin = () => {setName(profile?.displayName || '');setUsername(profile?.username || '');setEditing(true);};
   const save = async event => {event.preventDefault();if(await onSave({displayName:name.trim(),username:username.trim().replace(/^@/,'').toLowerCase()})) setEditing(false);};
-  return <section className="glass-panel universe-profile aura-enter"><span className="aura-eyebrow">{isOwner?'Your signature':'In your orbit'}</span><div className="universe-profile-identity"><span className="universe-avatar universe-profile-avatar">{profile?.photoURL ? <img src={profile.photoURL} alt="" /> : readableName(profile?.displayName).charAt(0)}</span><div><h2>{profile?.displayName ? readableName(profile.displayName) : 'Make yourself known.'}</h2><p>{profile?.username ? `@${profile.username}` : 'Add a name and username so friends can find you.'}</p></div></div><div className="universe-actions">{isOwner && <><button className="btn-glossy" onClick={begin} disabled={busy}><Edit2 size={17} />Edit profile</button>{!preview && <label className="btn-glossy universe-photo-label"><Camera size={17} />{busy?'Please wait…':'Change photo'}<input type="file" accept="image/*" aria-label="Change profile photo" onChange={onPhoto} disabled={busy} /></label>}</>}<button className="btn-glossy" onClick={onShare} disabled={busy}><Share2 size={17} />{preview?'Try sharing':'Share my list'}</button></div>{editing && <form className="universe-profile-form" onSubmit={save}><label>Display name<input className="input-field" required maxLength={60} value={name} onChange={event=>setName(event.target.value)} /></label><label>Username<input className="input-field" required pattern="[A-Za-z0-9_]{3,30}" title="3–30 letters, numbers or underscores" value={username} onChange={event=>setUsername(event.target.value)} /></label><p>Friends can search for this name or username. Usernames aren’t guaranteed to be unique.</p><div className="universe-actions"><button className="btn-primary" disabled={busy || !name.trim()}><Save size={17} />{busy?'Saving…':'Save profile'}</button><button type="button" className="btn-glossy" onClick={()=>setEditing(false)} disabled={busy}><X size={17} />Cancel</button></div></form>}{error && <p role="alert" className="aura-error">{error}</p>}{notice && <p role="status" className="universe-notice"><Check size={17} />{notice}</p>}</section>;
+  return <section className="glass-panel universe-profile aura-enter"><span className="aura-eyebrow">{isOwner?'Your signature':'In your orbit'}</span><div className="universe-profile-identity"><span className="universe-avatar universe-profile-avatar">{profile?.photoURL ? <img src={profile.photoURL} alt="" /> : readableName(profile?.displayName).charAt(0)}</span><div><h2>{profile?.displayName ? readableName(profile.displayName) : 'Make yourself known.'}</h2><p>{profile?.username ? `@${profile.username}` : 'Add a name and username so friends can find you.'}</p><div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '10px' }}><Link to="/friends" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}><strong style={{ color: 'var(--color-accent-primary)', fontWeight: 700 }}>{followingCount}</strong><span style={{ color: 'var(--color-text-secondary)' }}>Following</span></Link><span style={{ color: 'var(--color-border)', fontSize: '0.8rem' }}>·</span><Link to="/friends" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}><strong style={{ color: 'var(--color-accent-primary)', fontWeight: 700 }}>{followersCount}</strong><span style={{ color: 'var(--color-text-secondary)' }}>Followers</span></Link></div></div></div><div className="universe-actions">{isOwner && <><button className="btn-glossy" onClick={begin} disabled={busy}><Edit2 size={17} />Edit profile</button>{!preview && <label className="btn-glossy universe-photo-label"><Camera size={17} />{busy?'Please wait…':'Change photo'}<input type="file" accept="image/*" aria-label="Change profile photo" onChange={onPhoto} disabled={busy} /></label>}</>}<button className="btn-glossy" onClick={onShare} disabled={busy}><Share2 size={17} />{preview?'Try sharing':'Share my list'}</button></div>{editing && <form className="universe-profile-form" onSubmit={save}><label>Display name<input className="input-field" required maxLength={60} value={name} onChange={event=>setName(event.target.value)} /></label><label>Username<input className="input-field" required pattern="[A-Za-z0-9_]{3,30}" title="3–30 letters, numbers or underscores" value={username} onChange={event=>setUsername(event.target.value)} /></label><p>Friends can search for this name or username. Usernames aren’t guaranteed to be unique.</p><div className="universe-actions"><button className="btn-primary" disabled={busy || !name.trim()}><Save size={17} />{busy?'Saving…':'Save profile'}</button><button type="button" className="btn-glossy" onClick={()=>setEditing(false)} disabled={busy}><X size={17} />Cancel</button></div></form>}{error && <p role="alert" className="aura-error">{error}</p>}{notice && <p role="status" className="universe-notice"><Check size={17} />{notice}</p>}</section>;
 }
 export default function ProfileSidebar({profile,isOwner=false}) {
   const {currentUser,setUserProfile}=useAuth();
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
   const [notice,setNotice]=useState('');
+  const [followingCount,setFollowingCount]=useState(0);
+
+  const uid = profile?.uid || currentUser?.uid;
+  const { followers } = useFollowers(uid);
+
+  useEffect(() => {
+    if (!uid) return;
+    const unsub = onSnapshot(collection(db, 'users', uid, 'friends'), (snap) => {
+      setFollowingCount(snap.docs.length);
+    }, () => {});
+    return () => unsub();
+  }, [uid]);
+
   const save = async updates => {
     if(!currentUser) return false;
     setBusy(true);setError('');setNotice('');
@@ -42,5 +57,5 @@ export default function ProfileSidebar({profile,isOwner=false}) {
     try {if(navigator.share) await navigator.share({title:`${profile?.displayName || 'My'} Aura List`,url});else {await navigator.clipboard.writeText(url);setNotice('List link copied. Friends will need to sign in to view it.');}}
     catch(err){if(err.name!=='AbortError')setError('Could not share the link. Please try again.');}
   };
-  return <ProfilePanel profile={profile} isOwner={isOwner} onSave={save} onPhoto={photo} onShare={share} busy={busy} error={error} notice={notice} />;
+  return <ProfilePanel profile={profile} isOwner={isOwner} onSave={save} onPhoto={photo} onShare={share} busy={busy} error={error} notice={notice} followersCount={followers.length} followingCount={followingCount} />;
 }

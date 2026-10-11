@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Wand2, Sun, Moon, LogOut, Palette, X } from 'lucide-react';
 import Dialog from './Dialog';
 import AppearanceSettings from './AppearanceSettings';
+import NotificationBell from './NotificationBell';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { EnergyToggle } from './AuraExperience';
@@ -61,6 +62,7 @@ const GlobalNav = () => {
       {/* Grouped Actions Cluster */}
       <div className="aura-header-tools" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--color-glass-bg)', padding: '0.5rem', borderRadius: '32px', backdropFilter: 'blur(16px)', border: '1px solid var(--color-border)' }}>
         
+        <NotificationBell />
         <EnergyToggle />
         <button className="aura-icon" aria-label="Choose appearance" onClick={()=>setAppearanceOpen(true)}><Palette size={18}/></button>
         <button 

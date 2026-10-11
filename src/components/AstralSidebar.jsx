@@ -28,7 +28,7 @@ const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFrie
         <NavLink to="/my-wishlist" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
           <Gift size={18} /> My Wishlist
         </NavLink>
-        <NavLink to="/friends" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}><Users size={18} /> My Friends</NavLink>
+        <NavLink to="/friends" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}><Users size={18} /> Following</NavLink>
         <NavLink to="/profile" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}><UserRound size={18} /> My Profile</NavLink>
       </div>
 
@@ -53,11 +53,11 @@ const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFrie
       <div className={styles.divider} />
 
       <div className={`${styles.friendsSection} universe-sidebar-friends`}>
-        <h3 className={styles.sectionTitle}><Users size={16} /> Friends</h3>
+        <h3 className={styles.sectionTitle}><Users size={16} /> Following</h3>
         {loadingFriends ? (
-          <p className={styles.loadingText}>Summoning friends...</p>
+          <p className={styles.loadingText}>Summoning following...</p>
         ) : friends.length === 0 ? (
-          <p className={styles.emptyText}>No friends yet.</p>
+          <p className={styles.emptyText}>Not following anyone yet.</p>
         ) : (
           <div className={styles.friendsList}>
             {friends.map(friend => (
