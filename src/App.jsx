@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { db } from './firebase';
-import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, onSnapshot } from 'firebase/firestore';
 import AuthGateway from './components/AuthGateway';
 import GlobalNav from './components/GlobalNav';
 import MobileNavigation from './components/MobileNavigation';
@@ -55,6 +55,14 @@ const AppLayout = () => {
         });
         setFriends(validFriends);
         setLoadingFriends(false);
+
+        // Background self-healing: ensure follower record exists for each friend currentUser follows
+        snapshot.docs.forEach(d => {
+          setDoc(doc(db, 'users', d.id, 'followers', currentUser.uid), {
+            followerId: currentUser.uid,
+            followedAt: d.data().addedAt || new Date().toISOString()
+          }, { merge: true }).catch(() => {});
+        });
       }
     }, (error) => {
       console.error("Error fetching friends:", error);
