@@ -6,6 +6,7 @@ import { Sparkles, ArrowRight } from 'lucide-react';
 import { auth, db } from '../firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { buildSearchableArray } from '../utils/search';
 
 const AuthGateway = () => {
   const [showPreview, setShowPreview] = useState(false);
@@ -75,12 +76,13 @@ const AuthGateway = () => {
       const userRef = doc(db, 'users', user.uid);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
+        const profile = { displayName: '', username: '' };
         await setDoc(userRef, {
           phoneNumber: user.phoneNumber,
           createdAt: new Date().toISOString(),
-          displayName: '',
-          username: '',
-          searchableArray: []
+          ...profile,
+          // Always derived from the fields above so new accounts are searchable as soon as they have a name.
+          searchableArray: buildSearchableArray(profile.displayName, profile.username)
         });
       }
     } catch (err) {

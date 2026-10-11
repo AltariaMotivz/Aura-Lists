@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { buildSearchableArray, searchableArrayMatches } from '../utils/search';
 
 const AuthContext = createContext();
 
@@ -20,7 +21,15 @@ export const AuthProvider = ({ children }) => {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setUserProfile(docSnap.data());
+          const profile = docSnap.data();
+          setUserProfile(profile);
+          // Backfill the friend-search index for accounts created before it existed.
+          const searchableArray = buildSearchableArray(profile.displayName, profile.username);
+          if (!searchableArrayMatches(profile.searchableArray, searchableArray)) {
+            updateDoc(docRef, { searchableArray })
+              .then(() => setUserProfile(previous => (previous ? { ...previous, searchableArray } : previous)))
+              .catch(() => {});
+          }
         } else {
           setUserProfile(null);
         }

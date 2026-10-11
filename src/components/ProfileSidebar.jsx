@@ -4,8 +4,8 @@ import { db, app } from '../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { displayName as readableName } from '../utils/profile';
+import { buildSearchableArray } from '../utils/search';
 
-const prefixes = (...values) => [...new Set(values.flatMap(value=>Array.from({length:value.length},(_,i)=>value.toLowerCase().slice(0,i+1))))];
 export function ProfilePanel({ profile, isOwner, onSave, onPhoto, onShare, busy = false, error = '', notice = '', preview = false }) {
   const [editing,setEditing]=useState(false);
   const [name,setName]=useState(profile?.displayName || '');
@@ -22,7 +22,7 @@ export default function ProfileSidebar({profile,isOwner=false}) {
   const save = async updates => {
     if(!currentUser) return false;
     setBusy(true);setError('');setNotice('');
-    try {const changes={...updates,searchableArray:prefixes(updates.displayName,updates.username)};await updateDoc(doc(db,'users',currentUser.uid),changes);setUserProfile(previous=>({...previous,...changes}));setNotice('Your signature is saved.');return true;}
+    try {const changes={...updates,searchableArray:buildSearchableArray(updates.displayName,updates.username)};await updateDoc(doc(db,'users',currentUser.uid),changes);setUserProfile(previous=>({...previous,...changes}));setNotice('Your signature is saved.');return true;}
     catch {setError('Your profile could not be saved. Please try again.');return false;}
     finally {setBusy(false);}
   };
