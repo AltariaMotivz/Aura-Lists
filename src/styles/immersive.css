@@ -179,7 +179,20 @@
 .universe-confirm-icon { color: var(--color-accent-primary); margin-bottom: 20px; }
 @media (hover:hover) and (pointer:fine) { .universe-friend-card:hover { transform: translateY(-4px); border-color: rgba(var(--aura-accent-rgb),.4); box-shadow: 0 16px 40px rgba(0,0,0,.2); } .universe-orbit > a:hover .universe-avatar, .universe-orbit > button:hover .universe-avatar { transform: translateY(-5px); box-shadow: 0 0 35px rgba(var(--aura-secondary-rgb),.3); } }
 @media (max-width: 900px) { .universe-sidebar { padding: 12px !important; } .universe-sidebar > div:first-child { flex-direction: row; flex-wrap: wrap; gap: 4px; } .universe-sidebar > div:first-child a { flex: 1 1 120px; font-size: .8rem; justify-content: center; padding: 10px 8px; } .universe-sidebar-friends { display: none !important; } .universe-sidebar > div:last-of-type:not(.universe-sidebar-friends) { display: none; } .universe-sidebar-filters { padding: 0 6px; } }
-@media (max-width: 600px) { .universe-stats { grid-template-columns: 1fr 1fr; } .universe-stat-invitation { grid-column: 1 / -1; } .universe-stats > div { padding: 18px; } .universe-profile { padding: 24px; } .universe-profile-identity { gap: 16px; } .universe-profile-avatar { width: 72px; height: 72px; font-size: 2rem; } .universe-profile-tip { padding: 22px; } .universe-friend-banner { padding: 18px; } .universe-friend-banner > svg { display: none; } }
+@media (max-width: 600px) {
+  .universe-stats { grid-template-columns: 1fr 1fr; }
+  .universe-stat-invitation { grid-column: 1 / -1; }
+  .universe-stats > div { padding: 18px; }
+  .universe-profile { padding: 24px; }
+  .universe-profile-identity { gap: 16px; }
+  .universe-profile-avatar { width: 72px; height: 72px; font-size: 2rem; }
+  .universe-profile-tip { padding: 22px; }
+  .universe-friend-banner { padding: 18px; }
+  .universe-friend-banner > svg { display: none; }
+  .universe-friends-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .universe-friend-card { padding: 14px 14px !important; border-radius: 18px !important; gap: 12px !important; }
+  .universe-friend-card .universe-avatar { width: 44px !important; height: 44px !important; font-size: 1.1rem !important; }
+}
 @media (prefers-reduced-motion: reduce) { .universe-friend-card:hover, .universe-orbit > a:hover .universe-avatar, .universe-orbit > button:hover .universe-avatar { transform: none; } }
 .universe-preview { width: min(1040px,calc(100% - 32px)); }
 .universe-preview-tabs button { display: flex; align-items: center; gap: 7px; }

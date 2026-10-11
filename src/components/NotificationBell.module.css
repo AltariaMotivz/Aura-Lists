@@ -1,0 +1,279 @@
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bellButton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bellButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(var(--aura-accent-rgb), 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(var(--aura-accent-rgb), 0.25);
+}
+
+.bellButton:active {
+  transform: scale(0.95);
+}
+
+.unreadBadge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #f43f5e, #ec4899);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.7);
+  border: 2px solid var(--surface-strong);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999;
+  animation: backdropFade 0.2s ease-out;
+}
+
+.popover {
+  position: fixed;
+  z-index: 1000;
+  background: var(--surface-strong);
+  backdrop-filter: blur(30px) saturate(140%);
+  -webkit-backdrop-filter: blur(30px) saturate(140%);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-lg, 24px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(var(--aura-accent-rgb), 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: popoverEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-glass-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerTitle h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.closeButton {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.closeButton:hover {
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+}
+
+.emptyState {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.emptyOrb {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(var(--aura-accent-rgb), 0.08);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 0.75rem;
+  border: 1px solid rgba(var(--aura-accent-rgb), 0.2);
+  color: var(--color-accent-primary);
+}
+
+.emptyState strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.25rem;
+  font-family: var(--font-heading);
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.notifItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.notifItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.notifItemUnread {
+  background: linear-gradient(90deg, rgba(var(--aura-accent-rgb), 0.08), rgba(var(--aura-alt-rgb), 0.04));
+}
+
+.avatarContainer {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-border);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatarContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.followIconBadge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--surface-strong);
+}
+
+.notifContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.notifText {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.notifMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2px;
+}
+
+.notifHandle {
+  font-size: 0.75rem;
+  color: var(--color-accent-primary);
+}
+
+.notifTime {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-primary);
+  box-shadow: 0 0 8px var(--color-accent-primary);
+  flex-shrink: 0;
+}
+
+@keyframes backdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popoverEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -55,12 +55,13 @@ export default function Friends() {
         className="aura-filter-tabs"
         role="tablist"
         aria-label="Social connections"
-        style={{ marginBottom: '1.75rem', display: 'flex', gap: '8px' }}
+        style={{ marginBottom: '1.75rem', display: 'flex', gap: '8px', width: '100%' }}
       >
         <button
           role="tab"
           aria-selected={activeTab === 'following'}
           aria-pressed={activeTab === 'following'}
+          style={{ flex: '1 1 0', minWidth: '0', justifyContent: 'center', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           onClick={() => {
             setActiveTab('following');
             setSearch('');
@@ -73,6 +74,7 @@ export default function Friends() {
           role="tab"
           aria-selected={activeTab === 'followers'}
           aria-pressed={activeTab === 'followers'}
+          style={{ flex: '1 1 0', minWidth: '0', justifyContent: 'center', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           onClick={() => {
             setActiveTab('followers');
             setSearch('');
