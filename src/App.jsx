@@ -12,6 +12,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Friends = lazy(() => import('./pages/Friends'));
 const Profile = lazy(() => import('./pages/Profile'));
 const MyWishlist = lazy(() => import('./pages/MyWishlist'));
+const Archive = lazy(() => import('./pages/Archive'));
 const FriendWishlist = lazy(() => import('./pages/FriendWishlist'));
 import AuraExperience from './components/AuraExperience';
 import './index.css';
@@ -129,6 +130,8 @@ const AppContent = () => {
           <Route path="/friends" element={<Friends />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-wishlist" element={<MyWishlist />} />
+          <Route path="/archive" element={<Archive />} />
+          <Route path="/received-gifts" element={<Navigate to="/archive" replace />} />
           <Route path="/friend/:friendId" element={<FriendWishlist />} />
         </Route>
         

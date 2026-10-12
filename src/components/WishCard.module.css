@@ -203,3 +203,35 @@
   background: #141419;
   color: #ffffff;
 }
+
+/* --- Archive & Received State Styles --- */
+.isArchived {
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  background: linear-gradient(145deg, rgba(52, 211, 153, 0.05), rgba(167, 139, 250, 0.04), rgba(12, 16, 28, 0.75)) !important;
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.08), 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.isArchived:hover {
+  border-color: rgba(52, 211, 153, 0.5) !important;
+  box-shadow: 0 0 28px rgba(52, 211, 153, 0.16), 0 10px 34px rgba(0, 0, 0, 0.38) !important;
+}
+
+.receivedBadge {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.18), rgba(16, 185, 129, 0.12));
+  border: 1px solid rgba(52, 211, 153, 0.38);
+  color: #6ee7b7;
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+}
+
+.receivedDatePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #a7f3d0;
+  background: rgba(52, 211, 153, 0.08);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(52, 211, 153, 0.22);
+}
+

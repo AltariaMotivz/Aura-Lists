@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import styles from './AstralSidebar.module.css';
-import { LayoutDashboard, Gift, Filter, Users, UserRound } from 'lucide-react';
+import { LayoutDashboard, Gift, Filter, Users, UserRound, Archive } from 'lucide-react';
 
 const CATEGORIES = ['All', 'Birthday', 'Wedding', 'Holiday', 'Tech', 'Books'];
 
@@ -17,7 +17,7 @@ const formatDisplayName = (nameOrPhone) => {
 
 const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFriends }) => {
   const location = useLocation();
-  const showFilters = location.pathname === '/my-wishlist' || location.pathname.startsWith('/friend/');
+  const showFilters = location.pathname === '/my-wishlist' || location.pathname === '/archive' || location.pathname.startsWith('/friend/');
   return (
     <aside className={`${styles.astralMonolith} universe-sidebar`}>
       
@@ -27,6 +27,9 @@ const AstralSidebar = ({ activeCategory, setActiveCategory, friends, loadingFrie
         </NavLink>
         <NavLink to="/my-wishlist" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
           <Gift size={18} /> My Wishlist
+        </NavLink>
+        <NavLink to="/archive" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
+          <Archive size={18} /> Gift Archive
         </NavLink>
         <NavLink to="/friends" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}><Users size={18} /> Following</NavLink>
         <NavLink to="/profile" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}><UserRound size={18} /> My Profile</NavLink>

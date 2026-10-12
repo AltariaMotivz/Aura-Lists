@@ -2,18 +2,20 @@ import React from 'react';
 import WishCard from './WishCard';
 import { isValidPriority } from '../utils/priority';
 
-const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, cardClassName, onAddWish }) => {
+const WishlistGrid = ({ items, isOwner, isGuest, onUpdate, onExternalClick, cardClassName, onAddWish, isArchiveView = false }) => {
   if (!items || items.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--color-text-secondary)' }}>
-        <p style={{ fontSize: '1.2rem', fontFamily: 'var(--font-heading)' }}>A little space for big dreams.</p>
-        {isOwner && <p>Save that thing you keep thinking about.</p>}
-        {isOwner && onAddWish && <button className="btn-primary" style={{ marginTop: '1.5rem' }} onClick={onAddWish}>+ Add your first wish</button>}
+        <p style={{ fontSize: '1.2rem', fontFamily: 'var(--font-heading)' }}>
+          {isArchiveView ? 'Your treasure vault is quiet.' : 'A little space for big dreams.'}
+        </p>
+        {isOwner && !isArchiveView && <p>Save that thing you keep thinking about.</p>}
+        {isOwner && onAddWish && !isArchiveView && <button className="btn-primary" style={{ marginTop: '1.5rem' }} onClick={onAddWish}>+ Add your first wish</button>}
       </div>
     );
   }
 
-  const hasPrioritized = items.some(i => isValidPriority(i.priority));
+  const hasPrioritized = !isArchiveView && items.some(i => isValidPriority(i.priority));
 
   return (
     <div style={{
