@@ -82,6 +82,23 @@ export async function unfollowUser(currentUserId, targetUserId) {
 }
 
 /**
+ * Removes a follower from the current user's Followers list (forces them to unfollow).
+ * Deletes BOTH sides of the relationship in a single atomic batch:
+ * 1. users/{currentUserId}/followers/{followerId}  (my followers list)
+ * 2. users/{followerId}/friends/{currentUserId}    (their following list)
+ * Both must go, otherwise the follower's client self-heals the follower doc
+ * from their 'friends' list. No notification is sent.
+ */
+export async function removeFollower(currentUserId, followerId) {
+  if (!currentUserId || !followerId || currentUserId === followerId) return;
+  const { db, doc, writeBatch } = await getFirestoreTools();
+  const batch = writeBatch(db);
+  batch.delete(doc(db, 'users', currentUserId, 'followers', followerId));
+  batch.delete(doc(db, 'users', followerId, 'friends', currentUserId));
+  await batch.commit();
+}
+
+/**
  * Marks a single notification as read.
  */
 export async function markNotificationAsRead(userId, notificationId) {

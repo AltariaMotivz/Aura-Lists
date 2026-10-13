@@ -25,7 +25,9 @@ service cloud.firestore {
       // Friends / Following subcollection: User manages their own following list
       match /friends/{friendId} {
         allow read: if true;
-        allow write: if isOwner(userId);
+        allow create, update: if isOwner(userId);
+        // Owner can unfollow; the followed user (friendId) can remove this follower.
+        allow delete: if isOwner(userId) || (isAuthenticated() && request.auth.uid == friendId);
       }
 
       // Followers subcollection: Other users can register themselves as followers

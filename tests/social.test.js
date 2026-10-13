@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatRelativeTime } from '../src/utils/social.js';
+import { formatRelativeTime, removeFollower } from '../src/utils/social.js';
 
 test('formatRelativeTime returns accurate relative times', () => {
   const now = Date.now();
@@ -14,4 +14,10 @@ test('formatRelativeTime returns accurate relative times', () => {
   assert.equal(formatRelativeTime(null), '');
   assert.equal(formatRelativeTime(undefined), '');
   assert.equal(formatRelativeTime('invalid-date'), '');
+});
+
+test('removeFollower is a no-op for missing IDs or self-removal (never touches Firestore)', async () => {
+  assert.equal(await removeFollower('', 'b'), undefined);
+  assert.equal(await removeFollower('a', ''), undefined);
+  assert.equal(await removeFollower('a', 'a'), undefined);
 });

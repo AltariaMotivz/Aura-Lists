@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
-import { Users, Sparkles, UserPlus, Check, ArrowUpRight, Search } from 'lucide-react';
+import { Users, Sparkles, UserPlus, Check, ArrowUpRight, Search, UserX } from 'lucide-react';
 import { PageHeading, EmptyScene, FriendDirectory } from '../components/UniverseScene';
 import FindFriendDialog from '../components/FindFriendDialog';
 import SkeletonGrid from '../components/SkeletonGrid';
+import Dialog from '../components/Dialog';
 import { useAuth } from '../contexts/AuthContext';
 import useFollowers from '../hooks/useFollowers';
 import { displayName } from '../utils/profile';
-import { followUser } from '../utils/social';
+import { followUser, removeFollower } from '../utils/social';
 
 export default function Friends() {
   const { currentUser } = useAuth();
@@ -19,6 +20,30 @@ export default function Friends() {
   const [finding, setFinding] = useState(false);
   const [followingBackId, setFollowingBackId] = useState(null);
   const [followBackError, setFollowBackError] = useState('');
+  const [pendingRemoval, setPendingRemoval] = useState(null); // follower object awaiting confirmation
+  const [removing, setRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState('');
+
+  const closeRemoveDialog = () => {
+    if (removing) return;
+    setPendingRemoval(null);
+    setRemoveError('');
+  };
+
+  const handleConfirmRemove = async () => {
+    if (!currentUser || !pendingRemoval) return;
+    setRemoving(true);
+    setRemoveError('');
+    try {
+      // useFollowers' onSnapshot listener drops them from the list and count instantly.
+      await removeFollower(currentUser.uid, pendingRemoval.id);
+      setPendingRemoval(null);
+    } catch {
+      setRemoveError('Could not remove this follower. Please try again.');
+    } finally {
+      setRemoving(false);
+    }
+  };
 
   const handleFollowBack = async (followerId) => {
     if (!currentUser || followingBackId) return;
@@ -231,6 +256,15 @@ export default function Friends() {
                       >
                         <ArrowUpRight size={18} />
                       </Link>
+                      <button
+                        type="button"
+                        className="aura-remove-follower"
+                        aria-label={`Remove ${displayName(follower.displayName)} from your followers`}
+                        onClick={() => { setRemoveError(''); setPendingRemoval(follower); }}
+                      >
+                        <UserX size={13} aria-hidden="true" />
+                        <span>Remove</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -256,6 +290,34 @@ export default function Friends() {
           friends={friends}
           onClose={() => setFinding(false)}
         />
+      )}
+
+      {pendingRemoval && (
+        <Dialog onClose={closeRemoveDialog} labelledBy="remove-follower-title" className="aura-remove-follower-dialog">
+          <span className="universe-avatar aura-remove-follower-avatar" aria-hidden="true">
+            {pendingRemoval.photoURL ? (
+              <img src={pendingRemoval.photoURL} alt="" />
+            ) : (
+              displayName(pendingRemoval.displayName).charAt(0)
+            )}
+          </span>
+          <h2 id="remove-follower-title">
+            Remove {displayName(pendingRemoval.displayName)} from your followers?
+          </h2>
+          <p className="aura-preview-description">
+            They won’t be notified. They’ll stop following your list, and can follow you again later.
+          </p>
+          <div className="universe-actions">
+            <button type="button" className="btn-glossy" onClick={closeRemoveDialog} disabled={removing}>
+              Keep follower
+            </button>
+            <button type="button" className="btn-primary universe-danger" onClick={handleConfirmRemove} disabled={removing}>
+              <UserX size={16} aria-hidden="true" />
+              {removing ? 'Removing…' : 'Remove'}
+            </button>
+          </div>
+          {removeError && <p role="alert" className="aura-error">{removeError}</p>}
+        </Dialog>
       )}
     </div>
   );
